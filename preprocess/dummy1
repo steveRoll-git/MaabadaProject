@@ -1,0 +1,10 @@
+mcro a_mc
+	inc r2
+	mov A, r1
+mcroend
+
+add r2, r1
+
+a_mc
+
+mov r1, r3
