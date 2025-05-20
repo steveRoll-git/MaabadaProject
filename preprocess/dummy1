@@ -1,3 +1,4 @@
+; Written here is thy comment that shan't thee deleted.
 mcro a_mc
 	inc r2
 	mov A, r1

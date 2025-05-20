@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
   in = fopen(argv[1], "r");
   out = fopen("output.asm", "w");
 
+  /*If Input file is Unavailable, exist.*/
   if (in == NULL) {
     fprintf(stderr, "Couldn't open Input File\n");
     exit(EXIT_FAILURE);
@@ -22,6 +23,12 @@ int main(int argc, char *argv[]) {
 
   while (!feof(in)) {
     fgets(line, MAX_LINE, in);
+
+    /* If line starts with this character, it means it's  a comment, ignore it and do not parse. */
+    if (*line == ';')
+      continue;
+
+
     printf("line: %s", line);
   }
 
