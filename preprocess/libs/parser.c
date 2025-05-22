@@ -38,10 +38,15 @@ int is_label(char *token) {
 
 /*FIXME: add global header file for MAX_LINE length, so i won't have to set it
  * manually here.*/
+
+/*TODO: There's a bug here that token equals to the label name even though we change its value everytime with strtok.*/
 void parse_line(char line[81]) {
   /* Does Line Contain Label? (Something like variable name)*/
+  printf("This is the Line we're working on: %s\n", line);
   char *token = strtok(line, " \t");
   char *label = NULL;
+  enum LINE_TYPE l_type;
+
   /*If The line contains semi-colon, we shall ignore it since it's a a
    * comment.*/
   if (*token == ';')
@@ -51,8 +56,24 @@ void parse_line(char line[81]) {
    * letter, it means the entire line was whitespaces, and we shall ignore it.*/
   if (*token == '\n')
     return;
+
+  printf("Executing Parser :) \n");
+  printf("Token Currently: %s\n", token);
+
   if (is_label(token)) {
-    memcpy(label, token, strlen(token) - 1);
-    printf("Label is: %s", label);
+    label = (char *)malloc(strlen(token));
+    strncpy(label, token, strlen(token) - 1); ;
+    printf("Label currently is : %s\n", label);
+
+    token = strtok(NULL, " \t");
   }
+
+  l_type = line_type(token);
+
+  while (token != NULL) {
+    printf("TOKEN: %s\n", token);
+    token = strtok(NULL, " \t");
+  }
+
+  free(label);
 }
