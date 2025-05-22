@@ -45,6 +45,10 @@ void parse_line(char line[81]) {
   /* Does Line Contain Label? (Something like variable name)*/
   char *token = strtok(line, " \t");
   char *label = NULL;
+  /*If The line contains semi-colon, we shall ignore it since it's a a
+   * comment.*/
+  if (*token == ';')
+    return;
 
   if (is_label(token)) {
     memcpy(label, token, strlen(token) - 1);
