@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define ASSERT(condition, message, is_critical)                                \
@@ -13,9 +14,6 @@ enum LINE_TYPE { INFORMATIVE, COMMAND, WHITESPACE, COMMENT, UNKNOWN };
 
 enum LINE_TYPE line_type(char *line) {
   int len = strlen(line);
-  if (*line == ';') {
-    return COMMENT;
-  }
 
   /*TODO: This function checks what types of command we're in, label has to be
      checked else where (since it's optional.) */
@@ -24,7 +22,7 @@ enum LINE_TYPE line_type(char *line) {
   //   return
   // }
 
-  else if (*line == '.') {
+  if (*line == '.') {
     /* This is  For  Informative sentence, for whenever we receieve */
     return INFORMATIVE;
   }
@@ -35,7 +33,6 @@ enum LINE_TYPE line_type(char *line) {
 
 int is_label(char *token) {
   int len = strlen(token);
-
   return *(token + (len - 1)) == ':';
 }
 
@@ -50,6 +47,10 @@ void parse_line(char line[81]) {
   if (*token == ';')
     return;
 
+  /* if after using strtok , the only letter we get out of it is the newline
+   * letter, it means the entire line was whitespaces, and we shall ignore it.*/
+  if (*token == '\n')
+    return;
   if (is_label(token)) {
     memcpy(label, token, strlen(token) - 1);
     printf("Label is: %s", label);
