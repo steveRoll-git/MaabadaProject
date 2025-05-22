@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "libs/parser.h"
+
 #define MAX_LINE 81
 
 int main(int argc, char *argv[]) {
   FILE *in = stdin, *out;
   char line[MAX_LINE];
+  char *token;
 
   if (argc < 2) {
     fprintf(stderr, "Usage %s input_file [output_file]\n", argv[0]);
@@ -25,11 +29,8 @@ int main(int argc, char *argv[]) {
     fgets(line, MAX_LINE, in);
 
     /* If line starts with this character, it means it's  a comment, ignore it and do not parse. */
-    if (*line == ';')
-      continue;
-
-
-    printf("line: %s", line);
+    printf("line: %s\n", line);
+    parse_line(line);
   }
 
   return EXIT_SUCCESS;
