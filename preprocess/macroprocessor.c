@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE 81
-
+#include "./parser.h"
 int main(int argc, char *argv[]) {
   FILE *in = stdin, *out;
   char line[MAX_LINE];

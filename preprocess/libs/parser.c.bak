@@ -1,8 +1,3 @@
-//
-// Created by Yontank on 23/05/2025.
-//
-#include "parser.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,8 +10,7 @@
     return 1;                                                                  \
   }
 
-
-enum LINYE { INFORMATIVE, COMMAND, WHITESPACE, COMMENT, UNKOWN };
+enum LINE_TYPE { INFORMATIVE, COMMAND, WHITESPACE, COMMENT, UNKNOWN };
 
 enum LINE_TYPE line_type(char *line) {
   int len = strlen(line);
@@ -37,35 +31,20 @@ enum LINE_TYPE line_type(char *line) {
   return UNKNOWN;
 }
 
-/*Shorted for Is Token Keyword?
- * Checks if a token's value is a known keyword that we've set inside the KEYWORDS values inside the parser.
- */
-int itk (char* token) {
-  int i = 0;
-  char *keywords[] =  {"mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"};
-  int size = sizeof(keywords) / sizeof(keywords[0]);
-
-  for (i = 0; i < size; i++)
-    printf("%s", keywords[i]);
-    if (!strcmp(token, keywords[i]))
-      return 1;
-
-  return 0;
-
-
-
-}
-
-
 int is_label(char *token) {
   int len = strlen(token);
-  return *(token + (len - 1)) == ':;
+  return *(token + (len - 1)) == ':';
 }
 
+/*FIXME: add global header file for MAX_LINE length, so i won't have to set it
+ * manually here.*/
+
 /*TODO: There's a bug here that token equals to the label name even though we change its value everytime with strtok.*/
-void parse_line(char line[MAX_LINE]) {
-  /* Does Line Contain Label? (Something like variable name  printf("This is the Line we're working on: %s\n", line); */
+void parse_line(char line[81]) {
+  /* Does Line Contain Label? (Something like variable name)*/
+  printf("This is the Line we're working on: %s\n", line);
   char *token = strtok(line, " \t");
+  char *label = NULL;
   enum LINE_TYPE l_type;
 
   /*If The line contains semi-colon, we shall ignore it since it's a a
@@ -78,27 +57,23 @@ void parse_line(char line[MAX_LINE]) {
   if (*token == '\n')
     return;
 
-  /**
-*  Check If String is A macro Initialization call
-*/
-  if (strcmp(token, "mcro") == 0) {
-    /*We Receieve second token (mcro name)*/
+  printf("Executing Parser :) \n");
+  printf("Token Currently: %s\n", token);
+
+  if (is_label(token)) {
+    label = (char *)malloc(strlen(token));
+    strncpy(label, token, strlen(token) - 1); ;
+    printf("Label currently is : %s\n", label);
+
     token = strtok(NULL, " \t");
-
-    /* Error! Our Entire line only contained the keyword mcro, we haven't gotten a name!*/
-    if (token == "\n"){
-      fprintf(stderr, "Mcro Initialization doesn't contain name.");
-      exit(EXIT_FAILURE);
-    }
-
-    /* Mcro's name is a known keyword, needs to return an error. */
-
-    if (itk(token)) {
-
-    }
-
-
-
   }
-}
 
+  l_type = line_type(token);
+
+  while (token != NULL) {
+    printf("TOKEN: %s\n", token);
+    token = strtok(NULL, " \t");
+  }
+
+  free(label);
+}
