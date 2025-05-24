@@ -1,0 +1,42 @@
+#include "datatypes.h"
+#include <stdio.h>
+#include <string.h>
+
+int llm_add(llm_t *head, char *name, long offset) {
+  if (head->next == NULL) {
+    head->next = (llm_t *)malloc(sizeof(llm_t));
+    head->next->macro.name = name;
+    head->next->macro.index = offset;
+    return 1;
+  }
+
+  else {
+    llm_t *temp = head->next;
+    head->next = (llm_t *)malloc(sizeof(llm_t));
+    head->next->macro.index = offset;
+    head->next->macro.name = name;
+    head->next->next = temp;
+    return 1;
+  }
+}
+
+long llm_contains(llm_t *head, char *name) {
+
+  llm_t *tmp = head;
+  while (tmp != NULL) {
+    if (!strcmp(name, tmp->macro.name)) {
+      return tmp->macro.index;
+    }
+    tmp = tmp->next;
+  }
+  return -1L;
+}
+
+void print_llm(llm_t *head) {
+  llm_t *temp = head;
+  while (temp != NULL) {
+    printf(" [\"%s\", %lu ] ->", temp->macro.name, temp ->macro.index);
+    temp = temp->next;
+  }
+  printf("\n");
+}
