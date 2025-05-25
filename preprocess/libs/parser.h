@@ -1,5 +1,18 @@
 
+#include "datatypes.h"
+#include <stdio.h>
+#define ASSERT(condition, message, is_critical)                                \
+  if (!(condition)) {                                                          \
+    printf("%s", message);                                                     \
+    if (is_critical)                                                           \
+      exit(1);                                                                 \
+    return 1;                                                                  \
+  }
+
+typedef enum {IN_MACRO, NORMAL, MCROEND} STATUS;
+  
 #define MAX_LINE 81
+
 /** Recieves a token from the user, which then gets analyzed to check which type
  * of line it is. Right now, there are 4 type of line 1) WhiteSpace line being
  * only filled with empty spaces 2) Comments, starting with semi-colon (;) 3)
@@ -9,10 +22,8 @@
  */
 void line_type(char *line);
 
-/* FIXME: add global header for MAX_LINE length.*/
-
 /** Receievs a Line of MAX_LENGTH size, and parses the information to check if
  * it's correct.*/
-void parse_line(char line[MAX_LINE]);
+STATUS parse_line(char line[MAX_LINE], llm_t* table_name, FILE* in, FILE* out);
 
-int itk (char* token);
+int itk(char *token);

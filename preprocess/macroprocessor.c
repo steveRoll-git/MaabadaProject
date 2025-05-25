@@ -1,13 +1,18 @@
+#include "./libs/datatypes.h"
 #include "libs/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "./parser.h"
 int main(int argc, char *argv[]) {
   FILE *in = stdin, *out;
   char line[MAX_LINE];
   char *token;
+  llm_t *macro_table = NULL;
+  int status = NORMAL;
+
+  macro_table = (llm_t *)malloc(sizeof(llm_t));
+  macro_table->macro.name = "";
 
   if (argc < 2) {
     fprintf(stderr, "Usage %s input_file [output_file]\n", argv[0]);
@@ -25,12 +30,20 @@ int main(int argc, char *argv[]) {
   }
 
   while (fgets(line, MAX_LINE, in) != NULL) {
-
     /* If line starts with this character, it means it's  a comment, ignore it
      * and do not parse. */
-    // printf("line: %s\n", line);
-    parse_line(line);
-  }
+    printf("Line: %s\n", line);
+    status = parse_line(line, macro_table, in, out);
 
+    if (status == IN_MACRO) {
+      do {
+        if (fgets(line, MAX_LINE, in) == NULL)
+          break;
+        printf("line: %s\n", line);
+      } while ((status = parse_line(line, macro_table, in, out)) != MCROEND);
+
+      print_llm(macro_table);
+    }
+  }
   return EXIT_SUCCESS;
 }

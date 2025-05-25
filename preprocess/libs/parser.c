@@ -50,21 +50,32 @@ int is_label(char *token) {
   return *(token + (len - 1)) == ':';
 }
 
-void parse_line(char line[MAX_LINE]) {
+STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
+                  FILE *out) {
   /* Does Line Contain Label? (Something like variable name  printf("This is the
    * Line we're working on: %s\n", line); */
-  char *token = strtok(line, " \t");
+  char *token = NULL;
   enum LINE_TYPE l_type;
-
+  
+/**FIXME:  This line must be after we check if the line's if we have whitespaces \ comments, 
+ * I'm having issues because of how strtok is implemented, i need to isolate those conditions*/
+  if (strchr(line, '\n') == NULL) {
+    printf("Line Before Exisiting: %s", line);
+    fprintf(stderr, "Line contains more than 80 characters.");
+    exit(EXIT_FAILURE);
+  }
+  token = strtok(line ," \t");
+  
   /*If The line contains semi-colon, we shall ignore it since it's a a
    * comment.*/
   if (*token == ';')
-    return;
+    return -1;
 
   /* if after using strtok , the only letter we get out of it is the newline
    * letter, it means the entire line was whitespaces, and we shall ignore it.*/
   if (*token == '\n')
-    return;
+    return -1;
+
 
   /* Check If String is A macro Initialization call */
   if (strcmp(token, "mcro") == 0) {
@@ -94,24 +105,38 @@ void parse_line(char line[MAX_LINE]) {
        (Macro Name, Line of file it starts).
      */
 
-    // if (llm_contains(head, token) != -1L){
-    //   fprintf(stderr, "Cannot Create Multiple Tokens with the same name\n");
-    //   exit(EXIT_FAILURE);
-    // }
+    if (llm_contains(macro_table, token) != -1L) {
+      fprintf(stderr, "Cannot Create Multiple Tokens with the same name\n");
+      exit(EXIT_FAILURE);
+    }
 
-    // long offset = ftell(in);
-    // llm_add(head, token, offset);
+    long offset = ftell(in);
+    llm_add(macro_table, token, offset);
 
-
+    if (strchr(token, '\n') != NULL) {
+      return IN_MACRO;
+    }
 
     token = strtok(NULL, " \t");
     /* Line Should only have two sets of data, (macro keyword and a name), if it
      * has more it means the line is invalid and execution must stop.*/
-    if (*token != '\n') {
+    if (token == NULL || *token != '\n') {
       fprintf(stderr, "Macro Initialization has extranous information.");
       exit(EXIT_FAILURE);
     }
     /*TODO: Check if the line is macro name or a keyword, doing two different
      * things for each one */
+    return IN_MACRO;
   }
+
+  if (strcmp(token, "mcroend") == 0) {
+    token = strtok(NULL, " \t");
+    if (*token != '\n') {
+      fprintf(stderr, "Line Contains Extranous Information");
+      exit(EXIT_FAILURE);
+    }
+    return MCROEND;
+  }
+
+  return NORMAL;
 }
