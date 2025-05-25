@@ -1,3 +1,3 @@
-preproc:  macroprocessor.c libs/parser.c.bak
-	gcc macroprocessor.c libs/parser.c -Wall -pedantic -o preproc
+preproc:  macroprocessor.c libs/parser.c libs/datatypes.c
+	gcc macroprocessor.c libs/parser.c libs/datatypes.c -Wall -pedantic -o preproc -g
 
