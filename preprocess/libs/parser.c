@@ -36,10 +36,11 @@ int itk(char *token) {
 
   int size = sizeof(keywords) / sizeof(keywords[0]);
 
-  for (i = 0; i < size; i++)
-    printf("%s", keywords[i]);
-  if (!strcmp(token, keywords[i]))
-    return 1;
+  for (i = 0; i < size; i++) {
+    // printf("%s", keywords[i]);
+    if (!strcmp(token, keywords[i]))
+      return 1;
+  }
 
   return 0;
 }
