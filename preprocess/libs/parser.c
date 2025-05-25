@@ -63,16 +63,16 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
    * whitespaces \ comments, I'm having issues because of how strtok is
    * implemented, i need to isolate those conditions*/
 
-  token = strtok(line, " \t");
+  token = strtok(line, " \t\n");
+
+  /* if after using strtok , the only letter we get out of it is the newline
+   * letter, it means the entire line was whitespaces, and we shall ignore it.*/
+  if (token == NULL)
+    return -1;
 
   /*If The line contains semi-colon, we shall ignore it since it's a a
    * comment.*/
   if (*token == ';')
-    return -1;
-
-  /* if after using strtok , the only letter we get out of it is the newline
-   * letter, it means the entire line was whitespaces, and we shall ignore it.*/
-  if (*token == '\n')
     return -1;
 
   if (strchr(lineD, '\n') == NULL) {
@@ -82,9 +82,9 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
   }
 
   /*TODO: if its a file name we already know.*/
-  if(llm_contains(macro_table, token)){
-    token = strtok(NULL, " \t");
-    if (token == NULL  || *token != '\n'){
+  if (llm_contains(macro_table, token) != -1L) {
+    token = strtok(NULL, " \t\n");
+    if (token != NULL) {
       fprintf(stderr, "Extranous information after macro call");
       exit(EXIT_FAILURE);
     }

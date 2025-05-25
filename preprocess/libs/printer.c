@@ -1,4 +1,3 @@
-
 #include "./parser.h"
 #include <string.h>
 
@@ -18,8 +17,10 @@ void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
   fgets(line, MAX_LINE, in);
+
   while (!strstr(line, "mcroend")) {
     if (should_print(line))
       fprintf(out, "%s", line);
+    fgets(line, MAX_LINE, in);
   }
 }

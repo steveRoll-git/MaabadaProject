@@ -1,4 +1,5 @@
 #include "./libs/datatypes.h"
+#include "./libs/printer.h"
 #include "libs/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,10 +54,17 @@ int main(int argc, char *argv[]) {
       fprintf(out, "%s", lineR);
     }
     if (status == MCALL){
-      token = strtok(lineR, " \t");
+      printf("Inside MCall\n");
+      token = strtok(lineR, " \t\n");
 
       long offset = llm_contains(macro_table, token);
-      // print_macro(output, offset);
+      FILE* temp = fopen(argv[1], "r");
+      if(fseek(temp, offset, SEEK_SET)){
+        fprintf(stderr, "fseek didn't work while trying to read file value");
+        exit(EXIT_FAILURE);
+      }
+      print_macro(out, temp);
+      fclose(temp);
 
     }
   }
