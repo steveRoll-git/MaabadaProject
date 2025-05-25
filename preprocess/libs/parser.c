@@ -56,16 +56,15 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
    * Line we're working on: %s\n", line); */
   char *token = NULL;
   enum LINE_TYPE l_type;
-  
-/**FIXME:  This line must be after we check if the line's if we have whitespaces \ comments, 
- * I'm having issues because of how strtok is implemented, i need to isolate those conditions*/
-  if (strchr(line, '\n') == NULL) {
-    printf("Line Before Exisiting: %s", line);
-    fprintf(stderr, "Line contains more than 80 characters.");
-    exit(EXIT_FAILURE);
-  }
-  token = strtok(line ," \t");
-  
+  char *lineD = (char *)malloc(MAX_LINE);
+  strcpy(lineD, line);
+
+  /**FIXME:  This line must be after we check if the line's if we have
+   * whitespaces \ comments, I'm having issues because of how strtok is
+   * implemented, i need to isolate those conditions*/
+
+  token = strtok(line, " \t");
+
   /*If The line contains semi-colon, we shall ignore it since it's a a
    * comment.*/
   if (*token == ';')
@@ -76,6 +75,21 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
   if (*token == '\n')
     return -1;
 
+  if (strchr(lineD, '\n') == NULL) {
+    printf("Line Before Exisiting: %s", line);
+    fprintf(stderr, "Line contains more than 80 characters.");
+    exit(EXIT_FAILURE);
+  }
+
+  /*TODO: if its a file name we already know.*/
+  if(llm_contains(macro_table, token)){
+    token = strtok(NULL, " \t");
+    if (token == NULL  || *token != '\n'){
+      fprintf(stderr, "Extranous information after macro call");
+      exit(EXIT_FAILURE);
+    }
+    return MCALL;
+  }
 
   /* Check If String is A macro Initialization call */
   if (strcmp(token, "mcro") == 0) {
@@ -129,14 +143,12 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
     return IN_MACRO;
   }
 
-  if (strcmp(token, "mcroend") == 0) {
+  if (!strcmp(token, "mcroend") || !strcmp(token, "mcroend\n")) {
     token = strtok(NULL, " \t");
-    if (*token != '\n') {
-      fprintf(stderr, "Line Contains Extranous Information");
+    if (token != NULL && *token != '\n') {
       exit(EXIT_FAILURE);
     }
     return MCROEND;
   }
-
   return NORMAL;
 }

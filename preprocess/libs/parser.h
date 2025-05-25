@@ -9,7 +9,7 @@
     return 1;                                                                  \
   }
 
-typedef enum {IN_MACRO, NORMAL, MCROEND} STATUS;
+typedef enum {IN_MACRO, NORMAL, MCROEND, MCALL} STATUS;
   
 #define MAX_LINE 81
 
