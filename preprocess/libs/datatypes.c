@@ -3,9 +3,16 @@
 #include <string.h>
 
 int llm_add(llm_t *head, char *name, long offset) {
+  int size = strlen(name);
+  if (name[size - 1] == '\n')
+    size--;
+
+  char *name_dup = (char *)malloc(size);
+
+  strncpy(name_dup, name, size);
   if (head->next == NULL) {
     head->next = (llm_t *)malloc(sizeof(llm_t));
-    head->next->macro.name = name;
+    head->next->macro.name = name_dup;
     head->next->macro.index = offset;
     return 1;
   }
@@ -14,7 +21,7 @@ int llm_add(llm_t *head, char *name, long offset) {
     llm_t *temp = head->next;
     head->next = (llm_t *)malloc(sizeof(llm_t));
     head->next->macro.index = offset;
-    head->next->macro.name = name;
+    head->next->macro.name = name_dup;
     head->next->next = temp;
     return 1;
   }
