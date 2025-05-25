@@ -42,7 +42,7 @@ long llm_contains(llm_t *head, char *name) {
 void print_llm(llm_t *head) {
   llm_t *temp = head;
   while (temp != NULL) {
-    printf(" [\"%s\", %lu ] ->", temp->macro.name, temp ->macro.index);
+    printf(" [\"%s\", %lu ] ->", temp->macro.name, temp->macro.index);
     temp = temp->next;
   }
   printf("\n");
