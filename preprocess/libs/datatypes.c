@@ -1,28 +1,28 @@
 #include "datatypes.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int llm_add(llm_t *head, char *name, long offset) {
   int size = strlen(name);
+  llm_t *temp;
 
-  char *name_dup = (char *)malloc(size);
-
-  strncpy(name_dup, name, size);
-  if (head->next == NULL) {
-    head->next = (llm_t *)malloc(sizeof(llm_t));
-    head->next->macro.name = name_dup;
-    head->next->macro.index = offset;
+  if (!strcmp(head->macro.name, "")) {
+    head->macro.name = name;
+    head->macro.index = offset;
     return 1;
   }
 
-  else {
-    llm_t *temp = head->next;
-    head->next = (llm_t *)malloc(sizeof(llm_t));
-    head->next->macro.index = offset;
-    head->next->macro.name = name_dup;
-    head->next->next = temp;
-    return 1;
-  }
+  llm_t *ptr = (llm_t *)malloc(sizeof(llm_t));
+
+  ptr->macro.index = offset;
+  ptr->macro.name = name;
+
+  temp = head->next;
+  head->next = ptr;
+  ptr->next = temp;
+
+  return 1;
 }
 
 long llm_contains(llm_t *head, char *name) {
