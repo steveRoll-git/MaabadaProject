@@ -87,15 +87,10 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
   if (*token == ';')
     return -1;
 
-  if (strchr(lineD, '\n') == NULL) {
-    printf("Line Before Exisiting: %s", line);
-    fprintf(stderr, "Line contains more than 80 characters.");
-    exit(EXIT_FAILURE);
-  }
 
   /*TODO: if its a file name we already know.*/
   if (llm_contains(macro_table, token) != -1L) {
-    token = strtok(NULL, " \t\n");
+    token = strtok(NULL, " \t");
     if (token != NULL) {
       fprintf(stderr, "Extranous information after macro call");
       exit(EXIT_FAILURE);
@@ -111,7 +106,7 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
 
     /* Error! Our Entire line only contained the keyword mcro, we haven't gotten
      * a name!*/
-    if (*token == '\n') {
+    if (token == NULL) {
       fprintf(stderr, "Mcro Initialization doesn't contain name.");
       exit(EXIT_FAILURE);
     }
@@ -146,7 +141,7 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
     token = strtok(NULL, " \t");
     /* Line Should only have two sets of data, (macro keyword and a name), if it
      * has more it means the line is invalid and execution must stop.*/
-    if (token == NULL || *token != '\n') {
+    if (token != NULL) {
       fprintf(stderr, "Macro Initialization has extranous information.");
       exit(EXIT_FAILURE);
     }
