@@ -75,7 +75,7 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
    * whitespaces \ comments, I'm having issues because of how strtok is
    * implemented, i need to isolate those conditions*/
 
-  token = strtok(line, " \t\n");
+  token = strtok(lineD, " \t");
 
   /* if after using strtok , the only letter we get out of it is the newline
    * letter, it means the entire line was whitespaces, and we shall ignore it.*/
