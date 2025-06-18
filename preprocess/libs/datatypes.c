@@ -4,8 +4,6 @@
 
 int llm_add(llm_t *head, char *name, long offset) {
   int size = strlen(name);
-  if (name[size - 1] == '\n')
-    size--;
 
   char *name_dup = (char *)malloc(size);
 

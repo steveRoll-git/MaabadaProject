@@ -135,10 +135,6 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
     long offset = ftell(in);
     llm_add(macro_table, token, offset);
 
-    if (strchr(token, '\n') != NULL) {
-      return IN_MACRO;
-    }
-
     token = strtok(NULL, " \t");
     /* Line Should only have two sets of data, (macro keyword and a name), if it
      * has more it means the line is invalid and execution must stop.*/
@@ -151,9 +147,9 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
     return IN_MACRO;
   }
 
-  if (!strcmp(token, "mcroend") || !strcmp(token, "mcroend\n")) {
+  if (!strcmp(token, "mcroend")) {
     token = strtok(NULL, " \t");
-    if (token != NULL && *token != '\n') {
+    if (token != NULL) {
       exit(EXIT_FAILURE);
     }
     return MCROEND;
