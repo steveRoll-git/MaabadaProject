@@ -127,7 +127,8 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
      */
 
     if (llm_contains(macro_table, token) != -1L) {
-      fprintf(stderr, "Cannot Create Multiple Tokens with the same name\n");
+      fprintf(stderr,
+              "Cannot Create Multiple Macro Names with the same name\n");
       exit(EXIT_FAILURE);
     }
 
