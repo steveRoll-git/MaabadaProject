@@ -59,6 +59,18 @@ STATUS parse_line(char line[MAX_LINE], llm_t *macro_table, FILE *in,
   char *lineD = (char *)malloc(MAX_LINE);
   strcpy(lineD, line);
 
+  char *newline_loc = strchr(lineD, '\n');
+
+  /* Get The new line chracter from the line, if it doesn't exist, it means the
+   * line was longer than 80 characters and needs to exit, otherwise, remove the
+   * newline.*/
+  if (!newline_loc) {
+    fprintf(stderr, "Line Should be less than 80 characters.");
+    exit(1);
+  }
+
+  *newline_loc = '\0';
+
   /**FIXME:  This line must be after we check if the line's if we have
    * whitespaces \ comments, I'm having issues because of how strtok is
    * implemented, i need to isolate those conditions*/
