@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+llm_t *llm_init() {
+  llm_t *head = (llm_t *)malloc(sizeof(llm_t));
+  head->macro.index = 0;
+  head->macro.name = "";
+  return head;
+}
+
 int llm_add(llm_t *head, char *name, long offset) {
   int size = strlen(name);
   llm_t *temp;

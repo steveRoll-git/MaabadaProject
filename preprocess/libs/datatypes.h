@@ -36,4 +36,6 @@ long llm_contains(llm_t *head, char* name);
 /**/
 void print_llm(llm_t* head);
 
+llm_t* llm_init();
+
 #endif

@@ -9,12 +9,9 @@ int main(int argc, char *argv[]) {
   FILE *in = stdin, *out;
   char line[MAX_LINE];
   char *token;
-  llm_t *macro_table = NULL;
   int status = NORMAL;
   char *lineR = (char *)malloc(MAX_LINE);
-
-  macro_table = (llm_t *)malloc(sizeof(llm_t));
-  macro_table->macro.name = "";
+  llm_t *macro_table = llm_init();
 
   if (argc < 2) {
     fprintf(stderr, "Usage %s input_file [output_file]\n", argv[0]);
@@ -53,19 +50,18 @@ int main(int argc, char *argv[]) {
     if (status == NORMAL) {
       fprintf(out, "%s", lineR);
     }
-    if (status == MCALL){
+    if (status == MCALL) {
       printf("Inside MCall\n");
       token = strtok(lineR, " \t\n");
 
       long offset = llm_contains(macro_table, token);
-      FILE* temp = fopen(argv[1], "r");
-      if(fseek(temp, offset, SEEK_SET)){
+      FILE *temp = fopen(argv[1], "r");
+      if (fseek(temp, offset, SEEK_SET)) {
         fprintf(stderr, "fseek didn't work while trying to read file value");
         exit(EXIT_FAILURE);
       }
       print_macro(out, temp);
       fclose(temp);
-
     }
   }
   return EXIT_SUCCESS;
