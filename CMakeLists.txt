@@ -10,6 +10,4 @@ add_executable(MaabadaProject
         preprocess/libs/datatypes.c
         preprocess/libs/parser.c
         preprocess/libs/parser.h
-        preprocess/libs/printer.c
-        preprocess/libs/printer.h
         preprocess/macroprocessor.c)

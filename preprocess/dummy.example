@@ -1,5 +1,0 @@
-; first example for easy stuff
-
-mov r1, r2
-
-lea r1, r2
