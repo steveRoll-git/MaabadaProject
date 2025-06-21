@@ -9,7 +9,7 @@ static const struct KEYWORD_INFO arr[] = {
     {DEC, DEC_VAL, ONE_ARG},  {JMP, JMP_VAL, ONE_ARG},
     {BNE, BNE_VAL, ONE_ARG},  {RED, RED_VAL, ONE_ARG},
     {PRN, PRN_VAL, ONE_ARG},  {JSR, JSR_VAL, ONE_ARG},
-    {RTS, RTS_VAL, NO_ARGS},  {STOP, NO_ARGS}};
+    {RTS, RTS_VAL, NO_ARGS},  {STOP, STOP_VAL, NO_ARGS}};
 
 const int keywords_length = sizeof(arr) / sizeof(struct KEYWORD_INFO);
 /*
@@ -18,7 +18,7 @@ const int keywords_length = sizeof(arr) / sizeof(struct KEYWORD_INFO);
  */
 int keyword_to_value(char *token) {
 
-  for (int i = 0; i < keywords_length ; i++) {
+  for (int i = 0; i < keywords_length; i++) {
     if (!strcmp(token, arr[i].name))
       return arr[i].value;
   }
