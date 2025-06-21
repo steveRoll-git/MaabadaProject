@@ -36,8 +36,8 @@ enum KEYWORD {
 
 enum ARGS { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 };
 
-struct KEYWORD_INFO {
+typedef struct KEYWORD_INFO {
   char *name;
-  KEYWORD value;
-  ARGS arg_amount;
-};
+  enum KEYWORD value;
+  enum ARGS arg_amount;
+} KEYWORD_INFO;
