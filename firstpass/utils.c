@@ -18,6 +18,8 @@ const int keywords_length = sizeof(arr) / sizeof(struct KEYWORD_INFO);
  * if the keyword given is NOT a known keyword, return -1.
  */
 int keyword_to_value(char *token) {
+  if (token == NULL)
+    return -1;
 
   for (int i = 0; i < keywords_length; i++) {
     if (!strcmp(token, arr[i].name))
@@ -27,9 +29,9 @@ int keyword_to_value(char *token) {
 }
 
 int is_assembly_command(char *token) {
-  if (token == NULL) {
+  if (token == NULL)
     return -1;
-  }
+
   for (int i = 0; i < keywords_length; i++) {
     if (!strcmp(token, arr[i].name))
       return 1;
