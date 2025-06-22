@@ -1,4 +1,5 @@
 #include "./data.h"
+#include <ctype.h>
 #include <string.h>
 
 static const struct KEYWORD_INFO arr[] = {
@@ -23,4 +24,41 @@ int keyword_to_value(char *token) {
       return arr[i].value;
   }
   return -1;
+}
+
+int is_assembly_command(char *token) {
+  if (token == NULL) {
+    return -1;
+  }
+  for (int i = 0; i < keywords_length; i++) {
+    if (!strcmp(token, arr[i].name))
+      return 1;
+  }
+  return 0;
+}
+
+int is_label(char *token) {
+  if (token == NULL)
+    return -1;
+
+  int length = strlen(token);
+
+  return token[length - 1] == ':';
+}
+
+int is_label_valid(char *label) {
+  /*Check1: Check if the FIRST character of the label is alphanumeric
+   * character*/
+  if (!(isalpha(*label)))
+    return -1;
+
+  /*TODO: Check2: Check if label isn't already used as macro name*/
+
+  /*TODO: Check3: Label name must be shown Once and only once.*/
+
+  /*Check4: Label can't be a keyword name*/
+  if (is_assembly_command(label) == 1)
+    return -1;
+
+  return 0;
 }
