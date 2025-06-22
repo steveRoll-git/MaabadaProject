@@ -59,41 +59,45 @@ int main(int argc, char *argv[]) {
   }
 
   while (!feof(in)) {
-    if (read_line(in, line)) {
-      status = parse_line(line, macro_name, 1);
+    if (read_line(in, line) == 0) {
+      return EXIT_FAILURE;
+    }
 
-      if (status == LINE_NORMAL) {
-        /* A line with no special meaning to the preprocessor. We output it as is. */
-        fprintf(out, "%s\n", line);
-      } else if (status == LINE_MCRO) {
-        /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next `mcroend`. */
-        long offset = ftell(in);
-        list_add(&macro_table, macro_name, offset);
-        print_list(&macro_table);
+    status = parse_line(line, macro_name, 1);
 
-        do {
-          if (!read_line(in, line)) {
-            return LINE_ERROR;
-          }
-          status = parse_line(line, macro_name, 0);
-        } while (status != LINE_MCROEND);
-      } else if (status == LINE_MACROCALL) {
-        /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
-        /* TODO check if macro has been defined? */
-        long offset = list_get(&macro_table, macro_name);
-        FILE *temp = fopen(argv[1], "r");
-        if (fseek(temp, offset, SEEK_SET)) {
-          fprintf(stderr, "fseek didn't work while trying to read macro");
-          exit(EXIT_FAILURE);
+    if (status == LINE_NORMAL) {
+      /* A line with no special meaning to the preprocessor. We output it as is. */
+      fprintf(out, "%s\n", line);
+    } else if (status == LINE_MCRO) {
+      /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next `mcroend`. */
+      long offset = ftell(in);
+      list_add(&macro_table, macro_name, offset);
+      print_list(&macro_table);
+
+      do {
+        if (!read_line(in, line)) {
+          return EXIT_FAILURE;
         }
-        print_macro(out, temp);
-        fclose(temp);
-      } else if (status == LINE_ERROR) {
-        /* TODO continue to next file */
+        status = parse_line(line, macro_name, 0);
+      } while (status != LINE_MCROEND);
+    } else if (status == LINE_MACROCALL) {
+      /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
+      long offset = list_get(&macro_table, macro_name);
+      if (offset == -1L) {
+        printf("No macro named '%s' has been defined.\n", macro_name);
         return EXIT_FAILURE;
       }
-    } else {
-      /* TODO should this stop here or continue? */
+
+      FILE *temp = fopen(argv[1], "r");
+      if (fseek(temp, offset, SEEK_SET)) {
+        fprintf(stderr, "fseek didn't work while trying to read macro");
+        exit(EXIT_FAILURE);
+      }
+
+      print_macro(out, temp);
+      fclose(temp);
+    } else if (status == LINE_ERROR) {
+      /* TODO continue to next file */
       return EXIT_FAILURE;
     }
   }
