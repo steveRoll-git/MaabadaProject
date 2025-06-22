@@ -14,7 +14,7 @@ typedef enum {
 #define MAX_LINE 81
 
 /* Parses the given line, and returns what kind of line it is. If the line is a macro definition or call, stores the macro's name in `macro_name`. */
-parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name);
+parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors);
 
 /* Returns whether the given string is the name of an assembly instruction. */
 int is_keyword(char *token);

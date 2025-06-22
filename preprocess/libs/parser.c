@@ -2,7 +2,6 @@
 
 #include <ctype.h>
 
-#include "./datatypes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,13 +24,6 @@ int is_keyword(char *token) {
   return 0;
 }
 
-/* Returns whether this line may be a macro call: Only contains letters and numbers. */
-int is_macro_call(char *line, char *macro_name) {
-  int i = 0;
-  sscanf(line, " %[^: ] %n", macro_name, &i);
-  return i == strlen(line);
-}
-
 int is_label(char *token) {
   int len = strlen(token);
   return *(token + (len - 1)) == ':';
@@ -42,6 +34,7 @@ int is_label(char *token) {
 /* Updates `str` so that it will point to the next character after the token that was read. */
 /* Returns 1 if a token was read, and 0 otherwise. */
 int read_token(char **str, char *token) {
+  /* TODO check for comment ; */
   /* Skip past leading spaces. */
   while (**str && isspace(**str)) {
     (*str)++;
@@ -68,7 +61,7 @@ int read_token(char **str, char *token) {
   return 1;
 }
 
-parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name) {
+parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors) {
   char token[MAX_LINE];
   char *cur_line = line;
 
@@ -80,18 +73,24 @@ parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name) {
   if (strcmp(token, "mcro") == 0) {
     /* A line that starts with `mcro` begins a macro definition. */
     if (!read_token(&cur_line, macro_name)) {
-      printf("Macro initialization doesn't contain name.\n");
+      if (print_errors) {
+        printf("Macro initialization doesn't contain name.\n");
+      }
       return LINE_ERROR;
     }
 
     if (read_token(&cur_line, NULL)) {
-      printf("Extraneous text after macro definition.\n");
+      if (print_errors) {
+        printf("Extraneous text after macro definition.\n");
+      }
       return LINE_ERROR;
     }
 
     /* Macro names cannot be keywords. */
     if (is_keyword(macro_name)) {
-      printf("Macro name cannot be keyword.\n");
+      if (print_errors) {
+        printf("Macro name cannot be keyword.\n");
+      }
       return LINE_ERROR;
     }
 
@@ -100,7 +99,9 @@ parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name) {
 
   if (strcmp(token, "mcroend") == 0) {
     if (read_token(&cur_line, NULL)) {
-      printf("Extraneous text after `mcroend`.\n");
+      if (print_errors) {
+        printf("Extraneous text after `mcroend`.\n");
+      }
       return LINE_ERROR;
     }
     return LINE_MCROEND;

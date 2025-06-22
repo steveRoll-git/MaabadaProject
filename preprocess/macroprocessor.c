@@ -1,4 +1,4 @@
-#include "./libs/datatypes.h"
+#include "../common/linked_list.h"
 #include "libs/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +18,7 @@ int read_line(FILE *file, char line[MAX_LINE]) {
       /* The line is longer than 80 characters - read everything until the next newline and return 0. */
       while ((c = getc(file)) != EOF && c != '\n') {
       }
+      printf("Error: Line is longer than 80 characters.\n");
       return 0;
     }
     line[count] = (char)c;
@@ -30,11 +31,8 @@ int read_line(FILE *file, char line[MAX_LINE]) {
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
-  fgets(line, MAX_LINE, in);
-
-  while (!strstr(line, "mcroend")) {
+  while (fgets(line, MAX_LINE, in) && parse_line(line, NULL, 0) != LINE_MCROEND ) {
     fprintf(out, "%s", line);
-    fgets(line, MAX_LINE, in);
   }
 }
 
@@ -44,7 +42,7 @@ int main(int argc, char *argv[]) {
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   parseLineStatus_t status = LINE_NORMAL;
-  llm_t *macro_table = llm_init();
+  linked_list_t macro_table = list_init();
 
   if (argc < 2) {
     fprintf(stderr, "Usage %s input_file [output_file]\n", argv[0]);
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   while (!feof(in)) {
     if (read_line(in, line)) {
-      status = parse_line(line, macro_name);
+      status = parse_line(line, macro_name, 1);
 
       if (status == LINE_NORMAL) {
         /* A line with no special meaning to the preprocessor. We output it as is. */
@@ -70,16 +68,19 @@ int main(int argc, char *argv[]) {
       } else if (status == LINE_MCRO) {
         /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next `mcroend`. */
         long offset = ftell(in);
-        llm_add(macro_table, macro_name, offset);
+        list_add(&macro_table, macro_name, offset);
+        print_list(&macro_table);
 
         do {
-          read_line(in, line);
-          status = parse_line(line, macro_name);
+          if (!read_line(in, line)) {
+            return LINE_ERROR;
+          }
+          status = parse_line(line, macro_name, 0);
         } while (status != LINE_MCROEND);
       } else if (status == LINE_MACROCALL) {
         /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
         /* TODO check if macro has been defined? */
-        long offset = llm_contains(macro_table, macro_name);
+        long offset = list_get(&macro_table, macro_name);
         FILE *temp = fopen(argv[1], "r");
         if (fseek(temp, offset, SEEK_SET)) {
           fprintf(stderr, "fseek didn't work while trying to read macro");
@@ -92,7 +93,6 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
       }
     } else {
-      printf("Error: Line is longer than 80 characters.\n");
       /* TODO should this stop here or continue? */
       return EXIT_FAILURE;
     }
