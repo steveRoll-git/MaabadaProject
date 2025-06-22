@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   FILE *out;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
-  parseLineStatus_t status = LINE_NORMAL;
+  parse_line_status_t status = LINE_NORMAL;
   linked_list_t macro_table = list_init();
 
   if (argc < 2) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  while (!feof(in)) {
+  while (!feof(in)) { /* TODO not use feof */
     if (read_line(in, line) == 0) {
       return EXIT_FAILURE;
     }

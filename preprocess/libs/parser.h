@@ -8,13 +8,13 @@ typedef enum {
     LINE_MCROEND, /* A line that ends a macro definition with `mcroend`. */
     LINE_MACROCALL, /* A line that calls a macro by its name. */
     LINE_ERROR /* Indicates that an error occurred while reading this line. */
-} parseLineStatus_t;
+} parse_line_status_t;
 
 /* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
 /* Parses the given line, and returns what kind of line it is. If the line is a macro definition or call, stores the macro's name in `macro_name`. */
-parseLineStatus_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors);
+parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors);
 
 /* Returns whether the given string is the name of an assembly instruction. */
 int is_keyword(char *token);
