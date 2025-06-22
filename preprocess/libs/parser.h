@@ -1,29 +1,22 @@
+#ifndef PREPROCESS_PARSER_H
+#define PREPROCESS_PARSER_H
 
-#include "datatypes.h"
-#include <stdio.h>
-#define ASSERT(condition, message, is_critical)                                \
-  if (!(condition)) {                                                          \
-    printf("%s", message);                                                     \
-    if (is_critical)                                                           \
-      exit(1);                                                                 \
-    return 1;                                                                  \
-  }
+/* The various kinds of lines that the preprocessor's `parse_line` can give. */
+typedef enum {
+    LINE_NORMAL, /* A line with no special meaning to the preprocessor. */
+    LINE_MCRO, /* A line that starts a macro definition with `mcro`. */
+    LINE_MCROEND, /* A line that ends a macro definition with `mcroend`. */
+    LINE_MACROCALL, /* A line that calls a macro by its name. */
+    LINE_ERROR /* Indicates that an error occurred while reading this line. */
+} parse_line_status_t;
 
-typedef enum {IN_MACRO, NORMAL, MCROEND, MCALL} STATUS;
-  
+/* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
-/** Recieves a token from the user, which then gets analyzed to check which type
- * of line it is. Right now, there are 4 type of line 1) WhiteSpace line being
- * only filled with empty spaces 2) Comments, starting with semi-colon (;) 3)
- * Informative, Creating Variables, letting the user know about stuff. 4)
- * Commands, the raw ASM commands written.
- *
- */
-void line_type(char *line);
+/* Parses the given line, and returns what kind of line it is. If the line is a macro definition or call, stores the macro's name in `macro_name`. */
+parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors);
 
-/** Receievs a Line of MAX_LENGTH size, and parses the information to check if
- * it's correct.*/
-STATUS parse_line(char line[MAX_LINE], llm_t* table_name, FILE* in, FILE* out);
+/* Returns whether the given string is the name of an assembly instruction. */
+int is_keyword(char *token);
 
-int itk(char *token);
+#endif
