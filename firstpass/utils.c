@@ -2,17 +2,25 @@
 #include <ctype.h>
 #include <string.h>
 
-static const struct KEYWORD_INFO arr[] = {
-    {MOV, MOV_VAL, TWO_ARGS}, {CMP, CMP_VAL, TWO_ARGS},
-    {ADD, ADD_VAL, TWO_ARGS}, {SUB, SUB_VAL, TWO_ARGS},
-    {NOT, NOT_VAL, TWO_ARGS}, {CLR, CLR_VAL, ONE_ARG},
-    {LEA, LEA_VAL, ONE_ARG},  {INC, INC_VAL, ONE_ARG},
-    {DEC, DEC_VAL, ONE_ARG},  {JMP, JMP_VAL, ONE_ARG},
-    {BNE, BNE_VAL, ONE_ARG},  {RED, RED_VAL, ONE_ARG},
-    {PRN, PRN_VAL, ONE_ARG},  {JSR, JSR_VAL, ONE_ARG},
-    {RTS, RTS_VAL, NO_ARGS},  {STOP, STOP_VAL, NO_ARGS}};
+static const struct instruction_t arr[] = {
+    {INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+    {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+    {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+    {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+    {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+    {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+    {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+    {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+    {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+    {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+    {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+    {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+    {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+    {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+    {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+    {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
-const int keywords_length = sizeof(arr) / sizeof(struct KEYWORD_INFO);
+const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
 /*
  * Returns The correspoding binary value of a string keyword.
  * if the keyword given is NOT a known keyword, return -1.
