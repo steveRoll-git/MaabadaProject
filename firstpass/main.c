@@ -1,3 +1,5 @@
+#include "./data.h"
+#include "./utils.c"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,24 +22,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Couldn't open Input File\n");
     exit(EXIT_FAILURE);
   }
+  /*NOTE: Bug here, We need to also read the line that ends with EOF, since it
+   * may be another line.*/
+  while (read_line(in, line) != SENTENCE_EOF) {
 
-  while (fgets(line, MAX_LINE, in)) {
-
-    if (!strchr(line, '\n')) {
-      fprintf(stderr, "Line is larger than 80 characters");
-      exit(1);
-    }
-
-    if (!sscanf(line, "%s", dup)) {
-      /* Whitespace Line, Ignore.*/
-      continue;
-    }
-    printf("\"%s\" Length of string %lu\n", dup, strlen(dup));
-    /* Comment line, Can ignore.*/
-    if (dup[0] == ';') {
-      continue;
-    }
-    fprintf(out, line, "%s");
   }
+
+  fprintf(out, line, "%s");
   return 0;
 }
