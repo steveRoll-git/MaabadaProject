@@ -1,12 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#define MAX_LINE 80
 
 int main(int argc, char *argv[]) {
   FILE *in = stdin, *out;
   char line[MAX_LINE];
-  char dup[MAX_LINE];
   char *token;
 
   if (argc < 2) {
