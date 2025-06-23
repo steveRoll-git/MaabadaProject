@@ -1,6 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#define MAX_LINE 80
+
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
 #define INSTRUCTION_ADD "add"
@@ -17,6 +19,14 @@
 #define INSTRUCTION_JSR "jsr"
 #define INSTRUCTION_RTS "rts"
 #define INSTRUCTION_STOP "stop"
+
+#define DATATYPE_DATA ".data"
+#define DATATYPE_STRING ".string"
+#define DATATYPE_MAT ".mat"
+#define DATATYPE_ENTRY ".entry"
+#define DATATYPE_EXTERN ".extern"
+
+typedef enum datatype_t { DATA, STRING, MAT, ENTRY, EXTERN, UNKNOWN } datatype_t;
 
 typedef enum opcode_t {
   OPCODE_MOV = 0,
@@ -37,16 +47,19 @@ typedef enum opcode_t {
   OPCODE_STOP = 15
 } opcode_t;
 
-typedef enum args_t {
-  NO_ARGS = 0,
-  ONE_ARG = 1,
-  TWO_ARGS = 2
-} args_t;
+typedef enum args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } args_t;
 
 typedef struct instruction_t {
   char *name;
   opcode_t value;
   args_t arg_amount;
 } instruction_t;
+
+typedef enum sentence_t {
+  SENTENCE_ERR_BUFF_OVERFLOW = 0,
+  SENTENCE_NEW_LINE = 1,
+  SENTENCE_EOF = 2,
+
+} sentence_t;
 
 #endif
