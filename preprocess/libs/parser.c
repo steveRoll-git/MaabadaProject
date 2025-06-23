@@ -1,40 +1,16 @@
 #include "parser.h"
-
+#include "../../firstpass/utils.h"
 #include <ctype.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Checks if a token's value is a known keyword. */
-int is_keyword(char *token) {
-  int i = 0;
-  char *keywords[] = {
-    "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc",
-    "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"
-  };
-
-  int size = sizeof(keywords) / sizeof(keywords[0]);
-
-  for (i = 0; i < size; i++) {
-    if (strcmp(token, keywords[i]) == 0)
-      return 1;
-  }
-
-  return 0;
-}
-
-int is_label(char *token) {
-  int len = strlen(token);
-  return *(token + (len - 1)) == ':';
-}
 
 /* Reads the next token at the string pointed to by `str`. */
 /* If `token` is not NULL, stores a copy of the token's text in it. */
 /* Updates `str` so that it will point to the next character after the token that was read. */
 /* Returns 1 if a token was read, and 0 otherwise. */
 int read_token(char **str, char *token) {
-  /* TODO check for comment ; */
   /* Skip past leading spaces. */
   while (**str && isspace(**str)) {
     (*str)++;
@@ -87,7 +63,7 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
     }
 
     /* Macro names cannot be keywords. */
-    if (is_keyword(macro_name)) {
+    if (is_assembly_command(macro_name)) {
       if (print_errors) {
         printf("Macro name cannot be keyword.\n");
       }
@@ -108,7 +84,7 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
   }
 
   /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
-  if (!is_keyword(token) && !read_token(&cur_line, NULL)) {
+  if (!is_assembly_command(token) && !read_token(&cur_line, NULL)) {
     strcpy(macro_name, token);
     return LINE_MACROCALL;
   }

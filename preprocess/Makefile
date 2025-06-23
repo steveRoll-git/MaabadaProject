@@ -5,6 +5,6 @@ CFLAGS=-Wall -Wextra -pedantic -g -ansi $(INCDIRS) $(OPT)
 
  
 
-preproc:  macroprocessor.c libs/parser.c libs/datatypes.c libs/printer.c
-	gcc macroprocessor.c libs/parser.c libs/datatypes.c libs/printer.c -Wall -pedantic -o preproc -g -ansi
+preproc:  macroprocessor.c libs/parser.c ../common/linked_list.c
+	gcc macroprocessor.c libs/parser.c ../common/linked_list.c  -Wall -pedantic -o preproc -g 
 
