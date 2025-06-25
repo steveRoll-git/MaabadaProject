@@ -3,6 +3,31 @@
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
+int parse_int(char *s)
+{
+  int size = strlen(s);
+  char buffer[size];
+  int i = 0;
+  while (isspace(*(s + i))) i++;
+
+
+  if (*(size + i) == '-')
+  {
+    buffer[0] = '-';
+    i++;
+  }
+
+  if (!isdigit(*(s + i)))
+    return 0;
+
+  while (i < size && isdigit(*(s + i)))
+  {
+    buffer[i] = *(s + i);
+    i++;
+  }
+
+  while (isspace(*(s + i)) && i < size) i++;
+
 
 int count_datatype_storage(datatype_t type, char* token){
 
