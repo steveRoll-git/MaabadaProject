@@ -10,4 +10,11 @@ add_executable(MaabadaProject
         common/linked_list.h
         preprocess/libs/parser.c
         preprocess/libs/parser.h
-        preprocess/macroprocessor.c)
+        preprocess/macroprocessor.c
+        firstpass/data.h
+        firstpass/firstpass.c
+        firstpass/main.c
+        firstpass/utils.h
+        firstpass/utils.c
+        firstpass/parser.c
+)

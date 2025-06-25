@@ -1,52 +1,42 @@
 #include "../common/linked_list.h"
 #include "data.h"
 #include "utils.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-int parse_int(char *s)
-{
-  int size = strlen(s);
-  char buffer[size];
-  int i = 0;
-  while (isspace(*(s + i))) i++;
 
-
-  if (*(size + i) == '-')
-  {
-    buffer[0] = '-';
-    i++;
+/* Moves `*s` to point at the next non-space character. */
+void skip_spaces(char **s) {
+  while (isspace(**s)) {
+    (*s)++;
   }
-
-  if (!isdigit(*(s + i)))
-    return 0;
-
-  while (i < size && isdigit(*(s + i)))
-  {
-    buffer[i] = *(s + i);
-    i++;
-  }
-
-  while (isspace(*(s + i)) && i < size) i++;
-
-
-int count_datatype_storage(datatype_t type, char* token){
-
 }
 
+/* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
+int parse_int(char **s, int *result) {
+  int next;
+  int scanned_values = sscanf(*s, "%d%n", result, &next);
+  if (scanned_values == 1) {
+    *s += next;
+    return 1;
+  }
+  return 0;
+}
 
 datatype_t get_data_type(char *token) {
   if (strcmp(token, DATATYPE_DATA))
     return DATA;
-  else if (strcmp(token, DATATYPE_STRING) == 0)
+  if (strcmp(token, DATATYPE_STRING) == 0)
     return STRING;
-  else if (strcmp(token, DATATYPE_MAT) == 0)
+  if (strcmp(token, DATATYPE_MAT) == 0)
     return MAT;
-  else if (strcmp(token, DATATYPE_ENTRY) == 0)
+  if (strcmp(token, DATATYPE_ENTRY) == 0)
     return ENTRY;
-  else if (strcmp(token, DATATYPE_EXTERN) == 0)
+  if (strcmp(token, DATATYPE_EXTERN) == 0)
     return EXTERN;
   return UNKNOWN;
 }
+
 void compile_assembly_code(char *line, linked_list_t *macro_table,
                            linked_list_t *label_table,
                            linked_list_t *data_table) {
@@ -60,12 +50,12 @@ void compile_assembly_code(char *line, linked_list_t *macro_table,
   if (temp == NULL)
     fprintf(stderr, "How did we get here?");
 
-  /*Entire line of whitespace, ignore.*/
   else if (*temp == '\n')
+    /*Entire line of whitespace, ignore.*/
     return;
 
-  /*We have a comment, ignore.*/
   else if (*temp == ';')
+    /*We have a comment, ignore.*/
     return;
 
   /*From here, we can 100% be sure we either have an instruction command, or
@@ -78,9 +68,9 @@ void compile_assembly_code(char *line, linked_list_t *macro_table,
     /*TODO: we got an error, great, now, make it possible to let the function
      * know what to do.*/
     // if (is_label_valid(temp, arr) != 1)
-      fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
+    fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
     // else
-      temp = strtok(NULL, " \t");
+    temp = strtok(NULL, " \t");
   }
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means its a data command.*/
@@ -94,9 +84,9 @@ void compile_assembly_code(char *line, linked_list_t *macro_table,
 
     // count_datatype_storage();
 
-  // } else if (is_assembly_command(temp)) {
-  //
-  // } else {
-  //   fprintf(stderr, "Invalid command");
+    // } else if (is_assembly_command(temp)) {
+    //
+    // } else {
+    //   fprintf(stderr, "Invalid command");
   }
 }

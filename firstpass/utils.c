@@ -1,25 +1,28 @@
 #include "../common/linked_list.h"
+#include "./utils.h"
 #include "./data.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
-const struct instruction_t arr[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
-                                    {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-                                    {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
-                                    {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-                                    {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
-                                    {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-                                    {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
-                                    {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-                                    {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
-                                    {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-                                    {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
-                                    {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-                                    {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
-                                    {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-                                    {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
-                                    {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
+const struct instruction_t arr[] = {
+  {INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+  {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+  {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+  {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+  {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+  {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+  {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+  {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+  {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+  {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+  {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+  {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+  {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+  {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+  {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+  {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}
+};
 
 const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
 /*
@@ -27,10 +30,11 @@ const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
  * if the keyword given is NOT a known keyword, return -1.
  */
 int keyword_to_value(char *token) {
+  int i;
   if (token == NULL)
     return -1;
 
-  for (int i = 0; i < keywords_length; i++) {
+  for (i = 0; i < keywords_length; i++) {
     if (!strcmp(token, arr[i].name))
       return arr[i].value;
   }
@@ -38,15 +42,17 @@ int keyword_to_value(char *token) {
 }
 
 int is_assembly_command(char *token) {
+  int i;
   if (token == NULL)
     return -1;
 
-  for (int i = 0; i < keywords_length; i++) {
+  for (i = 0; i < keywords_length; i++) {
     if (!strcmp(token, arr[i].name))
       return 1;
   }
   return 0;
 }
+
 int is_label(char *token) {
   if (token == NULL)
     return -1;
@@ -56,25 +62,30 @@ int is_label(char *token) {
   return token[length - 1] == ':';
 }
 
-int is_label_valid(char *label, linked_list_t *table_arr[]) {
-  /*Check1: Check if the FIRST character of the label is alphanumeric
-   * character*/
-  int size = sizeof(table_arr) / sizeof(table_arr[0]);
-  int i = 0;
-
+int is_label_valid(char *label, linked_list_t *macro_table,
+                   linked_list_t *label_table, linked_list_t *data_table) {
   linked_list_t *temp;
 
+  /* Check if the first character of the label is a letter */
   if (!(isalpha(*label)))
     return 0;
 
-  /*Check4: Label can't be a keyword name*/
+  /* Label can't be a keyword name */
   if (is_assembly_command(label) == 1)
     return 0;
 
-  for (i = 0; i < size; i++) {
-    temp = table_arr[i];
-    if (list_get(temp, label) != -1L)
-      return 0;
+  /* Label can't be a name of a macro */
+  if (list_get(macro_table, label)) {
+    return 0;
+  }
+
+  /* Label can't be a name of an existing label */
+  if (list_get(label_table, label)) {
+    return 0;
+  }
+
+  if (list_get(data_table, label)) {
+    return 0;
   }
 
   return 1;
@@ -82,10 +93,14 @@ int is_label_valid(char *label, linked_list_t *table_arr[]) {
 
 /* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
  * stores it in `line`. */
-/* Returns 0 if the line is longer than 80 characters, 1 otherwise. */
+/* Returns `SENTENCE_NEW_LINE` if there are more lines to be read, `SENTENCE_ERR_BUFF_OVERFLOW` if the line was too
+ * long, and `SENTENCE_EOF` if there are no more lines to read. */
 sentence_t read_line(FILE *file, char line[MAX_LINE]) {
   int count = 0;
   int c;
+  if (feof(file)) {
+    return SENTENCE_EOF;
+  }
   while ((c = getc(file)) != EOF) {
     if (c == '\n') {
       line[count] = 0;
@@ -99,9 +114,9 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
       printf("Error: Line is longer than 80 characters.\n");
       return SENTENCE_ERR_BUFF_OVERFLOW;
     }
-    line[count] = (char)c;
+    line[count] = (char) c;
     count++;
   }
   line[count] = 0;
-  return SENTENCE_EOF;
+  return SENTENCE_NEW_LINE;
 }

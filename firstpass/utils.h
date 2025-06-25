@@ -3,7 +3,7 @@
 #include "data.h"
 #include <stdio.h>
 
-extern struct instruction_t arr[];
+const struct instruction_t arr[];
 
 /*Given an instruction line inside the assembly, convert the instruction type
  * into its coresponding decimal value.
@@ -42,7 +42,7 @@ int is_label_valid(char *label, linked_list_t *macro_table,
  * return 1.
  * */
 
-int read_line(FILE *file, char line[MAX_LINE]);
+sentence_t read_line(FILE *file, char line[MAX_LINE]);
 
 /*Checks if given an assembly command is a known instruction type.
  * returns 1 if it is an known instruction string
