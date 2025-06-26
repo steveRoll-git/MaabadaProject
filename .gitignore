@@ -1,2 +1,5 @@
 preprocess/output.asm
 .idea
+/cmake-build-debug/*
+main
+CMakeCache.txt
