@@ -12,6 +12,7 @@ void list_add(linked_list_t *list, char *name, long value) {
   ptr->name = (char*)malloc(sizeof(char) * strlen(name));
   strcpy(ptr->name, name);
   ptr->value = value;
+  ptr->next = NULL;
 
   if (list->head == NULL) {
     list->head = ptr;
