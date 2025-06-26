@@ -44,7 +44,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
   parse_line_status_t status = LINE_NORMAL;
   linked_list_t macro_table = list_init();
 
-  in = fopen(input_file_path, "r");
+  in = fopen(input_file_path, "rb");
 
   /* If the input file is unavailable, exit. */
   if (in == NULL) {

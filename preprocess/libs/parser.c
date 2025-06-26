@@ -85,7 +85,9 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
 
   /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
   if (!is_assembly_command(token) && !read_token(&cur_line, NULL)) {
-    strcpy(macro_name, token);
+    if (macro_name) {
+      strcpy(macro_name, token);
+    }
     return LINE_MACROCALL;
   }
 
