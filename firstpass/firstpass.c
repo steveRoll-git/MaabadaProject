@@ -3,7 +3,8 @@
 void compile_line(char *line) {
 }
 
-int main(int argc, char **argv) {
+/* TODO temp arguments */
+int first_pass(char *input_file_path, char *output_file_path) {
   /*Instruction counter, and Data counter initilization.*/
   int i_counter = 100, d_counter = 0;
   linked_list_t data_table = list_init();

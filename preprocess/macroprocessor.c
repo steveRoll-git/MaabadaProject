@@ -6,7 +6,7 @@
 
 /* Reads a single line from the file that is at most `MAX_LINE` bytes long, and stores it in `line`. */
 /* Returns 0 if the line is longer than 80 characters, 1 otherwise. */
-int read_line(FILE *file, char line[MAX_LINE]) {
+static int read_line(FILE *file, char line[MAX_LINE]) {
   int count = 0;
   int c;
   while ((c = getc(file)) != EOF) {
@@ -31,36 +31,33 @@ int read_line(FILE *file, char line[MAX_LINE]) {
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
-  while (fgets(line, MAX_LINE, in) && parse_line(line, NULL, 0) != LINE_MCROEND ) {
+  while (fgets(line, MAX_LINE, in) && parse_line(line, NULL, 0) != LINE_MCROEND) {
     fprintf(out, "%s", line);
   }
 }
 
-int main(int argc, char *argv[]) {
-  FILE *in = stdin;
+int preprocess(char *input_file_path, char *output_file_path) {
+  FILE *in;
   FILE *out;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   parse_line_status_t status = LINE_NORMAL;
   linked_list_t macro_table = list_init();
 
-  if (argc < 2) {
-    fprintf(stderr, "Usage %s input_file [output_file]\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  in = fopen(argv[1], "r");
-  out = fopen("output.asm", "w");
+  in = fopen(input_file_path, "r");
 
   /* If the input file is unavailable, exit. */
   if (in == NULL) {
-    fprintf(stderr, "Couldn't open input file\n");
-    exit(EXIT_FAILURE);
+    printf("Couldn't open input file\n");
+    return 0;
   }
 
-  while (!feof(in)) { /* TODO not use feof */
+  out = fopen(output_file_path, "w");
+  /* TODO check if out is null */
+
+  while (!feof(in)) {
     if (read_line(in, line) == 0) {
-      return EXIT_FAILURE;
+      return 0;
     }
 
     status = parse_line(line, macro_name, 1);
@@ -76,7 +73,7 @@ int main(int argc, char *argv[]) {
 
       do {
         if (!read_line(in, line)) {
-          return EXIT_FAILURE;
+          return 0;
         }
         status = parse_line(line, macro_name, 0);
       } while (status != LINE_MCROEND);
@@ -85,21 +82,21 @@ int main(int argc, char *argv[]) {
       long offset = list_get(&macro_table, macro_name);
       if (offset == -1L) {
         printf("No macro named '%s' has been defined.\n", macro_name);
-        return EXIT_FAILURE;
+        return 0;
       }
 
-      FILE *temp = fopen(argv[1], "r");
+      FILE *temp = fopen(input_file_path, "r");
       if (fseek(temp, offset, SEEK_SET)) {
         fprintf(stderr, "fseek didn't work while trying to read macro");
-        exit(EXIT_FAILURE);
+        return 0;
       }
 
       print_macro(out, temp);
       fclose(temp);
     } else if (status == LINE_ERROR) {
       /* TODO continue to next file */
-      return EXIT_FAILURE;
+      return 0;
     }
   }
-  return EXIT_SUCCESS;
+  return 1;
 }

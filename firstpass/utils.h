@@ -1,9 +1,11 @@
+#ifndef FIRSTPASS_UTILS_H
+#define FIRSTPASS_UTILS_H
 
 #include "../common/linked_list.h"
 #include "data.h"
 #include <stdio.h>
 
-const struct instruction_t arr[];
+extern const struct instruction_t arr[];
 
 /*Given an instruction line inside the assembly, convert the instruction type
  * into its coresponding decimal value.
@@ -48,3 +50,5 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]);
  * returns 1 if it is an known instruction string
  * 0 otherwise*/
 int is_assembly_command(char *token);
+
+#endif
