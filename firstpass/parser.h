@@ -1,7 +1,7 @@
 
 #ifndef PARSER_H
 #define PARSER_H
-#include "../external/data.h"
+#include "../common/data.h"
 #include "../datatypes/linked_list.h"
 
 /* Moves `*s` to point at the next non-space character. */

@@ -1,6 +1,6 @@
 #include "../datatypes/linked_list.h"
-#include "../external/data.h"
-#include "../external/utils.h"
+#include "../common/data.h"
+#include "../common/utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +23,7 @@ int parse_int(char **s, int *result) {
   return 0;
 }
 
-int parse_ddata(char **s,  linked_list_t *args) {
+int parse_ddata(char **s, linked_list_t *args) {
   skip_spaces(s);
   int value = 2048;
 
@@ -54,7 +54,7 @@ int parse_ddata(char **s,  linked_list_t *args) {
 }
 
 datatype_t get_data_type(char *token) {
-  if (strcmp(token, DATATYPE_DATA))
+  if (strcmp(token, DATATYPE_DATA) == 0)
     return DATA;
   if (strcmp(token, DATATYPE_STRING) == 0)
     return STRING;

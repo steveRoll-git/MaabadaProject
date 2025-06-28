@@ -2,7 +2,7 @@
 #define FIRSTPASS_UTILS_H
 
 #include "../datatypes//linked_list.h"
-#include "../external/data.h"
+#include "../common/data.h"
 #include <stdio.h>
 
 extern const struct instruction_t arr[];

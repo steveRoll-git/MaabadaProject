@@ -1,7 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
-#define MAX_LINE 80
+/* The maximum size of a single line in bytes (80 characters and a null terminator.) */
+#define MAX_LINE 81
 
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
@@ -59,7 +60,6 @@ typedef enum sentence_t {
   SENTENCE_ERR_BUFF_OVERFLOW = 0,
   SENTENCE_NEW_LINE = 1,
   SENTENCE_EOF = 2,
-
 } sentence_t;
 
 #endif

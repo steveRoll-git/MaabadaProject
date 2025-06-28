@@ -12,10 +12,10 @@ add_executable(MaabadaProject
         preprocess/parser.h
         preprocess/macroprocessor.c
         preprocess/macroprocessor.h
-        external/data.h
+        common/data.h
         firstpass/firstpass.c
-        external/utils.c
-        external/utils.h
+        common/utils.c
+        common/utils.h
         firstpass/parser.c
         main.c
 )

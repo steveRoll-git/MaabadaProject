@@ -4,30 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Reads a single line from the file that is at most `MAX_LINE` bytes long, and stores it in `line`. */
-/* Returns 0 if the line is longer than 80 characters, 1 otherwise. */
-static int read_line(FILE *file, char line[MAX_LINE]) {
-  int count = 0;
-  int c;
-  while ((c = getc(file)) != EOF) {
-    if (c == '\n') {
-      line[count] = 0;
-      return 1;
-    }
-    if (count >= MAX_LINE) {
-      /* The line is longer than 80 characters - read everything until the next newline and return 0. */
-      while ((c = getc(file)) != EOF && c != '\n') {
-      }
-      printf("Error: Line is longer than 80 characters.\n");
-      return 0;
-    }
-    line[count] = (char)c;
-    count++;
-  }
-  line[count] = 0;
-  return 1;
-}
-
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
