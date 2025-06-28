@@ -1,4 +1,4 @@
-#include "../common/linked_list.h"
+#include "../datatypes/linked_list.h"
 
 void compile_line(char *line) {
 }

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "firstpass/parser.h"
+#include "datatypes/linked_list.h"
 #include "preprocess/macroprocessor.h"
 
 #define EXTENSION_AS ".as"
@@ -29,6 +31,7 @@ int main(int argc, char *argv[]) {
 
     free(input_file_path);
     free(preprocessor_output_path);
+
 
     return success;
 }
