@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "../../firstpass/utils.h"
+#include "../external/utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

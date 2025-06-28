@@ -1,8 +1,8 @@
 #ifndef FIRSTPASS_UTILS_H
 #define FIRSTPASS_UTILS_H
 
-#include "../common/linked_list.h"
-#include "data.h"
+#include "../datatypes//linked_list.h"
+#include "../external/data.h"
 #include <stdio.h>
 
 extern const struct instruction_t arr[];

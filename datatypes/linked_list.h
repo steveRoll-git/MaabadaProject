@@ -26,4 +26,9 @@ void print_list(linked_list_t *list);
 /* Initializes a new list. */
 linked_list_t list_init();
 
+
+int list_length(linked_list_t *list);
+
+int* list_items(linked_list_t *list);
+
 #endif
