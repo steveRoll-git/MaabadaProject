@@ -19,10 +19,11 @@ DEPFILES=$(patsubst %.c,%.d,$(CFILES))
 
 ### Tests
 TEST_BINARY=tests/tester
-TEST_LIB=tests/lib
+TEST_LIB=tests/lib tests/
 TEST_CDIRS=tests/ tests/init
 
 TEST_FILES_C=$(foreach D, $(TEST_CDIRS), $(wildcard $(D)/*.c))
+TEST_FILES_DEP=$(patsubst %.c, %.d, $(TEST_FILES_C))
 TEST_OBJECTS=$(patsubst %.c, %.o, $(TEST_FILES_C))
 TEST_FLAGS=$(foreach D, $(TEST_LIB), -L $(D)) -lunity
 
@@ -36,12 +37,13 @@ $(BINARY): $(OBJECTS)
 
 
 clean:
-	rm -f $(BINARY) $(OBJECTS) $(DEPFILES) $(TEST_BINARY) $(TEST_OBJECTS)
+	rm -f $(BINARY) $(OBJECTS) $(DEPFILES) $(TEST_BINARY) $(TEST_OBJECTS) $(TEST_FILES_DEP)
 
 test: $(TEST_BINARY)
 
-$(TEST_BINARY): $(TEST_OBJECTS)
-	$(CC) $(CFLAGS)  -o $@ $^ $(TEST_FLAGS)
+$(TEST_BINARY): $(TEST_OBJECTS) $(filter-out ./main.o , $(OBJECTS))
+	$(CC) $(CFLAGS) -o $@ $^ $(TEST_FLAGS)
+	clear
 	./$@
 
 
