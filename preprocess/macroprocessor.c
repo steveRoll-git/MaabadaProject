@@ -1,5 +1,5 @@
-#include "../common/linked_list.h"
-#include "libs/parser.h"
+#include "../datatypes/linked_list.h"
+#include "parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
