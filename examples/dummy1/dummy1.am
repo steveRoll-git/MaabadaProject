@@ -1,0 +1,12 @@
+; Written here is thy comment that shan't thee deleted.
+
+add r2, r1
+
+	inc r2
+	mov A, r1
+    asdf asdf
+	inc r2
+	mov A, r1
+
+mov r1, r3
+
