@@ -44,4 +44,37 @@ void print_list(linked_list_t *list) {
   printf("\n");
 }
 
+int list_size(linked_list_t *list) {
+  if (list == NULL) return 0;
+  const list_node_t *tmp = list->head;
+  int size = 0;
+/*FIXME: what do i do here, INIT fucks me*/
+  if (tmp == NULL) { return 0;}
+
+  while (tmp != NULL) {
+    size++;
+    tmp = tmp->next;
+  }
+  return size;
+}
+
+
+int* list_items(linked_list_t *list ) {
+  if (list == NULL) return NULL;
+
+  const int size = list_size(list);
+  const list_node_t *tmp = list->head;
+  int i = 0;
+
+  int *items = (int*)malloc(sizeof(int) * size);
+  if (items == NULL) return NULL;
+
+  for (i = 0; i < size; i++) {
+    items[i] = tmp->value;
+    tmp = tmp->next;
+  }
+
+  return items;
+}
+
 /*TODO: May or may not need purge list with free*/
