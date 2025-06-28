@@ -1,6 +1,6 @@
-#include "../common/linked_list.h"
-#include "data.h"
-#include "utils.h"
+#include "../datatypes/linked_list.h"
+#include "../external/data.h"
+#include "../external/utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +21,36 @@ int parse_int(char **s, int *result) {
     return 1;
   }
   return 0;
+}
+
+int parse_ddata(char **s,  linked_list_t *args) {
+  skip_spaces(s);
+  int value = 2048;
+
+  if (!parse_int(s, &value)) {
+    fprintf(stderr, "Error getting first number out data, have you initialized it correctly.\n");
+    return 0;
+  }
+  list_add(args, "", value);
+  skip_spaces(s);
+
+
+  while (**s == ',' || **s == '-' || **s == '+') {
+    (*s)++;
+    skip_spaces(s);
+
+    if (!parse_int(s, &value)) {
+      fprintf(stderr, "Error getting first number out data, have you initialized it correctly?\n");
+      return 0;
+    }
+    skip_spaces(s);
+
+    list_add(args, "", value);
+  }
+  if (**s != '\0')
+    return 0;
+
+  return 1;
 }
 
 datatype_t get_data_type(char *token) {
