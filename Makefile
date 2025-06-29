@@ -1,9 +1,9 @@
 # Binary Name
 BINARY=main
 # C Code
-CODEDIRS=. datatypes/ external/ firstpass/ preprocess/
+CODEDIRS=. datatypes/ common/ firstpass/ preprocess/
 # Headers
-INCDIRS=. datatypes/ external/ firstpass/ preprocess/
+INCDIRS=. datatypes/ common/ firstpass/ preprocess/
 # Compiler
 CC=gcc
 # Include Headers while compiling (whenever we change code)
