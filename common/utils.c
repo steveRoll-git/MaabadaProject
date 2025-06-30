@@ -1,28 +1,18 @@
-#include "../datatypes/linked_list.h"
 #include "./utils.h"
-#include "./data.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include "../datatypes/linked_list.h"
+#include "./data.h"
 
-const struct instruction_t arr[] = {
-  {INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
-  {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-  {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
-  {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-  {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
-  {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-  {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
-  {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-  {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
-  {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-  {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
-  {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-  {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
-  {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-  {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
-  {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}
-};
+const struct instruction_t arr[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS}, {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+                                    {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS}, {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+                                    {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS}, {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+                                    {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},  {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+                                    {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},  {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+                                    {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},  {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+                                    {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},  {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+                                    {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},  {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
 const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
 /*
@@ -62,13 +52,16 @@ int is_label(char *token) {
   return token[length - 1] == ':';
 }
 
-int is_label_valid(char *label, linked_list_t *macro_table,
-                   linked_list_t *label_table, linked_list_t *data_table) {
+int is_label_valid(char *label, linked_list_t *macro_table, linked_list_t *label_table, linked_list_t *data_table) {
   linked_list_t *temp;
 
   /* Check if the first character of the label is a letter */
+
   if (!(isalpha(*label)))
     return 0;
+  /*TODO: All Characters AFTER the first character must be [a-zA-Z1-9]+*/
+
+  /*TODO: Characters CANT BE Other keywords (R1-8), probably more that im missin.*/
 
   /* Label can't be a keyword name */
   if (is_assembly_command(label) == 1)
@@ -119,4 +112,28 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
   }
   line[count] = 0;
   return SENTENCE_NEW_LINE;
+}
+
+
+int label_size(const char *label) {
+  int count = 0;
+
+  if (!isalpha(*label))
+    return 0;
+
+  while ((isalpha(*label) || isdigit(*label))) {
+    count++;
+    label++;
+  }
+  return count;
+}
+
+int is_register(const char *token) {
+  if (token == NULL)
+    return 0;
+
+  int length = label_size(token);
+  char register_number = *(token + 1);
+
+  return length == 2 && *token == 'R' && register_number >= '0' && register_number <= '7';
 }

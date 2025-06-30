@@ -51,4 +51,8 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]);
  * 0 otherwise*/
 int is_assembly_command(char *token);
 
+/* Checks for a given string, its length using only characters [a-zA-Z1-9]*/
+int label_size(const char *label);
+
+int is_register(const char *token);
 #endif
