@@ -2,4 +2,7 @@ preprocess/output.asm
 .idea
 /cmake-build-debug/*
 main
+tests/tester
 CMakeCache.txt
+**/*.o
+**/*.d

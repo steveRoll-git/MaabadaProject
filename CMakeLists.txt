@@ -21,4 +21,6 @@ add_executable(MaabadaProject
         main.c
         datatypes/growing_array.c
         datatypes/growing_array.h
+        datatypes/assembler.c
+        datatypes/assembler.h
 )

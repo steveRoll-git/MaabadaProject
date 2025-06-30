@@ -25,7 +25,16 @@ int parse_int(char **s, int *result) {
   return 0;
 }
 
-int parse_data(char **s, assembler_state_t *assembler) {
+/* If the first character in `s` is a comma, moves `s` past it and returns 1, otherwise returns 0. */
+int accept_comma(char **s) {
+  if (**s == ',') {
+    (*s)++;
+    return 1;
+  }
+  return 0;
+}
+
+int parse_data(char **s, assembler_t *assembler) {
   do {
     int number;
     skip_spaces(s);
@@ -36,7 +45,7 @@ int parse_data(char **s, assembler_state_t *assembler) {
     add_data(assembler, number);
     skip_spaces(s);
   }
-  while (**s == ',');
+  while (accept_comma(s));
 
   return 1;
 }
@@ -159,7 +168,7 @@ datatype_t get_data_type(char *token) {
   return UNKNOWN;
 }
 
-void compile_assembly_code(char *line, assembler_state_t *assembler) {
+void compile_assembly_code(char *line, assembler_t *assembler) {
   char *temp;
   int label_flag = 0;
 
