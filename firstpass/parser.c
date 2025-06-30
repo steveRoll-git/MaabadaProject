@@ -1,9 +1,10 @@
-#include "../datatypes/linked_list.h"
-#include "../common/data.h"
-#include "../common/utils.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "../common/data.h"
+#include "../common/utils.h"
+#include "../datatypes/linked_list.h"
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
@@ -36,7 +37,9 @@ int parse_ddata(char **s, linked_list_t *args) {
 
 
   while (**s == ',' || **s == '-' || **s == '+') {
-    (*s)++;
+    if (**s == ',')
+      (*s)++;
+
     skip_spaces(s);
 
     if (!parse_int(s, &value)) {
@@ -51,6 +54,110 @@ int parse_ddata(char **s, linked_list_t *args) {
     return 0;
 
   return 1;
+}
+/* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
+int parse_instruction_arguement(char **s) {
+  int temp;
+  /*EXAMPLES:  R1-R8, LABEL, MAT  , *-1 */
+  skip_spaces(s);
+
+  if (**s == '\0')
+    return 0;
+
+  /* Absolute Number */
+
+  if (**s == '#') {
+    (*s)++;
+
+    if (!isdigit(**s) && **s != '-' && **s != '+')
+      return 0;
+
+    if (!parse_int(s, &temp)) {
+      fprintf(stderr, "Error parsing instruction number.");
+      return 0;
+    }
+
+    return 1;
+  }
+
+  /*
+   * Registers
+   * Check first letter is R
+   * Check second letter is ascii between '0'-'8'
+   * Check third letter is an end, Space tab, or a new arg (, ]), I removed , because we need to know if its 0ARG or 2
+   * ARG.
+   */
+  int size = label_size(*s);
+
+  /*TODO: This algorithm needs more refining.*/
+  if (is_register(*s)) {
+    *s += size;
+    return 1;
+  }
+
+  /* Must be label,
+   * or worse, a label with a matrix addition!
+   */
+  /*TODO: Uncomment this line and have a chat with ron, this needs to  get a merge between our codes so it can work. we
+   * need to add another arguement (The object macro table shit we get from firstpass) into this function. and WE NEED
+   * this function for checking if the parsing of the label is correct.*/
+
+  // if (!is_label_valid(*s))
+  /* Skip between all the characters of the label. not important in first pass.*/
+  *s += size;
+
+  //
+  // if (**s == '[') {
+  //   /*  parse_matrix_values(s); TODO: Should return ERROR if the parsing of the matrix isnt correct.*/
+  // }
+  skip_spaces(s);
+  return 1;
+}
+
+int parse_matrix_values(char **s) {
+  if (**s != '[')
+    return 0;
+
+  (*s)++;
+
+  parse_instruction_arguement(s);
+
+  if (**s != ']')
+    return 0;
+  skip_spaces(s);
+  return 1;
+}
+
+int parse_instruction_args(char **s, const args_t args) {
+  skip_spaces(s);
+
+  switch (args) {
+    case NO_ARGS:
+      return **s == '\0';
+
+
+    case ONE_ARG:
+      if (!parse_instruction_arguement(s))
+        return 0;
+      skip_spaces(s);
+      return **s == '\0';
+
+    case TWO_ARGS:
+      parse_instruction_arguement(s);
+      skip_spaces(s);
+
+      if (**s != ',')
+        return 0;
+      (*s)++;
+
+
+      skip_spaces(s);
+      parse_instruction_arguement(s);
+      skip_spaces(s);
+      return **s == '\0';
+  }
+  /*IF we're here... something really bad must've happened.*/
+  return 0;
 }
 
 datatype_t get_data_type(char *token) {
@@ -67,8 +174,7 @@ datatype_t get_data_type(char *token) {
   return UNKNOWN;
 }
 
-void compile_assembly_code(char *line, linked_list_t *macro_table,
-                           linked_list_t *label_table,
+void compile_assembly_code(char *line, linked_list_t *macro_table, linked_list_t *label_table,
                            linked_list_t *data_table) {
   char *temp;
   int label_flag = 0;
