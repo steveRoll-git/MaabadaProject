@@ -43,8 +43,13 @@ test: $(TEST_BINARY)
 
 $(TEST_BINARY): $(TEST_OBJECTS) $(filter-out ./main.o , $(OBJECTS))
 	$(CC) $(CFLAGS) -o $@ $^ $(TEST_FLAGS)
-	clear
 	./$@
+	sleep 3
+	make clean
+	clear
+
+
+
 
 
 
