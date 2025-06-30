@@ -69,7 +69,6 @@ int is_label_valid(char *label, assembler_t *assembler) {
     ch++;
   }
 
-  /*TODO: Characters CANT BE Other keywords (R1-8), probably more that im missin.*/
   if (is_register(label))
     return 0;
 

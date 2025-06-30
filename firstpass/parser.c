@@ -51,28 +51,27 @@ int parse_data(char **s, assembler_t *assembler) {
 }
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
-int parse_instruction_arguement(char **s, assembler_t *assembler) {
+operand_kind parse_instruction_arguement(char **s, assembler_t *assembler) {
   int temp;
   /*EXAMPLES:  R1-R8, LABEL, MAT  , *-1 */
   skip_spaces(s);
 
   if (**s == '\0')
-    return 0;
+    return INVALID;
 
   /* Absolute Number */
-
   if (**s == '#') {
     (*s)++;
 
     if (!isdigit(**s) && **s != '-' && **s != '+')
-      return 0;
+      return INVALID;
 
     if (!parse_int(s, &temp)) {
       fprintf(stderr, "Error parsing instruction number.");
-      return 0;
+      return INVALID;
     }
 
-    return 1;
+    return WHOLE_NUMBER;
   }
 
   /*
@@ -86,7 +85,7 @@ int parse_instruction_arguement(char **s, assembler_t *assembler) {
 
   if (is_register(*s)) {
     *s += size;
-    return 1;
+    return REGISTER;
   }
 
   /* Must be label,
@@ -95,16 +94,18 @@ int parse_instruction_arguement(char **s, assembler_t *assembler) {
 
 
   if (!is_label_valid(*s, assembler))
-    return 0;
+    return INVALID;
   /* Skip between all the characters of the label. not important in first pass.*/
   *s += size;
 
   //
   // if (**s == '[') {
   //   /*  parse_matrix_values(s); TODO: Should return ERROR if the parsing of the matrix isnt correct.*/
-  // }
+  //  return LABEL_MATRIX;
+  //
+
   skip_spaces(s);
-  return 1;
+  return LABEL;
 }
 
 int parse_matrix_values(char **s, assembler_t *assembler) {
@@ -125,13 +126,17 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
   skip_spaces(s);
 
   switch (args) {
+    /*Assembly signature takes one word.*/
+    int arg1, arg2;
+    assembler->ic += 1;
+
     case NO_ARGS:
       return **s == '\0';
 
 
     case ONE_ARG:
-      if (!parse_instruction_arguement(s, assembler))
-        return 0;
+
+      return 0;
       skip_spaces(s);
       return **s == '\0';
 
