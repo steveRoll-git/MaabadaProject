@@ -62,4 +62,6 @@ typedef enum sentence_t {
   SENTENCE_EOF = 2,
 } sentence_t;
 
+typedef enum { FALSE = 0, TRUE = 1 } bool_t;
+
 #endif
