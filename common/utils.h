@@ -1,9 +1,10 @@
 #ifndef FIRSTPASS_UTILS_H
 #define FIRSTPASS_UTILS_H
 
-#include "../datatypes//linked_list.h"
-#include "../common/data.h"
 #include <stdio.h>
+#include "../common/data.h"
+#include "../datatypes//linked_list.h"
+#include "../datatypes/assembler.h"
 
 extern const struct instruction_t arr[];
 
@@ -33,8 +34,7 @@ int is_label(char *token);
  * if any of those checks are true, the label isn't valid and returns 0.
  * if it's valid it returns 1.
  */
-int is_label_valid(char *label, linked_list_t *macro_table,
-                   linked_list_t *label_table, linked_list_t *data_table);
+int is_label_valid(char *label, assembler_t *assembler);
 
 /*
  * specific parser we've created to read lines,

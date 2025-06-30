@@ -2,7 +2,7 @@
 
 assembler_t assembler_create() {
   assembler_t assembler;
-  assembler.ic = 0;
+  assembler.ic = 100;
   assembler.dc = 0;
   assembler.data_array = growing_array_create();
   assembler.macro_table = list_init();

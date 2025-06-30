@@ -50,7 +50,8 @@ int parse_data(char **s, assembler_t *assembler) {
   return 1;
 }
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
-int parse_instruction_arguement(char **s) {
+/*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
+int parse_instruction_arguement(char **s, assembler_t *assembler) {
   int temp;
   /*EXAMPLES:  R1-R8, LABEL, MAT  , *-1 */
   skip_spaces(s);
@@ -83,7 +84,6 @@ int parse_instruction_arguement(char **s) {
    */
   int size = label_size(*s);
 
-  /*TODO: This algorithm needs more refining.*/
   if (is_register(*s)) {
     *s += size;
     return 1;
@@ -92,11 +92,10 @@ int parse_instruction_arguement(char **s) {
   /* Must be label,
    * or worse, a label with a matrix addition!
    */
-  /*TODO: Uncomment this line and have a chat with ron, this needs to  get a merge between our codes so it can work. we
-   * need to add another arguement (The object macro table shit we get from firstpass) into this function. and WE NEED
-   * this function for checking if the parsing of the label is correct.*/
 
-  // if (!is_label_valid(*s))
+
+  if (!is_label_valid(*s, assembler))
+    return 0;
   /* Skip between all the characters of the label. not important in first pass.*/
   *s += size;
 
@@ -108,13 +107,13 @@ int parse_instruction_arguement(char **s) {
   return 1;
 }
 
-int parse_matrix_values(char **s) {
+int parse_matrix_values(char **s, assembler_t *assembler) {
   if (**s != '[')
     return 0;
 
   (*s)++;
-
-  parse_instruction_arguement(s);
+  /*TODO: Only accepts registers.*/
+  parse_instruction_arguement(s, assembler);
 
   if (**s != ']')
     return 0;
@@ -122,7 +121,7 @@ int parse_matrix_values(char **s) {
   return 1;
 }
 
-int parse_instruction_args(char **s, const args_t args) {
+int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
 
   switch (args) {
@@ -131,13 +130,14 @@ int parse_instruction_args(char **s, const args_t args) {
 
 
     case ONE_ARG:
-      if (!parse_instruction_arguement(s))
+      if (!parse_instruction_arguement(s, assembler))
         return 0;
       skip_spaces(s);
       return **s == '\0';
 
     case TWO_ARGS:
-      parse_instruction_arguement(s);
+      /*TODO: shrink IC message by 1, when both arguments are registers. */
+      parse_instruction_arguement(s, assembler);
       skip_spaces(s);
 
       if (**s != ',')
@@ -146,7 +146,7 @@ int parse_instruction_args(char **s, const args_t args) {
 
 
       skip_spaces(s);
-      parse_instruction_arguement(s);
+      parse_instruction_arguement(s, assembler);
       skip_spaces(s);
       return **s == '\0';
   }
@@ -192,10 +192,9 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
   int is_label_flag = is_label(temp);
 
   if (is_label_flag) {
-    /*TODO: we got an error, great, now, make it possible to let the function
-     * know what to do.*/
-    // if (is_label_valid(temp, arr) != 1)
-    fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
+
+    if (is_label_valid(temp, assembler) != 1)
+      fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
     // else
     temp = strtok(NULL, " \t");
   }

@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include "../datatypes/assembler.h"
 #include "../datatypes/linked_list.h"
 #include "./data.h"
 
@@ -52,7 +53,7 @@ int is_label(char *token) {
   return token[length - 1] == ':';
 }
 
-int is_label_valid(char *label, linked_list_t *macro_table, linked_list_t *label_table, linked_list_t *data_table) {
+int is_label_valid(char *label, assembler_t *assembler) {
   linked_list_t *temp;
   char *ch = label;
   /* Check if the first character of the label is a letter */
@@ -77,16 +78,16 @@ int is_label_valid(char *label, linked_list_t *macro_table, linked_list_t *label
     return 0;
 
   /* Label can't be a name of a macro */
-  if (list_get(macro_table, label)) {
+  if (list_get(&assembler->macro_table, label) != -1L) {
     return 0;
   }
 
   /* Label can't be a name of an existing label */
-  if (list_get(label_table, label)) {
+  if (list_get(&assembler->label_table, label) != -1L) {
     return 0;
   }
 
-  if (list_get(data_table, label)) {
+  if (list_get(&assembler->data_table, label) != -1L) {
     return 0;
   }
 
