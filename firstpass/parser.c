@@ -1,3 +1,4 @@
+#include "parser.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,34 +25,18 @@ int parse_int(char **s, int *result) {
   return 0;
 }
 
-int parse_ddata(char **s, linked_list_t *args) {
-  skip_spaces(s);
-  int value = 2048;
-
-  if (!parse_int(s, &value)) {
-    fprintf(stderr, "Error getting first number out data, have you initialized it correctly.\n");
-    return 0;
-  }
-  list_add(args, "", value);
-  skip_spaces(s);
-
-
-  while (**s == ',' || **s == '-' || **s == '+') {
-    if (**s == ',')
-      (*s)++;
-
+int parse_data(char **s, assembler_state_t *assembler) {
+  do {
+    int number;
     skip_spaces(s);
-
-    if (!parse_int(s, &value)) {
-      fprintf(stderr, "Error getting first number out data, have you initialized it correctly?\n");
+    if (!parse_int(s, &number)) {
+      printf("Malformed number.\n");
       return 0;
     }
+    add_data(assembler, number);
     skip_spaces(s);
-
-    list_add(args, "", value);
   }
-  if (**s != '\0')
-    return 0;
+  while (**s == ',');
 
   return 1;
 }

@@ -17,5 +17,8 @@ add_executable(MaabadaProject
         common/utils.c
         common/utils.h
         firstpass/parser.c
+        firstpass/parser.h
         main.c
+        datatypes/growing_array.c
+        datatypes/growing_array.h
 )
