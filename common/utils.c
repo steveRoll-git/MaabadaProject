@@ -54,14 +54,23 @@ int is_label(char *token) {
 
 int is_label_valid(char *label, linked_list_t *macro_table, linked_list_t *label_table, linked_list_t *data_table) {
   linked_list_t *temp;
-
+  char *ch = label;
   /* Check if the first character of the label is a letter */
 
   if (!(isalpha(*label)))
     return 0;
+
+
   /*TODO: All Characters AFTER the first character must be [a-zA-Z1-9]+*/
+  while (*ch != '\0') {
+    if (!isalpha(*ch) && !isdigit(*ch))
+      return 0;
+    ch++;
+  }
 
   /*TODO: Characters CANT BE Other keywords (R1-8), probably more that im missin.*/
+  if (is_register(label))
+    return 0;
 
   /* Label can't be a keyword name */
   if (is_assembly_command(label) == 1)
