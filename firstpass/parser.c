@@ -159,12 +159,9 @@ datatype_t get_data_type(char *token) {
   return UNKNOWN;
 }
 
-void compile_assembly_code(char *line, linked_list_t *macro_table, linked_list_t *label_table,
-                           linked_list_t *data_table) {
+void compile_assembly_code(char *line, assembler_state_t *assembler) {
   char *temp;
   int label_flag = 0;
-
-  linked_list_t *arr[] = {macro_table, label_table, data_table};
 
   temp = strtok(line, " \t");
 
