@@ -16,11 +16,18 @@ void skip_spaces(char **s) {
 
 /* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */
 int accept(char **s, char c) {
+  skip_spaces(s);
   if (**s == c) {
     (*s)++;
     return 1;
   }
   return 0;
+}
+
+/* Returns whether there are no more non-space characters in `s`. */
+int is_end(char *s) {
+  skip_spaces(&s);
+  return *s == 0;
 }
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
@@ -92,20 +99,6 @@ int parse_instruction_arguement(char **s, assembler_t *assembler) {
   return 1;
 }
 
-int parse_matrix_values(char **s, assembler_t *assembler) {
-  if (**s != '[')
-    return 0;
-
-  (*s)++;
-  /*TODO: Only accepts registers.*/
-  parse_instruction_arguement(s, assembler);
-
-  if (**s != ']')
-    return 0;
-  skip_spaces(s);
-  return 1;
-}
-
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
 
@@ -155,12 +148,6 @@ int parse_data(char *s, assembler_t *assembler) {
   return 1;
 }
 
-/* Returns whether there are no more non-space characters in `s`. */
-int is_end(char *s) {
-  skip_spaces(&s);
-  return *s == 0;
-}
-
 int parse_string(char *s, assembler_t *assembler) {
   char *last_quotes;
 
@@ -187,7 +174,64 @@ int parse_string(char *s, assembler_t *assembler) {
   return 1;
 }
 
-directive_kind_t get_directive_type(char *token) {
+int parse_matrix(char *s, assembler_t *assembler) {
+  int rows, cols;
+  int max_elements;
+  int prev_dc = assembler->dc;
+  int i;
+  skip_spaces(&s);
+  if (!accept(&s, '[')) {
+    /* Expected '['. */
+    return 0;
+  }
+  if (!parse_int(&s, &rows)) {
+    /* Expected a number. */
+    return 0;
+  }
+  if (!accept(&s, ']')) {
+    /* Expected ']'. */
+    return 0;
+  }
+  if (!accept(&s, '[')) {
+    /* Expected '['. */
+    return 0;
+  }
+  if (!parse_int(&s, &cols)) {
+    /* Expected a number. */
+    return 0;
+  }
+  if (!accept(&s, ']')) {
+    /* Expected ']'. */
+    return 0;
+  }
+
+  if (rows <= 0 || cols <= 0) {
+    /* The number of rows and columns must be positive. */
+    return 0;
+  }
+  max_elements = rows * cols;
+
+  skip_spaces(&s);
+  if (!is_end(s)) {
+    if (!parse_data(s, assembler)) {
+      return 0;
+    }
+    if (assembler->dc - prev_dc > max_elements) {
+      /* Too many elements in matrix. */
+      return 0;
+    }
+  }
+
+  /* TODO get clarification on forums about this */
+  /* Add zeroes for any elements that weren't given. */
+  for (i = assembler->dc - prev_dc; i < max_elements; i++) {
+    add_data(assembler, 0);
+  }
+
+  return 1;
+}
+
+directive_kind_t get_directive_kind(char *token) {
   if (strcmp(token, DIRECTIVE_DATA) == 0)
     return DIRECTIVE_KIND_DATA;
   if (strcmp(token, DIRECTIVE_STRING) == 0)
@@ -237,14 +281,17 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
     /*NOTE: Get the data type that's in there :)*/
     char *rest = strtok(NULL, "");
 
-    directive_kind_t type = get_directive_type(temp);
-    if (type == DIRECTIVE_KIND_DATA) {
+    directive_kind_t kind = get_directive_kind(temp);
+    if (kind == DIRECTIVE_KIND_DATA) {
       parse_data(rest, assembler);
     }
-    else if (type == DIRECTIVE_KIND_STRING) {
+    else if (kind == DIRECTIVE_KIND_STRING) {
       parse_string(rest, assembler);
     }
-    else if (type == DIRECTIVE_KIND_UNKNOWN) {
+    else if (kind == DIRECTIVE_KIND_MAT) {
+      parse_matrix(rest, assembler);
+    }
+    else if (kind == DIRECTIVE_KIND_UNKNOWN) {
       fprintf(stderr, "Unknown datatype.");
     }
 

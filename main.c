@@ -34,8 +34,12 @@ int main(int argc, char *argv[]) {
   //
   //
   // return success;
-  char line[] = ".string \"wow cool\"";
+  char line[] = ".mat [1][3] 1, 2, 3, 4";
   compile_assembly_code(line, &assembler);
+  int i;
+  for (i = 0; i < assembler.dc; i++) {
+    printf("%d ", assembler.data_array.ptr[i]);
+  }
 
   return 0;
 }
