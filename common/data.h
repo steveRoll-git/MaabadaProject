@@ -21,13 +21,20 @@
 #define INSTRUCTION_RTS "rts"
 #define INSTRUCTION_STOP "stop"
 
-#define DATATYPE_DATA ".data"
-#define DATATYPE_STRING ".string"
-#define DATATYPE_MAT ".mat"
-#define DATATYPE_ENTRY ".entry"
-#define DATATYPE_EXTERN ".extern"
+#define DIRECTIVE_DATA ".data"
+#define DIRECTIVE_STRING ".string"
+#define DIRECTIVE_MAT ".mat"
+#define DIRECTIVE_ENTRY ".entry"
+#define DIRECTIVE_EXTERN ".extern"
 
-typedef enum datatype_t { DATA, STRING, MAT, ENTRY, EXTERN, UNKNOWN } datatype_t;
+typedef enum directive_kind_t {
+  DIRECTIVE_KIND_DATA,
+  DIRECTIVE_KIND_STRING,
+  DIRECTIVE_KIND_MAT,
+  DIRECTIVE_KIND_ENTRY,
+  DIRECTIVE_KIND_EXTERN,
+  DIRECTIVE_KIND_UNKNOWN
+} directive_kind_t;
 
 typedef enum opcode_t {
   OPCODE_MOV = 0,

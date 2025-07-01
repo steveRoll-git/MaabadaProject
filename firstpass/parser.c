@@ -187,18 +187,18 @@ int parse_string(char *s, assembler_t *assembler) {
   return 1;
 }
 
-datatype_t get_data_type(char *token) {
-  if (strcmp(token, DATATYPE_DATA) == 0)
-    return DATA;
-  if (strcmp(token, DATATYPE_STRING) == 0)
-    return STRING;
-  if (strcmp(token, DATATYPE_MAT) == 0)
-    return MAT;
-  if (strcmp(token, DATATYPE_ENTRY) == 0)
-    return ENTRY;
-  if (strcmp(token, DATATYPE_EXTERN) == 0)
-    return EXTERN;
-  return UNKNOWN;
+directive_kind_t get_directive_type(char *token) {
+  if (strcmp(token, DIRECTIVE_DATA) == 0)
+    return DIRECTIVE_KIND_DATA;
+  if (strcmp(token, DIRECTIVE_STRING) == 0)
+    return DIRECTIVE_KIND_STRING;
+  if (strcmp(token, DIRECTIVE_MAT) == 0)
+    return DIRECTIVE_KIND_MAT;
+  if (strcmp(token, DIRECTIVE_ENTRY) == 0)
+    return DIRECTIVE_KIND_ENTRY;
+  if (strcmp(token, DIRECTIVE_EXTERN) == 0)
+    return DIRECTIVE_KIND_EXTERN;
+  return DIRECTIVE_KIND_UNKNOWN;
 }
 
 void compile_assembly_code(char *line, assembler_t *assembler) {
@@ -237,14 +237,14 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
     /*NOTE: Get the data type that's in there :)*/
     char *rest = strtok(NULL, "");
 
-    datatype_t type = get_data_type(temp);
-    if (type == DATA) {
+    directive_kind_t type = get_directive_type(temp);
+    if (type == DIRECTIVE_KIND_DATA) {
       parse_data(rest, assembler);
     }
-    else if (type == STRING) {
+    else if (type == DIRECTIVE_KIND_STRING) {
       parse_string(rest, assembler);
     }
-    else if (type == UNKNOWN) {
+    else if (type == DIRECTIVE_KIND_UNKNOWN) {
       fprintf(stderr, "Unknown datatype.");
     }
 

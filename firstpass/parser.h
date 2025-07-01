@@ -13,7 +13,7 @@ int parse_int(char **s, int *result);
 
 int parse_data(char *s, assembler_t *assembler);
 
-datatype_t get_data_type(char *token);
+directive_kind_t get_directive_type(char *token);
 
 void compile_assembly_code(char *line, assembler_t *assembler);
 
