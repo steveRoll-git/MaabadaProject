@@ -14,6 +14,15 @@ void skip_spaces(char **s) {
   }
 }
 
+/* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */
+int accept(char **s, char c) {
+  if (**s == c) {
+    (*s)++;
+    return 1;
+  }
+  return 0;
+}
+
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
 int parse_int(char **s, int *result) {
   int next;
@@ -25,30 +34,6 @@ int parse_int(char **s, int *result) {
   return 0;
 }
 
-/* If the first character in `s` is a comma, moves `s` past it and returns 1, otherwise returns 0. */
-int accept_comma(char **s) {
-  if (**s == ',') {
-    (*s)++;
-    return 1;
-  }
-  return 0;
-}
-
-int parse_data(char **s, assembler_t *assembler) {
-  do {
-    int number;
-    skip_spaces(s);
-    if (!parse_int(s, &number)) {
-      printf("Malformed number.\n");
-      return 0;
-    }
-    add_data(assembler, number);
-    skip_spaces(s);
-  }
-  while (accept_comma(s));
-
-  return 1;
-}
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
 int parse_instruction_arguement(char **s, assembler_t *assembler) {
@@ -154,6 +139,54 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
   return 0;
 }
 
+int parse_data(char *s, assembler_t *assembler) {
+  do {
+    int number;
+    skip_spaces(&s);
+    if (!parse_int(&s, &number)) {
+      printf("Malformed number.\n");
+      return 0;
+    }
+    add_data(assembler, number);
+    skip_spaces(&s);
+  }
+  while (accept(&s, ','));
+
+  return 1;
+}
+
+/* Returns whether there are no more non-space characters in `s`. */
+int is_end(char *s) {
+  skip_spaces(&s);
+  return *s == 0;
+}
+
+int parse_string(char *s, assembler_t *assembler) {
+  char *last_quotes;
+
+  if (!accept(&s, '"')) {
+    /* .string directive must contain a string enclosed in quotes. */
+    return 0;
+  }
+
+  last_quotes = strrchr(s, '"');
+  if (last_quotes == NULL) {
+    /* The string must be enclosed by two quotes. */
+    return 0;
+  }
+  if (!is_end(last_quotes + 1)) {
+    /* Extraneous text after string. */
+    return 0;
+  }
+
+  while (s < last_quotes) {
+    add_data(assembler, *s);
+    s++;
+  }
+
+  return 1;
+}
+
 datatype_t get_data_type(char *token) {
   if (strcmp(token, DATATYPE_DATA) == 0)
     return DATA;
@@ -202,9 +235,16 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
   /*If there's a dot, it means its a data command.*/
   if (*temp == '.') {
     /*NOTE: Get the data type that's in there :)*/
+    char *rest = strtok(NULL, "");
 
     datatype_t type = get_data_type(temp);
-    if (type == UNKNOWN) {
+    if (type == DATA) {
+      parse_data(rest, assembler);
+    }
+    else if (type == STRING) {
+      parse_string(rest, assembler);
+    }
+    else if (type == UNKNOWN) {
       fprintf(stderr, "Unknown datatype.");
     }
 

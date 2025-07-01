@@ -34,10 +34,8 @@ int main(int argc, char *argv[]) {
   //
   //
   // return success;
-  int i;
+  char line[] = ".string \"wow cool\"";
+  compile_assembly_code(line, &assembler);
 
-  args_t arg = ONE_ARG;
-  char *s = "R";
-
-  int result = parse_instruction_args(&s, arg, &assembler);
+  return 0;
 }
