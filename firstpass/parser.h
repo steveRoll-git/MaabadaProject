@@ -23,7 +23,7 @@ int parse_data(char *s, assembler_t *assembler);
 
 directive_kind_t get_directive_kind(char *token);
 
-void compile_assembly_code(char *line, assembler_t *assembler);
+int compile_assembly_code(char *line, assembler_t *assembler);
 
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler);
 

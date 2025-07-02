@@ -344,11 +344,13 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
     // else
     temp = strtok(NULL, " \t");
   }
+
+  rest = strtok(NULL, "");
+
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means its a data command.*/
   if (*temp == '.') {
     /*NOTE: Get the data type that's in there :)*/
-    char *rest = strtok(NULL, "");
 
     directive_kind_t kind = get_directive_kind(temp);
     if (kind == DIRECTIVE_KIND_DATA) {
