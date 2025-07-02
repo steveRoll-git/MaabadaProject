@@ -3,16 +3,13 @@
 
 #include <stdio.h>
 #include "../common/data.h"
-#include "../datatypes//linked_list.h"
 #include "../datatypes/assembler.h"
 
-extern const struct instruction_t arr[];
+extern const instruction_t instructions[];
 
-/*Given an instruction line inside the assembly, convert the instruction type
- * into its coresponding decimal value.
- *
- * returns -1 if the instruction isn't known.*/
-int keyword_to_value(char *token);
+/* Given an instruction's name, returns information about that instruction. */
+/* If no instruction by that name exists, returns an instruction with -1 as its opcode. */
+instruction_t get_instruction(char *token);
 
 /**
  * Given a token inside an assembly command, check if it's a label.
@@ -46,13 +43,12 @@ int is_label_valid(char *label, assembler_t *assembler);
 
 sentence_t read_line(FILE *file, char line[MAX_LINE]);
 
-/*Checks if given an assembly command is a known instruction type.
- * returns 1 if it is an known instruction string
- * 0 otherwise*/
-int is_assembly_command(char *token);
+/* Returns whether the string is the name of an assembly instruction. */
+int is_assembly_instruction(char *token);
 
-/* Checks for a given string, its length using only characters [a-zA-Z1-9]*/
-int label_size(const char *label);
+/* Returns the length of the identifier pointed to by the given string. */
+/* An identifier is a word that starts with a letter, and then only contains letters or digits. */
+int identifier_length(const char *ident);
 
 int is_register(const char *token);
 #endif

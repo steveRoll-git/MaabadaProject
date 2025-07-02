@@ -34,12 +34,8 @@ int main(int argc, char *argv[]) {
   //
   //
   // return success;
-  char line[] = ".mat [1][3] 1, 2, 3, 4";
-  compile_assembly_code(line, &assembler);
-  int i;
-  for (i = 0; i < assembler.dc; i++) {
-    printf("%d ", assembler.data_array.ptr[i]);
-  }
+  char line[] = "   mov r1   , [r3][r0]    ";
 
-  return 0;
+
+  return compile_assembly_code(line, &assembler);
 }

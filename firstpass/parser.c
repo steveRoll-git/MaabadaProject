@@ -88,8 +88,9 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
 
   /* Absolute Number */
   if (accept(s, '#')) {
-    if (!isdigit(**s) && **s != '-' && **s != '+')
+    if (!isdigit(**s) && **s != '-' && **s != '+') {
       return OPERAND_KIND_INVALID;
+    }
 
     if (!parse_int(s, &temp)) {
       fprintf(stderr, "Error parsing instruction number.");
@@ -106,23 +107,18 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
    * Check third letter is an end, Space tab, or a new arg (, ]), I removed , because we need to know if its 0ARG or 2
    * ARG.
    */
-  int size = label_size(*s);
+  int size = identifier_length(*s);
 
   if (is_register(*s)) {
     *s += size;
     return OPERAND_KIND_REGISTER;
   }
 
-  /* Must be label,
-   * or worse, a label with a matrix addition!
-   */
-
-
-  if (!is_label_valid(*s, assembler))
+  if (size <= 0) {
     return OPERAND_KIND_INVALID;
-  /* Skip between all the characters of the label. not important in first pass.*/
-  *s += size;
+  }
 
+  *s += size;
 
   if (**s == '[') {
     if (!parse_matrix_operand(s)) {
@@ -137,43 +133,44 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
 
 int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
   int size1 = 1, size2 = 1;
-  if (arg1 == OPERAND_KIND_REGISTER && arg2 == OPERAND_KIND_REGISTER)
+  if (arg1 == OPERAND_KIND_REGISTER && arg2 == OPERAND_KIND_REGISTER) {
     return 1;
+  }
 
-  if (arg1 == OPERAND_KIND_MATRIX)
+  if (arg1 == OPERAND_KIND_MATRIX) {
     size1 = 2;
+  }
 
-  if (arg2 == OPERAND_KIND_MATRIX)
+  if (arg2 == OPERAND_KIND_MATRIX) {
     size2 = 2;
+  }
 
-  else if (arg2 == OPERAND_KIND_INVALID)
+  else if (arg2 == OPERAND_KIND_INVALID) {
     size2 = 0;
+  }
 
   return size1 + size2;
 }
 
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
-  int arg1, arg2, size;
+  operand_kind_t arg1, arg2;
+  int size;
   assembler->ic += 1;
 
   switch (args) {
-      /*Assembly signature takes one word.*/
-
-
     case NO_ARGS:
-      return **s == '\0';
-
+      return is_end(*s);
 
     case ONE_ARG:
-      if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID)
+      if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID) {
         return 0;
+      }
 
       size = get_word_size(arg1, OPERAND_KIND_INVALID);
       assembler->ic += size;
 
-      skip_spaces(s);
-      return **s == '\0';
+      return is_end(*s);
 
     case TWO_ARGS:
       /*TODO: shrink IC message by 1, when both arguments are registers. */
@@ -189,10 +186,9 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
         return 0;
       }
 
-      skip_spaces(s);
       size = get_word_size(arg1, arg2);
       assembler->ic += size;
-      return **s == '\0';
+      return is_end(*s);
   }
   /*IF we're here... something really bad must've happened.*/
   return 0;
@@ -298,16 +294,21 @@ int parse_matrix(char *s, assembler_t *assembler) {
 }
 
 directive_kind_t get_directive_kind(char *token) {
-  if (strcmp(token, DIRECTIVE_DATA) == 0)
+  if (strcmp(token, DIRECTIVE_DATA) == 0) {
     return DIRECTIVE_KIND_DATA;
-  if (strcmp(token, DIRECTIVE_STRING) == 0)
+  }
+  if (strcmp(token, DIRECTIVE_STRING) == 0) {
     return DIRECTIVE_KIND_STRING;
-  if (strcmp(token, DIRECTIVE_MAT) == 0)
+  }
+  if (strcmp(token, DIRECTIVE_MAT) == 0) {
     return DIRECTIVE_KIND_MAT;
-  if (strcmp(token, DIRECTIVE_ENTRY) == 0)
+  }
+  if (strcmp(token, DIRECTIVE_ENTRY) == 0) {
     return DIRECTIVE_KIND_ENTRY;
-  if (strcmp(token, DIRECTIVE_EXTERN) == 0)
+  }
+  if (strcmp(token, DIRECTIVE_EXTERN) == 0) {
     return DIRECTIVE_KIND_EXTERN;
+  }
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
@@ -317,16 +318,17 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   temp = strtok(line, " \t");
 
-  if (temp == NULL)
+  if (temp == NULL) {
     fprintf(stderr, "How did we get here?");
-
-  else if (*temp == '\n')
+  }
+  else if (*temp == '\n') {
     /*Entire line of whitespace, ignore.*/
     return 1;
-
-  else if (*temp == ';')
+  }
+  else if (*temp == ';') {
     /*We have a comment, ignore.*/
     return 1;
+  }
 
   /*From here, we can 100% be sure we either have an instruction command, or
    * data command.*/
@@ -335,9 +337,9 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   int is_label_flag = is_label(temp);
 
   if (is_label_flag) {
-
-    if (is_label_valid(temp, assembler) != 1)
+    if (is_label_valid(temp, assembler) != 1) {
       fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
+    }
     // else
     temp = strtok(NULL, " \t");
   }
@@ -364,10 +366,10 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
         return 0;
     }
   }
-  else if (is_assembly_command(temp)) {
-    const opcode_t size = keyword_to_value(temp);
+  else if (is_assembly_instruction(temp)) {
+    instruction_t instruction = get_instruction(temp);
 
-    if (!parse_instruction_args(&rest, size, assembler)) {
+    if (!parse_instruction_args(&rest, instruction.arg_amount, assembler)) {
       return 0;
     }
   }

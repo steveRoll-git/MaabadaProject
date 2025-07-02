@@ -59,7 +59,7 @@ typedef enum args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } args_t;
 
 typedef struct instruction_t {
   char *name;
-  opcode_t value;
+  opcode_t opcode;
   args_t arg_amount;
 } instruction_t;
 

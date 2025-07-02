@@ -6,56 +6,59 @@
 #include "../datatypes/linked_list.h"
 #include "./data.h"
 
-const instruction_t arr[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
-                             {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-                             {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
-                             {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-                             {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
-                             {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-                             {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
-                             {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-                             {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
-                             {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-                             {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
-                             {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-                             {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
-                             {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-                             {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
-                             {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
+/* This array stores all needed information about all the instructions. */
+const instruction_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+                                      {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+                                      {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+                                      {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+                                      {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+                                      {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+                                      {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+                                      {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+                                      {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+                                      {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+                                      {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+                                      {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+                                      {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+                                      {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+                                      {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+                                      {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
-const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
+const int num_instructions = sizeof(instructions) / sizeof(struct instruction_t);
 
-/*
- * Returns The corresponding binary value of a string keyword.
- * if the keyword given is NOT a known keyword, return -1.
- */
-int keyword_to_value(char *token) {
+instruction_t get_instruction(char *token) {
   int i;
-  if (token == NULL)
-    return -1;
-
-  for (i = 0; i < keywords_length; i++) {
-    if (!strcmp(token, arr[i].name))
-      return arr[i].value;
+  if (token == NULL) {
+    return (instruction_t) {NULL, -1, 0};
   }
-  return -1;
+
+  for (i = 0; i < num_instructions; i++) {
+    if (!strcmp(token, instructions[i].name)) {
+      return instructions[i];
+    }
+  }
+
+  return (instruction_t) {NULL, -1, 0};
 }
 
-int is_assembly_command(char *token) {
+int is_assembly_instruction(char *token) {
   int i;
-  if (token == NULL)
+  if (token == NULL) {
     return -1;
+  }
 
-  for (i = 0; i < keywords_length; i++) {
-    if (!strcmp(token, arr[i].name))
+  for (i = 0; i < num_instructions; i++) {
+    if (!strcmp(token, instructions[i].name)) {
       return 1;
+    }
   }
   return 0;
 }
 
 int is_label(char *token) {
-  if (token == NULL)
+  if (token == NULL) {
     return -1;
+  }
 
   int length = strlen(token);
 
@@ -65,25 +68,27 @@ int is_label(char *token) {
 int is_label_valid(char *label, assembler_t *assembler) {
   linked_list_t *temp;
   char *ch = label;
+
   /* Check if the first character of the label is a letter */
-
-  if (!(isalpha(*label)))
+  if (!(isalpha(*label))) {
     return 0;
+  }
 
-
-  /*TODO: All Characters AFTER the first character must be [a-zA-Z1-9]+*/
   while (*ch != '\0') {
-    if (!isalpha(*ch) && !isdigit(*ch))
+    if (!isalpha(*ch) && !isdigit(*ch)) {
       return 0;
+    }
     ch++;
   }
 
-  if (is_register(label))
+  if (is_register(label)) {
     return 0;
+  }
 
   /* Label can't be a keyword name */
-  if (is_assembly_command(label) == 1)
+  if (is_assembly_instruction(label) == 1) {
     return 0;
+  }
 
   /* Label can't be a name of a macro */
   if (list_get(&assembler->macro_table, label) != -1L) {
@@ -132,25 +137,26 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
   return SENTENCE_NEW_LINE;
 }
 
-
-int label_size(const char *label) {
+int identifier_length(const char *ident) {
   int count = 0;
 
-  if (!isalpha(*label))
+  if (!isalpha(*ident)) {
     return 0;
+  }
 
-  while (isalpha(*label) || isdigit(*label)) {
+  while (isalpha(*ident) || isdigit(*ident)) {
     count++;
-    label++;
+    ident++;
   }
   return count;
 }
 
 int is_register(const char *token) {
-  if (token == NULL)
+  if (token == NULL) {
     return 0;
+  }
 
-  int length = label_size(token);
+  int length = identifier_length(token);
   char register_number = *(token + 1);
 
   return length == 2 && *token == 'r' && register_number >= '0' && register_number <= '7';
