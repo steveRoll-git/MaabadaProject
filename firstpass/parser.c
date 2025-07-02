@@ -77,7 +77,6 @@ int parse_matrix_operand(char **s) {
 }
 
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
-/*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
   /*EXAMPLES:  R1-R8, OPERAND_KIND_LABEL, MAT  , *-1 */
@@ -88,9 +87,7 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   }
 
   /* Absolute Number */
-  if (**s == '#') {
-    (*s)++;
-
+  if (accept(s, '#')) {
     if (!isdigit(**s) && **s != '-' && **s != '+')
       return OPERAND_KIND_INVALID;
 
@@ -350,21 +347,21 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means its a data command.*/
   if (*temp == '.') {
-    /*NOTE: Get the data type that's in there :)*/
-
     directive_kind_t kind = get_directive_kind(temp);
-    if (kind == DIRECTIVE_KIND_DATA) {
-      parse_data(rest, assembler);
-    }
-    else if (kind == DIRECTIVE_KIND_STRING) {
-      parse_string(rest, assembler);
-    }
-    else if (kind == DIRECTIVE_KIND_MAT) {
-      parse_matrix(rest, assembler);
-    }
-    else if (kind == DIRECTIVE_KIND_UNKNOWN) {
-      fprintf(stderr, "Unknown datatype.");
-      return 0;
+    switch (kind) {
+      case DIRECTIVE_KIND_DATA:
+        return parse_data(rest, assembler);
+      case DIRECTIVE_KIND_STRING:
+        return parse_string(rest, assembler);
+      case DIRECTIVE_KIND_MAT:
+        return parse_matrix(rest, assembler);
+      case DIRECTIVE_KIND_ENTRY:
+        /* TODO */
+      case DIRECTIVE_KIND_EXTERN:
+        /* TODO */
+      case DIRECTIVE_KIND_UNKNOWN:
+        fprintf(stderr, "Unknown datatype.");
+        return 0;
     }
   }
   else if (is_assembly_command(temp)) {
@@ -374,7 +371,6 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
       return 0;
     }
   }
-
   else {
     fprintf(stderr, "Invalid command");
     return 0;

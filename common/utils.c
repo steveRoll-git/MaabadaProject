@@ -6,18 +6,27 @@
 #include "../datatypes/linked_list.h"
 #include "./data.h"
 
-const struct instruction_t arr[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS}, {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-                                    {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS}, {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-                                    {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS}, {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-                                    {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},  {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-                                    {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},  {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-                                    {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},  {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-                                    {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},  {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-                                    {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},  {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
+const instruction_t arr[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+                             {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+                             {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+                             {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+                             {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+                             {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+                             {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+                             {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+                             {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+                             {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+                             {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+                             {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+                             {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+                             {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+                             {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+                             {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
 const int keywords_length = sizeof(arr) / sizeof(struct instruction_t);
+
 /*
- * Returns The correspoding binary value of a string keyword.
+ * Returns The corresponding binary value of a string keyword.
  * if the keyword given is NOT a known keyword, return -1.
  */
 int keyword_to_value(char *token) {
