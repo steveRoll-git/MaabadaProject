@@ -4,6 +4,14 @@
 
 #include "../common/data.h"
 #include "../datatypes/assembler.h"
+#include "../firstpass/parser.h"
+typedef enum operand_kind {
+  INVALID,
+  REGISTER,
+  WHOLE_NUMBER,
+  LABEL,
+  MATRIX
+} operand_kind_t;
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s);
@@ -17,7 +25,8 @@ directive_kind_t get_directive_kind(char *token);
 
 void compile_assembly_code(char *line, assembler_t *assembler);
 
-int parse_instruction_arguement(char **s, assembler_t *assembler);
+operand_kind_t parse_instruction_arguement(char **s,
+                                                                                             assembler_t *assembler);
 
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler);
 

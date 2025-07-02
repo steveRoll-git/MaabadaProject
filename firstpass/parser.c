@@ -43,28 +43,27 @@ int parse_int(char **s, int *result) {
 
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
-int parse_instruction_arguement(char **s, assembler_t *assembler) {
+operand_kind_t parse_instruction_arguement(char **s, assembler_t *assembler) {
   int temp;
   /*EXAMPLES:  R1-R8, LABEL, MAT  , *-1 */
   skip_spaces(s);
 
   if (**s == '\0')
-    return 0;
+    return INVALID;
 
   /* Absolute Number */
-
   if (**s == '#') {
     (*s)++;
 
     if (!isdigit(**s) && **s != '-' && **s != '+')
-      return 0;
+      return INVALID;
 
     if (!parse_int(s, &temp)) {
       fprintf(stderr, "Error parsing instruction number.");
-      return 0;
+      return INVALID;
     }
 
-    return 1;
+    return WHOLE_NUMBER;
   }
 
   /*
@@ -78,7 +77,7 @@ int parse_instruction_arguement(char **s, assembler_t *assembler) {
 
   if (is_register(*s)) {
     *s += size;
-    return 1;
+    return REGISTER;
   }
 
   /* Must be label,
@@ -87,45 +86,80 @@ int parse_instruction_arguement(char **s, assembler_t *assembler) {
 
 
   if (!is_label_valid(*s, assembler))
-    return 0;
+    return INVALID;
   /* Skip between all the characters of the label. not important in first pass.*/
   *s += size;
 
   //
   // if (**s == '[') {
   //   /*  parse_matrix_values(s); TODO: Should return ERROR if the parsing of the matrix isnt correct.*/
-  // }
+  //  return LABEL_MATRIX;
+  //
+
   skip_spaces(s);
-  return 1;
+  return LABEL;
+}
+
+int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
+  int size1 = 1, size2 = 1;
+  if (arg1 == REGISTER && arg2 == REGISTER)
+    return 1;
+
+  if (arg1 == MATRIX)
+    size1 = 2;
+
+  if (arg2 == MATRIX)
+    size2 = 2;
+
+  else if (arg2 == INVALID)
+    size2 = 0;
+
+  return size1 + size2;
 }
 
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
+  int arg1, arg2, size;
+  assembler->ic += 1;
 
   switch (args) {
+      /*Assembly signature takes one word.*/
+
+
     case NO_ARGS:
       return **s == '\0';
 
 
     case ONE_ARG:
-      if (!parse_instruction_arguement(s, assembler))
+      if ((arg1 = parse_instruction_arguement(s, assembler)) == INVALID)
         return 0;
+
+      size = get_word_size(arg1, INVALID);
+      assembler->ic += size;
+
       skip_spaces(s);
       return **s == '\0';
 
     case TWO_ARGS:
       /*TODO: shrink IC message by 1, when both arguments are registers. */
-      parse_instruction_arguement(s, assembler);
+      if ((arg1 = parse_instruction_arguement(s, assembler)) == INVALID) {
+        return 0;
+      }
+
       skip_spaces(s);
 
-      if (**s != ',')
+      if (**s != ',') {
         return 0;
+      }
       (*s)++;
 
+      if ((arg2 = parse_instruction_arguement(s, assembler)) == INVALID) {
+        return 0;
+      }
 
       skip_spaces(s);
-      parse_instruction_arguement(s, assembler);
-      skip_spaces(s);
+      size = get_word_size(arg1, arg2);
+      assembler->ic += size;
       return **s == '\0';
   }
   /*IF we're here... something really bad must've happened.*/

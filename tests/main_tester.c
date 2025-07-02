@@ -30,6 +30,7 @@ void test_one_arg_number_decimal(void) {
   int result = parse_instruction_args(&s, arg, &assembler);
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Assembler only accepts whole numbers");
+  TEST_ASSERT_EQUAL_INT(102, assembler.ic);
 }
 
 void test_one_arg_number_whole(void) {
@@ -38,6 +39,7 @@ void test_one_arg_number_whole(void) {
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Assembler only accepts numbers");
+  TEST_ASSERT_EQUAL_INT(102, assembler.ic);
 }
 
 void test_one_arg_number_whole_2(void) {
@@ -46,6 +48,7 @@ void test_one_arg_number_whole_2(void) {
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Assembler only accepts numbers");
+  TEST_ASSERT_EQUAL_INT(102, assembler.ic);
 }
 
 void test_one_arg_number_whole_3(void) {
@@ -63,6 +66,7 @@ void test_one_arg_valid_register_R0(void) {
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Valid Register should be accepted.");
+  TEST_ASSERT_EQUAL_INT(102, assembler.ic);
 }
 
 
@@ -97,15 +101,17 @@ void test_one_arg_valid_register_special_letter(void) {
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "All Valid Labels are welcomed.");
+  TEST_ASSERT_EQUAL_INT(102, assembler.ic);
 }
 
 void test_one_arg_is_arg_a_command(void) {
   int i;
 
   args_t arg = ONE_ARG;
-  char *s = "mov";
+  char *s = "stop";
 
   int result = parse_instruction_args(&s, arg, &assembler);
+
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Arguements Can't be special commands");
 }
 
