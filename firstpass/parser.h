@@ -6,11 +6,11 @@
 #include "../datatypes/assembler.h"
 #include "../firstpass/parser.h"
 typedef enum operand_kind {
-  INVALID,
-  REGISTER,
-  WHOLE_NUMBER,
-  LABEL,
-  MATRIX
+  OPERAND_KIND_INVALID,
+  OPERAND_KIND_REGISTER,
+  OPERAND_KIND_WHOLE_NUMBER,
+  OPERAND_KIND_LABEL,
+  OPERAND_KIND_MATRIX
 } operand_kind_t;
 
 /* Moves `*s` to point at the next non-space character. */

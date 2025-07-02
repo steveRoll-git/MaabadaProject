@@ -45,25 +45,25 @@ int parse_int(char **s, int *result) {
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
 operand_kind_t parse_instruction_arguement(char **s, assembler_t *assembler) {
   int temp;
-  /*EXAMPLES:  R1-R8, LABEL, MAT  , *-1 */
+  /*EXAMPLES:  R1-R8, OPERAND_KIND_LABEL, MAT  , *-1 */
   skip_spaces(s);
 
   if (**s == '\0')
-    return INVALID;
+    return OPERAND_KIND_INVALID;
 
   /* Absolute Number */
   if (**s == '#') {
     (*s)++;
 
     if (!isdigit(**s) && **s != '-' && **s != '+')
-      return INVALID;
+      return OPERAND_KIND_INVALID;
 
     if (!parse_int(s, &temp)) {
       fprintf(stderr, "Error parsing instruction number.");
-      return INVALID;
+      return OPERAND_KIND_INVALID;
     }
 
-    return WHOLE_NUMBER;
+    return OPERAND_KIND_WHOLE_NUMBER;
   }
 
   /*
@@ -77,7 +77,7 @@ operand_kind_t parse_instruction_arguement(char **s, assembler_t *assembler) {
 
   if (is_register(*s)) {
     *s += size;
-    return REGISTER;
+    return OPERAND_KIND_REGISTER;
   }
 
   /* Must be label,
@@ -86,32 +86,32 @@ operand_kind_t parse_instruction_arguement(char **s, assembler_t *assembler) {
 
 
   if (!is_label_valid(*s, assembler))
-    return INVALID;
+    return OPERAND_KIND_INVALID;
   /* Skip between all the characters of the label. not important in first pass.*/
   *s += size;
 
-  //
+  // //
   // if (**s == '[') {
   //   /*  parse_matrix_values(s); TODO: Should return ERROR if the parsing of the matrix isnt correct.*/
-  //  return LABEL_MATRIX;
+  //  return OPERAND_KIND_MATRIX;
   //
 
   skip_spaces(s);
-  return LABEL;
+  return OPERAND_KIND_LABEL;
 }
 
 int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
   int size1 = 1, size2 = 1;
-  if (arg1 == REGISTER && arg2 == REGISTER)
+  if (arg1 == OPERAND_KIND_REGISTER && arg2 == OPERAND_KIND_REGISTER)
     return 1;
 
-  if (arg1 == MATRIX)
+  if (arg1 == OPERAND_KIND_MATRIX)
     size1 = 2;
 
-  if (arg2 == MATRIX)
+  if (arg2 == OPERAND_KIND_MATRIX)
     size2 = 2;
 
-  else if (arg2 == INVALID)
+  else if (arg2 == OPERAND_KIND_INVALID)
     size2 = 0;
 
   return size1 + size2;
@@ -131,10 +131,10 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
 
 
     case ONE_ARG:
-      if ((arg1 = parse_instruction_arguement(s, assembler)) == INVALID)
+      if ((arg1 = parse_instruction_arguement(s, assembler)) == OPERAND_KIND_INVALID)
         return 0;
 
-      size = get_word_size(arg1, INVALID);
+      size = get_word_size(arg1, OPERAND_KIND_INVALID);
       assembler->ic += size;
 
       skip_spaces(s);
@@ -142,7 +142,7 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
 
     case TWO_ARGS:
       /*TODO: shrink IC message by 1, when both arguments are registers. */
-      if ((arg1 = parse_instruction_arguement(s, assembler)) == INVALID) {
+      if ((arg1 = parse_instruction_arguement(s, assembler)) == OPERAND_KIND_INVALID) {
         return 0;
       }
 
@@ -153,7 +153,7 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       }
       (*s)++;
 
-      if ((arg2 = parse_instruction_arguement(s, assembler)) == INVALID) {
+      if ((arg2 = parse_instruction_arguement(s, assembler)) == OPERAND_KIND_INVALID) {
         return 0;
       }
 
