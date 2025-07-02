@@ -25,7 +25,7 @@ directive_kind_t get_directive_kind(char *token);
 
 void compile_assembly_code(char *line, assembler_t *assembler);
 
-operand_kind_t parse_instruction_arguement(char **s, assembler_t *assembler);
+operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler);
 
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler);
 

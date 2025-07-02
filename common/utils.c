@@ -130,7 +130,7 @@ int label_size(const char *label) {
   if (!isalpha(*label))
     return 0;
 
-  while ((isalpha(*label) || isdigit(*label))) {
+  while (isalpha(*label) || isdigit(*label)) {
     count++;
     label++;
   }
@@ -144,5 +144,5 @@ int is_register(const char *token) {
   int length = label_size(token);
   char register_number = *(token + 1);
 
-  return length == 2 && *token == 'R' && register_number >= '0' && register_number <= '7';
+  return length == 2 && *token == 'r' && register_number >= '0' && register_number <= '7';
 }
