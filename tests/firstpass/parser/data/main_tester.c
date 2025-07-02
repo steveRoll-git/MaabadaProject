@@ -46,7 +46,7 @@ void test_parse_ddata_work_example3(void) {
   int i = 0;
   char *token = "1 , 2, 3,- 4";
   assembler_t assembler = assembler_create();
-  int val = parse_data(&token, &assembler);
+  int val = parse_data(token, &assembler);
 
   TEST_ASSERT_EQUAL_INT(0, val);
 }

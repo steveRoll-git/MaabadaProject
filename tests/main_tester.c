@@ -61,7 +61,7 @@ void test_one_arg_number_whole_3(void) {
 
 
 void test_one_arg_valid_register_R0(void) {
-  char *s = "               R0                   ";
+  char *s = "               r0                   ";
   args_t arg = ONE_ARG;
 
   int result = parse_instruction_args(&s, arg, &assembler);
@@ -76,9 +76,9 @@ void test_one_arg_valid_register_ALL_REGISTERS(void) {
   args_t arg = ONE_ARG;
   char *s = (char *) malloc(sizeof(char) * 3);
   for (i = 0; i <= 7; i++) {
-    s[0] = 'R';
-    s[2] = '\0';
+    s[0] = 'r';
     s[1] = '0' + i;
+    s[2] = '\0';
     int result = parse_instruction_args(&s, arg, &assembler);
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Valid Register should be accepted.");
   }
@@ -87,7 +87,7 @@ void test_one_arg_valid_register_ALL_REGISTERS(void) {
 void test_one_arg_valid_register_space(void) {
   int i;
   args_t arg = ONE_ARG;
-  char *s = "       R       0         ";
+  char *s = "       r       0         ";
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Register name with space doesn't count.");
@@ -97,7 +97,7 @@ void test_one_arg_valid_register_special_letter(void) {
   int i;
 
   args_t arg = ONE_ARG;
-  char *s = "R";
+  char *s = "r";
 
   int result = parse_instruction_args(&s, arg, &assembler);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "All Valid Labels are welcomed.");

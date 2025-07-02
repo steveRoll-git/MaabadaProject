@@ -314,8 +314,8 @@ directive_kind_t get_directive_kind(char *token) {
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
-void compile_assembly_code(char *line, assembler_t *assembler) {
-  char *temp;
+int compile_assembly_code(char *line, assembler_t *assembler) {
+  char *temp, *rest;
   int label_flag = 0;
 
   temp = strtok(line, " \t");
@@ -325,11 +325,11 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
 
   else if (*temp == '\n')
     /*Entire line of whitespace, ignore.*/
-    return;
+    return 1;
 
   else if (*temp == ';')
     /*We have a comment, ignore.*/
-    return;
+    return 1;
 
   /*From here, we can 100% be sure we either have an instruction command, or
    * data command.*/
@@ -362,13 +362,21 @@ void compile_assembly_code(char *line, assembler_t *assembler) {
     }
     else if (kind == DIRECTIVE_KIND_UNKNOWN) {
       fprintf(stderr, "Unknown datatype.");
+      return 0;
     }
-
-    // count_datatype_storage();
-
-    // } else if (is_assembly_command(temp)) {
-    //
-    // } else {
-    //   fprintf(stderr, "Invalid command");
   }
+  else if (is_assembly_command(temp)) {
+    const opcode_t size = keyword_to_value(temp);
+
+    if (!parse_instruction_args(&rest, size, assembler)) {
+      return 0;
+    }
+  }
+
+  else {
+    fprintf(stderr, "Invalid command");
+    return 0;
+  }
+
+  return 1;
 }
