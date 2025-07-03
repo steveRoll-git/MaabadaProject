@@ -9,7 +9,7 @@
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
-  while (isspace(**s)) {
+  while (*s != NULL && isspace(**s)) {
     (*s)++;
   }
 }
@@ -42,7 +42,11 @@ int parse_int(char **s, int *result) {
 }
 
 int parse_matrix_operand(char **s) {
-  int row_reg, col_reg;
+  int row_reg, col_reg, size;
+
+  size = label_size(*s);
+  *s += size;
+
   if (!accept(s, '[')) {
     /* Expected '['. */
     return 0;
@@ -76,9 +80,23 @@ int parse_matrix_operand(char **s) {
   return 1;
 }
 
+bool_t is_mat(char *s) {
+  if (s == NULL)
+    return FALSE;
+
+  skip_spaces(&s);
+
+  int size = label_size(s);
+
+  s += size;
+
+  skip_spaces(&s);
+  return *s == '[';
+}
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
+  char *ptr;
   /*EXAMPLES:  R1-R8, OPERAND_KIND_LABEL, MAT  , *-1 */
   skip_spaces(s);
 
@@ -173,7 +191,6 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       return is_end(*s);
 
     case TWO_ARGS:
-      /*TODO: shrink IC message by 1, when both arguments are registers. */
       if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID) {
         return 0;
       }
@@ -318,17 +335,11 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   temp = strtok(line, " \t");
 
-  if (temp == NULL) {
-    fprintf(stderr, "How did we get here?");
-  }
-  else if (*temp == '\n') {
+  /*If we get Whitespace, or a comment*/
+  if (temp == NULL || *temp == 0 || *temp == ';')
     /*Entire line of whitespace, ignore.*/
     return 1;
-  }
-  else if (*temp == ';') {
-    /*We have a comment, ignore.*/
-    return 1;
-  }
+
 
   /*From here, we can 100% be sure we either have an instruction command, or
    * data command.*/
@@ -337,17 +348,24 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   int is_label_flag = is_label(temp);
 
   if (is_label_flag) {
+
     if (is_label_valid(temp, assembler) != 1) {
-      fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
+      fprintf(stderr, "Label %s cannot be used at line %d", temp, __LINE__);
+      return 0;
     }
+
     // else
+    list_add(&assembler->label_table, temp, assembler->ic);
     temp = strtok(NULL, " \t");
   }
 
   rest = strtok(NULL, "");
 
+  if (rest == NULL)
+    rest = "\0";
+
   /*Is my token an instruction, or data label?*/
-  /*If there's a dot, it means its a data command.*/
+  /*If there's a dot, it means it's a data command.*/
   if (*temp == '.') {
     directive_kind_t kind = get_directive_kind(temp);
     switch (kind) {
@@ -365,10 +383,14 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
         fprintf(stderr, "Unknown datatype.");
         return 0;
     }
+    /*TODO: external, entry types??*/
   }
   else if (is_assembly_instruction(temp)) {
     instruction_t instruction = get_instruction(temp);
-
+    if (instruction.arg == -1) {
+      fprintf(stderr, "Unknown assembly command.");
+      return 0;
+    }
     if (!parse_instruction_args(&rest, instruction.arg_amount, assembler)) {
       return 0;
     }

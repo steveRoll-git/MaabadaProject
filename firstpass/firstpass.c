@@ -13,6 +13,8 @@ int first_pass(char *input_file_path, char *output_file_path) {
   assembler_t assembler = assembler_create();
   FILE *in, *out;
   char line[MAX_LINE];
+  int line_number = 0, error_flag = FALSE, res;
+
 
   in = fopen(input_file_path, "rb");
 
@@ -21,14 +23,21 @@ int first_pass(char *input_file_path, char *output_file_path) {
     printf("Couldn't open input file\n");
     return 0;
   }
-  /*TODO: Initialize Status Error Value Here.*/
-  while (read_line(in, line) != SENTENCE_EOF) {
-    compile_assembly_code(line, &assembler);
-  }
 
-  /*TODO: check if error status code has been lit, if it has DO NOT go into secondpass and delete all files
-   * (optionally?) [It might be better if MAIN crashes the program, and firstpass tell its ERROR status] */
+  while (read_line(in, line) != SENTENCE_EOF) {
+    res = compile_assembly_code(line, &assembler);
+    line_number++;
+
+    if (!res) {
+      fprintf(stderr, " : Line %d \n", line_number);
+      error_flag = TRUE;
+    }
+  }
 
 
   /*TODO: Merge between DC and IC into label_table.*/
+
+  // merge_dc_to_ic()
+
+  return error_flag;
 }
