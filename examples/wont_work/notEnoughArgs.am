@@ -1,0 +1,33 @@
+; 2 args that dont get all args
+
+mov r1
+mov #-2
+
+cmp #-5
+
+add ,
+
+add
+
+sub #9 , ABC , AP
+
+lea r2 ,
+
+lea r5 ,
+
+
+; one arg
+
+clr
+not ,
+inc
+dec
+jmp r1, #5
+bne
+jsr
+red #5, r2, r9
+prn 5
+
+rts #5, r1
+
+stop r5
