@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../common/ERR.h"
 #include "../common/data.h"
 #include "../common/utils.h"
 #include "../datatypes/linked_list.h"
-
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
   while (*s != NULL && isspace(**s)) {
@@ -47,36 +47,48 @@ int parse_matrix_operand(char **s) {
   size = label_size(*s);
   *s += size;
 
-  if (!accept(s, '[')) {
-    /* Expected '['. */
-    return 0;
-  }
-  if (!is_register(*s)) {
-    /* Expected a number. */
-    return 0;
-  }
+  // if (!accept(s, '[')) {
+  //   /* Expected '['. */
+  //   return 0;
+  // }
+  ASSERT(accept(s, '['));
+
+  // if (!is_register(*s)) {
+  //   /* Expected a number. */
+  //   return 0;
+  // }
+
+  ASSERT(is_register(*s));
   row_reg = *(*s + 1) - '0';
   *s += 2;
 
-  if (!accept(s, ']')) {
-    /* Expected ']'. */
-    return 0;
-  }
-  if (!accept(s, '[')) {
-    /* Expected '['. */
-    return 0;
-  }
-  if (!is_register(*s)) {
-    /* Expected a number. */
-    return 0;
-  }
+  // if (!accept(s, ']')) {
+  //   /* Expected ']'. */
+  //   return 0;
+  // }
+  ASSERT(accept(s, ']'));
+
+  // if (!accept(s, '[')) {
+  //   /* Expected '['. */
+  //   return 0;
+  // }
+  ASSERT(accept(s, '['));
+
+  // if (!is_register(*s)) {
+  //   /* Expected a number. */
+  //   return 0;
+  // }
+  ASSERT(is_register(*s));
+
   col_reg = *(*s + 1) - '0';
   *s += 2;
 
-  if (!accept(s, ']')) {
-    /* Expected ']'. */
-    return 0;
-  }
+  // if (!accept(s, ']')) {
+  //   /* Expected ']'. */
+  //   return 0;
+  // }
+  ASSERT(accept(s, ']'));
+
   return 1;
 }
 
@@ -173,6 +185,7 @@ int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
   return size1 + size2;
 }
 
+// ReSharper disable once CppNotAllPathsReturnValue
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
   int arg1, arg2, size;
@@ -181,39 +194,39 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
   switch (args) {
       /*Assembly signature takes one word.*/
     case NO_ARGS:
-      return *s == NULL || **s == '\0';
+      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
+      return TRUE;
 
 
     case ONE_ARG:
-      if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID)
-        return 0;
+      arg1 = parse_instruction_argument(s, assembler);
+      ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
 
       size = get_word_size(arg1, OPERAND_KIND_INVALID);
       assembler->ic += size;
 
       skip_spaces(s);
-      return *s == NULL || **s == '\0';
+      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
+
+      return TRUE;
 
     case TWO_ARGS:
-      if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID) {
-        return 0;
-      }
+      arg1 = parse_instruction_argument(s, assembler);
+      ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
 
-      if (!accept(s, ',')) {
-        return 0;
-      }
+      ASSERTM(accept(s, ','), ERR_WHERE_IS_MY_COMMA);
 
-      if ((arg2 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID) {
-        return 0;
-      }
+      arg2 = parse_instruction_argument(s, assembler);
+      ASSERTM(arg2 != OPERAND_KIND_INVALID, ERR_SECOND_ARG_INVALID);
 
       skip_spaces(s);
       size = get_word_size(arg1, arg2);
       assembler->ic += size;
-      return *s == NULL || **s == '\0';
+
+      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
+
+      return TRUE;
   }
-  /*IF we're here... something really bad must've happened.*/
-  return 0;
 }
 
 int parse_data(char *s, assembler_t *assembler) {

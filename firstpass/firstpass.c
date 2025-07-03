@@ -13,7 +13,8 @@ int first_pass(char *input_file_path, char *output_file_path) {
   assembler_t assembler = assembler_create();
   FILE *in, *out;
   char line[MAX_LINE];
-  int line_number = 0, error_flag = FALSE, res;
+  int line_number = 0, error_flag = FALSE, res, total_errors = 0;
+  ;
 
 
   in = fopen(input_file_path, "rb");
@@ -31,6 +32,7 @@ int first_pass(char *input_file_path, char *output_file_path) {
     if (!res) {
       fprintf(stderr, " : Line %d \n", line_number);
       error_flag = TRUE;
+      total_errors++;
     }
   }
 
@@ -38,6 +40,6 @@ int first_pass(char *input_file_path, char *output_file_path) {
   /*TODO: Merge between DC and IC into label_table.*/
 
   // merge_dc_to_ic()
-
+  printf("Total Errors: %d\n", total_errors);
   return error_flag;
 }
