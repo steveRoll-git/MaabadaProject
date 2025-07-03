@@ -325,9 +325,6 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
     /*Entire line of whitespace, ignore.*/
     return 1;
 
-  else if (*temp == ';')
-    /*We have a comment, ignore.*/
-    return 1;
 
   /*From here, we can 100% be sure we either have an instruction command, or
    * data command.*/
@@ -337,9 +334,13 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   if (is_label_flag) {
 
-    if (is_label_valid(temp, assembler) != 1)
-      fprintf(stderr, "Label %s cannot be used at line %d", temp, 15);
+    if (is_label_valid(temp, assembler) != 1) {
+      fprintf(stderr, "Label %s cannot be used at line %d", temp, __LINE__);
+      return 0;
+    }
+
     // else
+    list_add(&assembler->label_table, temp, assembler->ic);
     temp = strtok(NULL, " \t");
   }
 
