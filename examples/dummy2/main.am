@@ -1,3 +1,10 @@
 ;hello world!
 
 mov #-1, r2
+
+dec x
+add #4, a[r2][r5]
+
+mov r1,r2
+
+        stop
