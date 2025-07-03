@@ -26,13 +26,12 @@ int first_pass(char *input_file_path, char *output_file_path) {
 
   while (read_line(in, line) != SENTENCE_EOF) {
     res = compile_assembly_code(line, &assembler);
+    line_number++;
 
     if (!res) {
-      fprintf(stderr, " : Error compiling assembly code at line %d \n", line_number);
+      fprintf(stderr, " : Line %d \n", line_number);
       error_flag = TRUE;
     }
-
-    line_number++;
   }
 
 

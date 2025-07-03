@@ -9,7 +9,7 @@
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
-  while (isspace(**s)) {
+  while (*s != NULL && isspace(**s)) {
     (*s)++;
   }
 }
@@ -80,6 +80,7 @@ int parse_matrix_operand(char **s) {
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
+  char *ptr;
   /*EXAMPLES:  R1-R8, OPERAND_KIND_LABEL, MAT  , *-1 */
   skip_spaces(s);
 
@@ -120,11 +121,10 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
    * or worse, a label with a matrix addition!
    */
 
-
+  /*FIXME: Doesn't work with mats yet, is_label Valid breaks it (For loop function that checks for [a-zA-z1-9]*/
   if (!is_label_valid(*s, assembler))
     return OPERAND_KIND_INVALID;
   /* Skip between all the characters of the label. not important in first pass.*/
-  *s += size;
 
 
   if (**s == '[') {
@@ -133,6 +133,7 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
     }
     return OPERAND_KIND_MATRIX;
   }
+
 
   skip_spaces(s);
   return OPERAND_KIND_LABEL;
@@ -162,10 +163,8 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
 
   switch (args) {
       /*Assembly signature takes one word.*/
-
-
     case NO_ARGS:
-      return **s == '\0';
+      return *s == NULL || **s == '\0';
 
 
     case ONE_ARG:
@@ -176,7 +175,7 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       assembler->ic += size;
 
       skip_spaces(s);
-      return **s == '\0';
+      return *s == NULL || **s == '\0';
 
     case TWO_ARGS:
       /*TODO: shrink IC message by 1, when both arguments are registers. */
@@ -195,7 +194,7 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       skip_spaces(s);
       size = get_word_size(arg1, arg2);
       assembler->ic += size;
-      return **s == '\0';
+      return *s == NULL || **s == '\0';
   }
   /*IF we're here... something really bad must've happened.*/
   return 0;
@@ -345,6 +344,9 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   }
 
   rest = strtok(NULL, "");
+
+  if (rest == NULL)
+    rest = "\0";
 
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means it's a data command.*/
