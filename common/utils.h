@@ -55,4 +55,6 @@ int is_assembly_command(char *token);
 int label_size(const char *label);
 
 int is_register(const char *token);
+
+int keyword_to_arg_amount(char *token);
 #endif
