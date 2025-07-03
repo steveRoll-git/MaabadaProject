@@ -42,13 +42,17 @@ instruction_t get_instruction(char *token) {
 }
 
 int is_assembly_instruction(char *token) {
-  int i;
+  int i, length;
   if (token == NULL) {
     return -1;
   }
 
+  length = identifier_length(token);
+
   for (i = 0; i < num_instructions; i++) {
-    if (!strcmp(token, instructions[i].name)) {
+    char *name = instructions[i].name;
+    int instruction_len = strlen(name);
+    if (length == instruction_len && strncmp(token, name, instruction_len) == 0) {
       return 1;
     }
   }

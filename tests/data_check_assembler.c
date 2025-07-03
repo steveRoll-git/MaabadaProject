@@ -13,23 +13,20 @@ int main() {
   char *s = "                             ";
   args_t arg = ONE_ARG;
   int result = parse_instruction_args(&s, arg, &assembler);
-  if (result != 0)
-    return 1;
+  ASSERT(result == 0)
   //  TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "should return false, expected arguement got EOF");
 
 
   s = "#-5.12";
   result = parse_instruction_args(&s, arg, &assembler);
-  if (result != 0)
-    return 1;
+  ASSERT(result == 0)
+
   // //  TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Assembler only accepts whole numbers");
-  if (assembler.ic != 103)
-    return 1;
+  ASSERT(assembler.ic == 103)
   // TEST_ASSERT_EQUAL_INT(102, assembler.ic);
   s = "#-105";
   result = parse_instruction_args(&s, arg, &assembler);
-  if (result != 1)
-    return 1;
+  ASSERT(result == 1)
   // //   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Assembler only accepts numbers");
   ASSERT(105 == assembler.ic);
 

@@ -6,3 +6,4 @@ tests/tester
 CMakeCache.txt
 **/*.o
 **/*.d
+tests/Testing/**

@@ -44,7 +44,7 @@ int parse_int(char **s, int *result) {
 int parse_matrix_operand(char **s) {
   int row_reg, col_reg, size;
 
-  size = label_size(*s);
+  size = identifier_length(*s);
   *s += size;
 
   if (!accept(s, '[')) {
@@ -81,18 +81,20 @@ int parse_matrix_operand(char **s) {
 }
 
 bool_t is_mat(char *s) {
-  if (s == NULL)
+  if (s == NULL) {
     return FALSE;
+  }
 
   skip_spaces(&s);
 
-  int size = label_size(s);
+  int size = identifier_length(s);
 
   s += size;
 
   skip_spaces(&s);
   return *s == '[';
 }
+
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
@@ -133,6 +135,10 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   }
 
   if (size <= 0) {
+    return OPERAND_KIND_INVALID;
+  }
+
+  if (is_assembly_instruction(*s)) {
     return OPERAND_KIND_INVALID;
   }
 
@@ -336,9 +342,10 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   temp = strtok(line, " \t");
 
   /*If we get Whitespace, or a comment*/
-  if (temp == NULL || *temp == 0 || *temp == ';')
+  if (temp == NULL || *temp == 0 || *temp == ';') {
     /*Entire line of whitespace, ignore.*/
     return 1;
+  }
 
 
   /*From here, we can 100% be sure we either have an instruction command, or
@@ -361,8 +368,9 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   rest = strtok(NULL, "");
 
-  if (rest == NULL)
+  if (rest == NULL) {
     rest = "\0";
+  }
 
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means it's a data command.*/
@@ -387,7 +395,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   }
   else if (is_assembly_instruction(temp)) {
     instruction_t instruction = get_instruction(temp);
-    if (instruction.arg == -1) {
+    if (instruction.opcode == -1) {
       fprintf(stderr, "Unknown assembly command.");
       return 0;
     }

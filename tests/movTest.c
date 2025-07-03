@@ -1,6 +1,6 @@
 #include "../common/utils.h"
 
 int main() {
-  int a = keyword_to_value("mov");
-  return a == OPCODE_MOV ? 0 : 1;
+  instruction_t a = get_instruction("mov");
+  return a.opcode == OPCODE_MOV ? 0 : 1;
 }

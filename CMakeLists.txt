@@ -26,10 +26,6 @@ set(project_files
         firstpass/firstpass.h
 )
 
-add_library(firstpass firstpass/parser.c firstpass/firstpass.c
-        firstpass/firstpass.h)
-add_library(common common/utils.c common/data.h)
-add_library(datatypes datatypes/linked_list.c datatypes/growing_array.c datatypes/assembler.c)
 enable_testing()
 
 add_executable(MaabadaProject
@@ -38,11 +34,9 @@ add_executable(MaabadaProject
 )
 
 function(new_test testFile)
-    add_executable(${testFile} ${project_files} tests/${testFile})
-    add_test(NAME ${testFile} COMMAND ${testFile})
-    target_link_libraries(${testFile} common)
-    target_link_libraries(${testFile} datatypes)
-    target_link_libraries(${testFile} firstpass)
+    string(REPLACE .c "" EXE_NAME ${testFile})
+    add_executable(${EXE_NAME} ${project_files} tests/${testFile})
+    add_test(NAME ${testFile} COMMAND ${EXE_NAME})
 endfunction()
 
 file(GLOB_RECURSE SRC_LIST "tests/*.c")
