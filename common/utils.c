@@ -74,7 +74,6 @@ int is_label_valid(char *label, assembler_t *assembler) {
     return 0;
 
 
-  /*TODO: All Characters AFTER the first character must be [a-zA-Z1-9]+*/
   while (*ch != '\0') {
     if (!isalpha(*ch) && !isdigit(*ch))
       return 0;
