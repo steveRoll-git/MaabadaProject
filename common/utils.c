@@ -32,6 +32,18 @@ int keyword_to_value(char *token) {
   return -1;
 }
 
+int keyword_to_arg_amount(char *token) {
+  int i;
+  if (token == NULL)
+    return -1;
+
+  for (i = 0; i < keywords_length; i++) {
+    if (!strcmp(token, arr[i].name))
+      return arr[i].arg_amount;
+  }
+  return -1;
+}
+
 int is_assembly_command(char *token) {
   int i;
   if (token == NULL)

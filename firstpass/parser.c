@@ -347,11 +347,11 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   rest = strtok(NULL, "");
 
   /*Is my token an instruction, or data label?*/
-  /*If there's a dot, it means its a data command.*/
+  /*If there's a dot, it means it's a data command.*/
   if (*temp == '.') {
     /*NOTE: Get the data type that's in there :)*/
 
-    directive_kind_t kind = get_directive_kind(temp);
+    const directive_kind_t kind = get_directive_kind(temp);
     if (kind == DIRECTIVE_KIND_DATA) {
       parse_data(rest, assembler);
     }
@@ -365,9 +365,16 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
       fprintf(stderr, "Unknown datatype.");
       return 0;
     }
+    /*TODO: external, entry types??*/
   }
+
   else if (is_assembly_command(temp)) {
-    const opcode_t size = keyword_to_value(temp);
+    const opcode_t size = keyword_to_arg_amount(temp);
+
+    if (size == -1) {
+      fprintf(stderr, "Unknown assembly command.");
+      return 0;
+    }
 
     if (!parse_instruction_args(&rest, size, assembler)) {
       return 0;
