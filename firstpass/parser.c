@@ -138,7 +138,6 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
    * or worse, a label with a matrix addition!
    */
 
-  /*TODO: Creater a function is_mat, that takes char *s*/
   if (is_mat(*s)) {
     if (!parse_matrix_operand(s)) {
       return OPERAND_KIND_INVALID;
@@ -146,7 +145,6 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
     return OPERAND_KIND_MATRIX;
   }
 
-  /*FIXME: Doesn't work with mats yet, is_label Valid breaks it (For loop function that checks for [a-zA-z1-9]*/
   if (!is_label_valid(*s, assembler))
     return OPERAND_KIND_INVALID;
   /* Skip between all the characters of the label. not important in first pass.*/
