@@ -42,7 +42,11 @@ int parse_int(char **s, int *result) {
 }
 
 int parse_matrix_operand(char **s) {
-  int row_reg, col_reg;
+  int row_reg, col_reg, size;
+
+  size = label_size(*s);
+  *s += size;
+
   if (!accept(s, '[')) {
     /* Expected '['. */
     return 0;
@@ -76,6 +80,19 @@ int parse_matrix_operand(char **s) {
   return 1;
 }
 
+bool_t is_mat(char *s) {
+  if (s == NULL)
+    return FALSE;
+
+  skip_spaces(&s);
+
+  int size = label_size(s);
+
+  s += size;
+
+  skip_spaces(&s);
+  return *s == '[';
+}
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 /*TODO: add status return type code of what you you've returned. (Register, Matrix, Label, WholeNumber)*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
@@ -121,18 +138,20 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
    * or worse, a label with a matrix addition!
    */
 
-  /*FIXME: Doesn't work with mats yet, is_label Valid breaks it (For loop function that checks for [a-zA-z1-9]*/
-  if (!is_label_valid(*s, assembler))
-    return OPERAND_KIND_INVALID;
-  /* Skip between all the characters of the label. not important in first pass.*/
-
-
-  if (**s == '[') {
+  /*TODO: Creater a function is_mat, that takes char *s*/
+  if (is_mat(*s)) {
     if (!parse_matrix_operand(s)) {
       return OPERAND_KIND_INVALID;
     }
     return OPERAND_KIND_MATRIX;
   }
+
+  /*FIXME: Doesn't work with mats yet, is_label Valid breaks it (For loop function that checks for [a-zA-z1-9]*/
+  if (!is_label_valid(*s, assembler))
+    return OPERAND_KIND_INVALID;
+  /* Skip between all the characters of the label. not important in first pass.*/
+
+  *s += size;
 
 
   skip_spaces(s);
@@ -178,7 +197,6 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       return *s == NULL || **s == '\0';
 
     case TWO_ARGS:
-      /*TODO: shrink IC message by 1, when both arguments are registers. */
       if ((arg1 = parse_instruction_argument(s, assembler)) == OPERAND_KIND_INVALID) {
         return 0;
       }
@@ -371,7 +389,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   }
 
   else if (is_assembly_command(temp)) {
-    const opcode_t size = keyword_to_arg_amount(temp);
+    const args_t size = keyword_to_arg_amount(temp);
 
     if (size == -1) {
       fprintf(stderr, "Unknown assembly command.");
