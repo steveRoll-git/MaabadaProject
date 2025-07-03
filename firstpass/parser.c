@@ -320,10 +320,8 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   temp = strtok(line, " \t");
 
-  if (temp == NULL)
-    fprintf(stderr, "How did we get here?");
-
-  else if (*temp == '\n')
+  /*If we get Whitespace, or a comment*/
+  if (temp == NULL || *temp == ';')
     /*Entire line of whitespace, ignore.*/
     return 1;
 
