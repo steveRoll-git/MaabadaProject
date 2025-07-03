@@ -23,9 +23,11 @@ set(project_files
         datatypes/growing_array.h
         datatypes/assembler.c
         datatypes/assembler.h
+        firstpass/firstpass.h
 )
 
-add_library(firstpass firstpass/parser.c firstpass/firstpass.c)
+add_library(firstpass firstpass/parser.c firstpass/firstpass.c
+        firstpass/firstpass.h)
 add_library(common common/utils.c common/data.h)
 add_library(datatypes datatypes/linked_list.c datatypes/growing_array.c datatypes/assembler.c)
 enable_testing()

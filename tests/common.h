@@ -6,6 +6,7 @@
 #include "../common/utils.h"
 #include "../datatypes/assembler.h"
 #include "../datatypes/linked_list.h"
+#include "../firstpass/firstpass.h"
 #include "../firstpass/parser.h"
 #include "../preprocess/macroprocessor.h"
 #include "../preprocess/parser.h"
