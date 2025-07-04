@@ -9,8 +9,6 @@ include(CTest)
 set(project_files
         datatypes/linked_list.c
         datatypes/linked_list.h
-        preprocess/parser.c
-        preprocess/parser.h
         preprocess/macroprocessor.c
         preprocess/macroprocessor.h
         common/data.h

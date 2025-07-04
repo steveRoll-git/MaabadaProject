@@ -5,11 +5,51 @@
 #include "../common/data.h"
 #include "../datatypes/assembler.h"
 
-extern const instruction_t instructions[];
+extern instruction_t instructions[];
+
+typedef enum token_kind_t {
+  /* Not a valid token. */
+  TOKEN_INVALID = 0,
+  /* A number token, e.g. 123, -456, +789 */
+  TOKEN_NUMBER,
+  /* A comma ','. */
+  TOKEN_COMMA,
+  /* A hash '#'. */
+  TOKEN_HASH,
+  /* A colon ':'. */
+  TOKEN_COLON,
+  /* An identifier - any name that isn't a reserved word. */
+  TOKEN_IDENT,
+  /* A name of a register: 'r0' through 'r7'. */
+  TOKEN_REGISTER,
+  /* The 'mcro' preprocessor keyword. */
+  TOKEN_MCRO,
+  /* The 'mcroend' preprocessor keyword. */
+  TOKEN_MCROEND,
+  /* The name of an instruction. */
+  TOKEN_INSTRUCTION,
+  /* The end of the current line. */
+  TOKEN_END
+} token_kind_t;
+
+typedef struct token_t {
+  /* What kind of token this is. */
+  token_kind_t kind;
+  /* This token's contents. */
+  char value[MAX_LINE];
+  /* If `kind` is `TOKEN_REGISTER`, this stores the register's index, from 0 to 7. */
+  char register_index;
+  /* If `kind` is `TOKEN_INSTRUCTION`, this stores a pointer to the instruction. */
+  instruction_t *instruction;
+} token_t;
+
+/* Reads the next token at the string pointed to by `s`, after skipping leading spaces. */
+/* Updates `s` so that it will point to the next character after the token that was read. */
+token_t read_token(char **s);
 
 /* Given an instruction's name, returns information about that instruction. */
 /* If no instruction by that name exists, returns an instruction with -1 as its opcode. */
-instruction_t get_instruction(char *token);
+instruction_t *get_instruction(char *token);
 
 /**
  * Given a token inside an assembly command, check if it's a label.

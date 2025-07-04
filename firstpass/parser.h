@@ -5,7 +5,7 @@
 #include "../common/data.h"
 #include "../datatypes/assembler.h"
 #include "../firstpass/parser.h"
-typedef enum operand_kind {
+typedef enum operand_kind_t {
   OPERAND_KIND_INVALID,
   OPERAND_KIND_REGISTER,
   OPERAND_KIND_WHOLE_NUMBER,

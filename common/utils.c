@@ -7,38 +7,115 @@
 #include "./data.h"
 
 /* This array stores all needed information about all the instructions. */
-const instruction_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
-                                      {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-                                      {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
-                                      {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-                                      {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
-                                      {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-                                      {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
-                                      {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-                                      {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
-                                      {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-                                      {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
-                                      {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-                                      {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
-                                      {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-                                      {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
-                                      {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
+instruction_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+                                {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+                                {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+                                {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+                                {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+                                {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+                                {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+                                {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+                                {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+                                {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+                                {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+                                {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+                                {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+                                {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+                                {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+                                {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
 const int num_instructions = sizeof(instructions) / sizeof(struct instruction_t);
 
-instruction_t get_instruction(char *token) {
+int does_begin_number(char *s) {
+  return isdigit(*s) || ((*s == '-' || *s == '+') && isdigit(*(s + 1)));
+}
+
+/* Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character. */
+void add_char(char **dest, char **src) {
+  **dest = **src;
+  (*dest)++;
+  (*src)++;
+}
+
+token_t read_token(char **s) {
+  token_t token;
+  char *value_ptr = token.value;
+
+  /* Skip past leading spaces. */
+  while (isspace(**s)) {
+    (*s)++;
+  }
+
+  /* There are no more tokens after the null terminator and semicolon. */
+  if (**s == 0 || **s == ';') {
+    token.kind = TOKEN_END;
+    return token;
+  }
+
+  if (**s == ',') {
+    token.kind = TOKEN_COMMA;
+    return token;
+  }
+
+  if (**s == '#') {
+    token.kind = TOKEN_HASH;
+    return token;
+  }
+
+  if (**s == '-' || **s == '+' || isdigit(**s)) {
+    token.kind = TOKEN_NUMBER;
+    add_char(&value_ptr, s);
+  }
+  else {
+    token.kind = TOKEN_IDENT;
+  }
+
+  /* Copy characters from `str` to `token`'s value as long as they're not spaces or null. */
+  while (isalnum(**s) || **s == '_') {
+    add_char(&value_ptr, s);
+  }
+  *value_ptr = 0;
+
+  /* If the token is 2 characters long, and it's the letter 'r' and a digit from 0 to 7, it's a register name. */
+  if (value_ptr - token.value == 2 && token.value[0] == 'r' && token.value[1] >= '0' && token.value[1] <= '7') {
+    token.kind = TOKEN_REGISTER;
+    token.register_index = token.value[1] - '0';
+    return token;
+  }
+
+  if (strcmp(token.value, "mcro") == 0) {
+    token.kind = TOKEN_MCRO;
+    return token;
+  }
+  if (strcmp(token.value, "mcroend") == 0) {
+    token.kind = TOKEN_MCROEND;
+    return token;
+  }
+
+  {
+    instruction_t *instruction = get_instruction(token.value);
+    if (instruction) {
+      token.kind = TOKEN_INSTRUCTION;
+      token.instruction = instruction;
+    }
+  }
+
+  return token;
+}
+
+instruction_t *get_instruction(char *token) {
   int i;
   if (token == NULL) {
-    return (instruction_t) {NULL, -1, 0};
+    return NULL;
   }
 
   for (i = 0; i < num_instructions; i++) {
     if (!strcmp(token, instructions[i].name)) {
-      return instructions[i];
+      return &instructions[i];
     }
   }
 
-  return (instruction_t) {NULL, -1, 0};
+  return NULL;
 }
 
 int is_assembly_instruction(char *token) {

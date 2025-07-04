@@ -394,12 +394,12 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
     /*TODO: external, entry types??*/
   }
   else if (is_assembly_instruction(temp)) {
-    instruction_t instruction = get_instruction(temp);
-    if (instruction.opcode == -1) {
+    instruction_t *instruction = get_instruction(temp);
+    if (!instruction) {
       fprintf(stderr, "Unknown assembly command.");
       return 0;
     }
-    if (!parse_instruction_args(&rest, instruction.arg_amount, assembler)) {
+    if (!parse_instruction_args(&rest, instruction->arg_amount, assembler)) {
       return 0;
     }
   }
