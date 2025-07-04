@@ -154,13 +154,13 @@ int is_label_valid(char *label, assembler_t *assembler) {
   if (!(isalpha(*label))) {
     return 0;
   }
-
-  while (*ch != '\0') {
-    if (!isalpha(*ch) && !isdigit(*ch)) {
-      return 0;
-    }
-    ch++;
-  }
+  /*TODO: Fix me*/
+  // while (*ch != '\0') {
+  //   if (!isalpha(*ch) && !isdigit(*ch)) {
+  //     return 0;
+  //   }
+  //   ch++;
+  // }
 
   if (is_register(label)) {
     return 0;
