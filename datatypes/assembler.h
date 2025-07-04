@@ -35,4 +35,5 @@ void add_data(assembler_t *assembler, int data);
 
 void print_data(assembler_t *assembler);
 
+void merge_data(assembler_t *assembler);
 #endif

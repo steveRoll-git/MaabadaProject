@@ -282,7 +282,7 @@ directive_kind_t get_directive_kind(char *token) {
 int compile_assembly_code(char *line, assembler_t *assembler) {
   char *temp, *rest;
   int label_flag = 0;
-
+  char *label = "";
   temp = strtok(line, " \t");
 
   /*If we get Whitespace, or a comment*/
@@ -300,10 +300,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   if (is_label_flag) {
     ASSERTM(is_label_valid(temp, assembler), INVALID_LABEL_ERR);
-
-    // else
-    /*TODO: Need to know if its Data or Intruction before setting label.*/
-    list_add(&assembler->label_table, temp, assembler->ic);
+    label = temp;
     temp = strtok(NULL, " \t");
   }
 
@@ -320,6 +317,11 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
    * correctly.*/
   if (*temp == '.') {
     directive_kind_t kind = get_directive_kind(temp);
+
+    if (is_label_flag) {
+      list_add(&assembler->data_table, label, assembler->dc);
+    }
+
     switch (kind) {
       case DIRECTIVE_KIND_DATA:
         return parse_data(rest, assembler);
@@ -340,6 +342,11 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   else if (is_assembly_instruction(temp)) {
     instruction_t *instruction = get_instruction(temp);
+
+    if (is_label_flag) {
+      list_add(&assembler->label_table, label, assembler->ic);
+    }
+
 
     ASSERT(parse_instruction_args(&rest, instruction->arg_amount, assembler))
   }
