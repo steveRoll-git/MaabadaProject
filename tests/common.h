@@ -9,7 +9,6 @@
 #include "../firstpass/firstpass.h"
 #include "../firstpass/parser.h"
 #include "../preprocess/macroprocessor.h"
-#include "../preprocess/parser.h"
 
 #define ASSERTM(a, message)                                                                                            \
   if (!(a)) {                                                                                                          \

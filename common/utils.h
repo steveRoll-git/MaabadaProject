@@ -92,5 +92,4 @@ int identifier_length(const char *ident);
 
 int is_register(const char *token);
 
-int keyword_to_arg_amount(char *token);
 #endif

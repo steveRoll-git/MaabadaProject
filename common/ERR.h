@@ -23,8 +23,9 @@
   }
 
 #define ASSERT(a)                                                                                                      \
-  if (!(a))                                                                                                            \
-    return 0;
+  if (!(a)) {                                                                                                          \
+    return 0;                                                                                                          \
+  }
 
 
 #endif // ERR_H
