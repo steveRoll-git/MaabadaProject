@@ -33,4 +33,6 @@ assembler_t assembler_create();
 /* Adds a single word to the assembler's data image. */
 void add_data(assembler_t *assembler, int data);
 
+void print_data(assembler_t *assembler);
+
 #endif
