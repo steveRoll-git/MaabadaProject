@@ -35,7 +35,7 @@ int first_pass(char *input_file_path, char *output_file_path, assembler_t *assem
     }
   }
 
-
+  merge_data(assembler);
   /*TODO: Merge between DC and IC into label_table.*/
 
   // merge_dc_to_ic()
