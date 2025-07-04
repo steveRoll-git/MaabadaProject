@@ -9,12 +9,11 @@ void compile_line(char *line) {
 }
 
 /* TODO temp arguments */
-int first_pass(char *input_file_path, char *output_file_path) {
-  assembler_t assembler = assembler_create();
+int first_pass(char *input_file_path, char *output_file_path, assembler_t *assembler) {
+
   FILE *in, *out;
   char line[MAX_LINE];
   int line_number = 0, error_flag = FALSE, res, total_errors = 0;
-  ;
 
 
   in = fopen(input_file_path, "rb");
@@ -26,7 +25,7 @@ int first_pass(char *input_file_path, char *output_file_path) {
   }
 
   while (read_line(in, line) != SENTENCE_EOF) {
-    res = compile_assembly_code(line, &assembler);
+    res = compile_assembly_code(line, assembler);
     line_number++;
 
     if (!res) {

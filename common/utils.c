@@ -74,17 +74,11 @@ int is_label_valid(char *label, assembler_t *assembler) {
     return 0;
 
 
-  while (*ch != '\0') {
-    if (!isalpha(*ch) && !isdigit(*ch))
-      return 0;
-    ch++;
-  }
-
   if (is_register(label))
     return 0;
 
   /* Label can't be a keyword name */
-  if (is_assembly_command(label) == 1)
+  if (is_assembly_command(label))
     return 0;
 
   /* Label can't be a name of a macro */

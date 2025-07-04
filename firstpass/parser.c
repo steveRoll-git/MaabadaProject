@@ -267,6 +267,7 @@ int parse_string(char *s, assembler_t *assembler) {
     add_data(assembler, *s);
     s++;
   }
+  add_data(assembler, '\0');
 
   return 1;
 }
@@ -313,10 +314,12 @@ int parse_matrix(char *s, assembler_t *assembler) {
     if (!parse_data(s, assembler)) {
       return 0;
     }
-    if (assembler->dc - prev_dc > max_elements) {
-      /* Too many elements in matrix. */
-      return 0;
-    }
+
+    // if (assembler->dc - prev_dc > max_elements) {
+    //   /* Too many elements in matrix. */
+    //   return 0;
+    // }
+    ASSERTM((int) (assembler->dc - (prev_dc + 1)) <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
   /* TODO get clarification on forums about this */
@@ -361,13 +364,10 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   int is_label_flag = is_label(temp);
 
   if (is_label_flag) {
-
-    if (is_label_valid(temp, assembler) != 1) {
-      fprintf(stderr, "Label %s cannot be used at line %d", temp, __LINE__);
-      return 0;
-    }
+    ASSERTM(is_label_valid(temp, assembler), INVALID_LABEL_ERR);
 
     // else
+    /*TODO: Need to know if its Data or Intruction before setting label.*/
     list_add(&assembler->label_table, temp, assembler->ic);
     temp = strtok(NULL, " \t");
   }
@@ -379,6 +379,9 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
 
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means it's a data command.*/
+
+  /*TODO: All the functions here parse_data, mat, etc must return the size of DC values entered, so we can set up label
+   * correctly.*/
   if (*temp == '.') {
     /*NOTE: Get the data type that's in there :)*/
 
@@ -402,14 +405,9 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   else if (is_assembly_command(temp)) {
     const args_t size = keyword_to_arg_amount(temp);
 
-    if (size == -1) {
-      fprintf(stderr, "Unknown assembly command.");
-      return 0;
-    }
+    ASSERTM(size != -1, ERR_UNKNOWN_INSTRUCTION);
 
-    if (!parse_instruction_args(&rest, size, assembler)) {
-      return 0;
-    }
+    ASSERT(parse_instruction_args(&rest, size, assembler))
   }
 
   else {
