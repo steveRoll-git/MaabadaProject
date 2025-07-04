@@ -18,6 +18,19 @@ void add_data(assembler_t *assembler, int data) {
   assembler->dc++;
 }
 
+void merge_data(assembler_t *assembler) {
+  list_node_t *node = assembler->data_table.head;
+
+
+  while (node != NULL) {
+    list_add(&assembler->label_table, node->name, node->value + assembler->ic);
+    node = node->next;
+  }
+
+  purge_list(&assembler->data_table);
+}
+
+
 void print_data(assembler_t *assembler) {
   int i = 0;
   printf("IC: %d \n", assembler->ic);
