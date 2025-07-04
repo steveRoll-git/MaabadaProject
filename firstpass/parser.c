@@ -44,7 +44,6 @@ int parse_matrix_operand(char **s) {
   ASSERT(accept(s, ']'));
   ASSERT(accept(s, '['));
 
-
   ASSERT(is_register(*s));
 
   col_reg = *(*s + 1) - '0';
@@ -280,55 +279,43 @@ directive_kind_t get_directive_kind(char *token) {
 }
 
 int compile_assembly_code(char *line, assembler_t *assembler) {
-  char *temp, *rest;
-  int label_flag = 0;
-  char *label = "";
-  temp = strtok(line, " \t");
+  word_t word;
+  bool_t has_label = FALSE;
+  char label[MAX_LABEL + 1];
 
-  /*If we get Whitespace, or a comment*/
-  if (temp == NULL || *temp == 0 || *temp == ';') {
-    /*Entire line of whitespace, ignore.*/
-    return 1;
+  skip_spaces(&line);
+
+  if (*line == 0 || *line == ';') {
+    /* Entire line of whitespace, ignore. */
+    return TRUE;
   }
 
+  word = read_word(&line);
 
-  /*From here, we can 100% be sure we either have an instruction command, or
-   * data command.*/
-
-  /*Do we have a label?*/
-  int is_label_flag = is_label(temp);
-
-  if (is_label_flag) {
-    ASSERTM(is_label_valid(temp, assembler), INVALID_LABEL_ERR);
-    label = temp;
-    temp = strtok(NULL, " \t");
+  if (word.kind != WORD_NONE && accept(&line, ':')) {
+    ASSERTM(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
+    ASSERTM(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
+    ASSERTM(strlen(word.value) <= MAX_LABEL, ERR_LABEL_TOO_LONG)
+    has_label = TRUE;
+    strcpy(label, word.value);
+    word = read_word(&line);
   }
 
-  rest = strtok(NULL, "");
+  if (word.kind == WORD_NONE && accept(&line, '.')) {
+    word = read_word(&line);
+    directive_kind_t kind = get_directive_kind(word.value);
 
-  if (rest == NULL) {
-    rest = "\0";
-  }
-
-  /*Is my token an instruction, or data label?*/
-  /*If there's a dot, it means it's a data command.*/
-
-  /*TODO: All the functions here parse_data, mat, etc must return the size of DC values entered, so we can set up label
-   * correctly.*/
-  if (*temp == '.') {
-    directive_kind_t kind = get_directive_kind(temp);
-
-    if (is_label_flag) {
+    if (has_label) {
       list_add(&assembler->data_table, label, assembler->dc);
     }
 
     switch (kind) {
       case DIRECTIVE_KIND_DATA:
-        return parse_data(rest, assembler);
+        return parse_data(line, assembler);
       case DIRECTIVE_KIND_STRING:
-        return parse_string(rest, assembler);
+        return parse_string(line, assembler);
       case DIRECTIVE_KIND_MAT:
-        return parse_matrix(rest, assembler);
+        return parse_matrix(line, assembler);
       case DIRECTIVE_KIND_ENTRY:
         /* TODO */
       case DIRECTIVE_KIND_EXTERN:
@@ -340,15 +327,12 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
     /*TODO: external, entry types??*/
   }
 
-  else if (is_assembly_instruction(temp)) {
-    instruction_t *instruction = get_instruction(temp);
-
-    if (is_label_flag) {
+  if (word.kind == WORD_INSTRUCTION) {
+    if (has_label) {
       list_add(&assembler->label_table, label, assembler->ic);
     }
 
-
-    ASSERT(parse_instruction_args(&rest, instruction->arg_amount, assembler))
+    ASSERT(parse_instruction_args(&line, word.instruction->arg_amount, assembler))
   }
   else {
     fprintf(stderr, "Invalid command");

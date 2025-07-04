@@ -4,6 +4,9 @@
 /* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
+/* The maximum length of a label. */
+#define MAX_LABEL 30
+
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
 #define INSTRUCTION_ADD "add"
