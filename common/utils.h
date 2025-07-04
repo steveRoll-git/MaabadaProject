@@ -7,45 +7,36 @@
 
 extern instruction_t instructions[];
 
-typedef enum token_kind_t {
-  /* Not a valid token. */
-  TOKEN_INVALID = 0,
-  /* A number token, e.g. 123, -456, +789 */
-  TOKEN_NUMBER,
-  /* A comma ','. */
-  TOKEN_COMMA,
-  /* A hash '#'. */
-  TOKEN_HASH,
-  /* A colon ':'. */
-  TOKEN_COLON,
-  /* An identifier - any name that isn't a reserved word. */
-  TOKEN_IDENT,
-  /* A name of a register: 'r0' through 'r7'. */
-  TOKEN_REGISTER,
+typedef enum word_kind_t {
+  /* The text that was attempted to be read is not a word. */
+  WORD_NONE,
   /* The 'mcro' preprocessor keyword. */
-  TOKEN_MCRO,
-  /* The 'mcroend' preprocessor keyword. */
-  TOKEN_MCROEND,
+  WORD_MCRO,
   /* The name of an instruction. */
-  TOKEN_INSTRUCTION,
-  /* The end of the current line. */
-  TOKEN_END
-} token_kind_t;
+  WORD_MCROEND,
+  /* The name of an instruction. */
+  WORD_INSTRUCTION,
+  /* A name of a register: 'r0' through 'r7'. */
+  WORD_REGISTER,
+  /* Any name that isn't a reserved word. */
+  WORD_IDENTIFIER
+} word_kind_t;
 
-typedef struct token_t {
-  /* What kind of token this is. */
-  token_kind_t kind;
-  /* This token's contents. */
+typedef struct word_t {
+  /* What kind of word this is. */
+  word_kind_t kind;
+  /* This word's contents. */
   char value[MAX_LINE];
-  /* If `kind` is `TOKEN_REGISTER`, this stores the register's index, from 0 to 7. */
+  /* If `kind` is `WORD_REGISTER`, this stores the register's index, from 0 to 7. */
   char register_index;
-  /* If `kind` is `TOKEN_INSTRUCTION`, this stores a pointer to the instruction. */
+  /* If `kind` is `WORD_INSTRUCTION`, this stores a pointer to the instruction. */
   instruction_t *instruction;
-} token_t;
+} word_t;
 
-/* Reads the next token at the string pointed to by `s`, after skipping leading spaces. */
-/* Updates `s` so that it will point to the next character after the token that was read. */
-token_t read_token(char **s);
+/* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
+ * `s`, after skipping leading spaces. */
+/* Updates `s` so that it will point to the next character after the word that was read. */
+word_t read_word(char **s);
 
 /* Given an instruction's name, returns information about that instruction. */
 /* If no instruction by that name exists, returns an instruction with -1 as its opcode. */
@@ -91,5 +82,11 @@ int is_assembly_instruction(char *token);
 int identifier_length(const char *ident);
 
 int is_register(const char *token);
+
+/* Moves `*s` to point at the next non-space character. */
+void skip_spaces(char **s);
+
+/* Returns whether there are no more non-space characters in `s`. */
+int is_end(char *s);
 
 #endif

@@ -37,38 +37,21 @@ void add_char(char **dest, char **src) {
   (*src)++;
 }
 
-token_t read_token(char **s) {
-  token_t token;
-  char *value_ptr = token.value;
+word_t read_word(char **s) {
+  word_t word;
+  char *value_ptr = word.value;
 
   /* Skip past leading spaces. */
   while (isspace(**s)) {
     (*s)++;
   }
 
-  /* There are no more tokens after the null terminator and semicolon. */
-  if (**s == 0 || **s == ';') {
-    token.kind = TOKEN_END;
-    return token;
+  if (!isalpha(**s)) {
+    word.kind = WORD_NONE;
+    return word;
   }
 
-  if (**s == ',') {
-    token.kind = TOKEN_COMMA;
-    return token;
-  }
-
-  if (**s == '#') {
-    token.kind = TOKEN_HASH;
-    return token;
-  }
-
-  if (**s == '-' || **s == '+' || isdigit(**s)) {
-    token.kind = TOKEN_NUMBER;
-    add_char(&value_ptr, s);
-  }
-  else {
-    token.kind = TOKEN_IDENT;
-  }
+  word.kind = WORD_IDENTIFIER;
 
   /* Copy characters from `str` to `token`'s value as long as they're not spaces or null. */
   while (isalnum(**s) || **s == '_') {
@@ -76,31 +59,26 @@ token_t read_token(char **s) {
   }
   *value_ptr = 0;
 
-  /* If the token is 2 characters long, and it's the letter 'r' and a digit from 0 to 7, it's a register name. */
-  if (value_ptr - token.value == 2 && token.value[0] == 'r' && token.value[1] >= '0' && token.value[1] <= '7') {
-    token.kind = TOKEN_REGISTER;
-    token.register_index = token.value[1] - '0';
-    return token;
+  if (value_ptr - word.value == 2 && word.value[0] == 'r' && word.value[1] >= '0' && word.value[1] <= '7') {
+    /* If the token is 2 characters long, and it's the letter 'r' and a digit from 0 to 7, it's a register name. */
+    word.kind = WORD_REGISTER;
+    word.register_index = word.value[1] - '0';
   }
-
-  if (strcmp(token.value, "mcro") == 0) {
-    token.kind = TOKEN_MCRO;
-    return token;
+  else if (strcmp(word.value, "mcro") == 0) {
+    word.kind = WORD_MCRO;
   }
-  if (strcmp(token.value, "mcroend") == 0) {
-    token.kind = TOKEN_MCROEND;
-    return token;
+  else if (strcmp(word.value, "mcroend") == 0) {
+    word.kind = WORD_MCROEND;
   }
-
-  {
-    instruction_t *instruction = get_instruction(token.value);
+  else {
+    instruction_t *instruction = get_instruction(word.value);
     if (instruction) {
-      token.kind = TOKEN_INSTRUCTION;
-      token.instruction = instruction;
+      word.kind = WORD_INSTRUCTION;
+      word.instruction = instruction;
     }
   }
 
-  return token;
+  return word;
 }
 
 instruction_t *get_instruction(char *token) {
@@ -241,4 +219,16 @@ int is_register(const char *token) {
   char register_number = *(token + 1);
 
   return length == 2 && *token == 'r' && register_number >= '0' && register_number <= '7';
+}
+
+/* Moves `*s` to point at the next non-space character. */
+void skip_spaces(char **s) {
+  while (*s != NULL && isspace(**s)) {
+    (*s)++;
+  }
+}
+
+int is_end(char *s) {
+  skip_spaces(&s);
+  return *s == 0;
 }

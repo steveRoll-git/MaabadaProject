@@ -7,12 +7,6 @@
 #include "../common/data.h"
 #include "../common/utils.h"
 #include "../datatypes/linked_list.h"
-/* Moves `*s` to point at the next non-space character. */
-void skip_spaces(char **s) {
-  while (*s != NULL && isspace(**s)) {
-    (*s)++;
-  }
-}
 
 /* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */
 int accept(char **s, char c) {
@@ -22,12 +16,6 @@ int accept(char **s, char c) {
     return 1;
   }
   return 0;
-}
-
-/* Returns whether there are no more non-space characters in `s`. */
-int is_end(char *s) {
-  skip_spaces(&s);
-  return *s == 0;
 }
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */

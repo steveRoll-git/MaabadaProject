@@ -14,15 +14,15 @@ typedef enum {
 } parse_line_status_t;
 
 parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors) {
-  token_t token;
+  word_t word;
   char *cur_line = line;
 
-  token = read_token(&cur_line);
+  word = read_word(&cur_line);
 
-  if (token.kind == TOKEN_MCRO) {
+  if (word.kind == WORD_MCRO) {
     /* A line that starts with `mcro` begins a macro definition. */
-    token = read_token(&cur_line);
-    if (token.kind != TOKEN_IDENT) {
+    word = read_word(&cur_line);
+    if (word.kind != WORD_IDENTIFIER) {
       if (print_errors) {
         printf("Macro initialization doesn't contain a valid name.\n");
       }
@@ -30,10 +30,10 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
     }
 
     if (macro_name) {
-      strcpy(macro_name, token.value);
+      strcpy(macro_name, word.value);
     }
 
-    if (read_token(&cur_line).kind != TOKEN_END) {
+    if (!is_end(cur_line)) {
       if (print_errors) {
         printf("Extraneous text after macro definition.\n");
       }
@@ -43,8 +43,8 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
     return LINE_MCRO;
   }
 
-  if (token.kind == TOKEN_MCROEND) {
-    if (read_token(&cur_line).kind != TOKEN_END) {
+  if (word.kind == WORD_MCROEND) {
+    if (!is_end(cur_line)) {
       if (print_errors) {
         printf("Extraneous text after `mcroend`.\n");
       }
@@ -54,9 +54,9 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
   }
 
   /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
-  if (token.kind == TOKEN_IDENT && read_token(&cur_line).kind == TOKEN_END) {
+  if (word.kind == WORD_IDENTIFIER && is_end(cur_line)) {
     if (macro_name) {
-      strcpy(macro_name, token.value);
+      strcpy(macro_name, word.value);
     }
     return LINE_MACROCALL;
   }
