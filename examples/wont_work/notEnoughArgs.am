@@ -1,4 +1,5 @@
 ; 2 args that dont get all args
+; this file is made to check that the errors work correctly, when the file runs there has to be EXACTLY 19 errors.
 
 mov r1
 mov #-2
