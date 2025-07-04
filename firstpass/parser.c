@@ -35,46 +35,21 @@ int parse_matrix_operand(char **s) {
   size = identifier_length(*s);
   *s += size;
 
-  // if (!accept(s, '[')) {
-  //   /* Expected '['. */
-  //   return 0;
-  // }
   ASSERT(accept(s, '['));
-
-  // if (!is_register(*s)) {
-  //   /* Expected a number. */
-  //   return 0;
-  // }
 
   ASSERT(is_register(*s));
   row_reg = *(*s + 1) - '0';
   *s += 2;
 
-  // if (!accept(s, ']')) {
-  //   /* Expected ']'. */
-  //   return 0;
-  // }
   ASSERT(accept(s, ']'));
-
-  // if (!accept(s, '[')) {
-  //   /* Expected '['. */
-  //   return 0;
-  // }
   ASSERT(accept(s, '['));
 
-  // if (!is_register(*s)) {
-  //   /* Expected a number. */
-  //   return 0;
-  // }
+
   ASSERT(is_register(*s));
 
   col_reg = *(*s + 1) - '0';
   *s += 2;
 
-  // if (!accept(s, ']')) {
-  //   /* Expected ']'. */
-  //   return 0;
-  // }
   ASSERT(accept(s, ']'));
 
   return 1;
@@ -99,14 +74,15 @@ bool_t is_mat(char *s) {
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
   char *ptr;
-  /*EXAMPLES:  R1-R8, OPERAND_KIND_LABEL, MAT  , *-1 */
+  word_t word;
+
   skip_spaces(s);
 
   if (**s == '\0') {
     return OPERAND_KIND_INVALID;
   }
 
-  /* Absolute Number */
+  /* Immediate number */
   if (accept(s, '#')) {
     if (!isdigit(**s) && **s != '-' && **s != '+') {
       return OPERAND_KIND_INVALID;
@@ -120,29 +96,17 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
     return OPERAND_KIND_WHOLE_NUMBER;
   }
 
-  /*
-   * Registers
-   * Check first letter is R
-   * Check second letter is ascii between '0'-'8'
-   * Check third letter is an end, Space tab, or a new arg (, ]), I removed , because we need to know if its 0ARG or 2
-   * ARG.
-   */
-  int size = identifier_length(*s);
+  word = read_word(s);
 
-  if (is_register(*s)) {
-    *s += size;
+  if (word.kind == WORD_REGISTER) {
     return OPERAND_KIND_REGISTER;
   }
 
-  if (size <= 0) {
+  if (word.kind != WORD_IDENTIFIER) {
     return OPERAND_KIND_INVALID;
   }
 
-  if (is_assembly_instruction(*s)) {
-    return OPERAND_KIND_INVALID;
-  }
-
-  *s += size;
+  skip_spaces(s);
 
   if (**s == '[') {
     if (!parse_matrix_operand(s)) {
@@ -151,7 +115,6 @@ operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
     return OPERAND_KIND_MATRIX;
   }
 
-  skip_spaces(s);
   return OPERAND_KIND_LABEL;
 }
 
@@ -176,7 +139,6 @@ int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
   return size1 + size2;
 }
 
-// ReSharper disable once CppNotAllPathsReturnValue
 int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
   skip_spaces(s);
   operand_kind_t arg1, arg2;
@@ -217,6 +179,8 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
 
       return TRUE;
   }
+
+  return FALSE;
 }
 
 int parse_data(char *s, assembler_t *assembler) {
@@ -238,20 +202,14 @@ int parse_data(char *s, assembler_t *assembler) {
 int parse_string(char *s, assembler_t *assembler) {
   char *last_quotes;
 
-  if (!accept(&s, '"')) {
-    /* .string directive must contain a string enclosed in quotes. */
-    return 0;
-  }
+  /* .string directive must contain a string enclosed in quotes. */
+  ASSERT(accept(&s, '"'))
 
   last_quotes = strrchr(s, '"');
-  if (last_quotes == NULL) {
-    /* The string must be enclosed by two quotes. */
-    return 0;
-  }
-  if (!is_end(last_quotes + 1)) {
-    /* Extraneous text after string. */
-    return 0;
-  }
+  /* The string must be enclosed by two quotes. */
+  ASSERT(last_quotes)
+  /* Extraneous text after string. */
+  ASSERT(is_end(last_quotes + 1))
 
   while (s < last_quotes) {
     add_data(assembler, *s);
@@ -268,35 +226,20 @@ int parse_matrix(char *s, assembler_t *assembler) {
   int prev_dc = assembler->dc;
   int i;
   skip_spaces(&s);
-  if (!accept(&s, '[')) {
-    /* Expected '['. */
-    return 0;
-  }
-  if (!parse_int(&s, &rows)) {
-    /* Expected a number. */
-    return 0;
-  }
-  if (!accept(&s, ']')) {
-    /* Expected ']'. */
-    return 0;
-  }
-  if (!accept(&s, '[')) {
-    /* Expected '['. */
-    return 0;
-  }
-  if (!parse_int(&s, &cols)) {
-    /* Expected a number. */
-    return 0;
-  }
-  if (!accept(&s, ']')) {
-    /* Expected ']'. */
-    return 0;
-  }
+  ASSERT(accept(&s, '['))
+  /* Expected a number. */
+  ASSERT(parse_int(&s, &rows))
+  /* Expected ']'. */
+  ASSERT(accept(&s, ']'))
+  /* Expected '['. */
+  ASSERT(accept(&s, '['))
+  /* Expected a number. */
+  ASSERT(parse_int(&s, &cols))
+  /* Expected ']'. */
+  ASSERT(accept(&s, ']'))
 
-  if (rows <= 0 || cols <= 0) {
-    /* The number of rows and columns must be positive. */
-    return 0;
-  }
+  /* The number of rows and columns must be positive. */
+  ASSERT(rows <= 0 || cols <= 0)
   max_elements = rows * cols;
 
   skip_spaces(&s);
@@ -305,11 +248,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
       return 0;
     }
 
-    // if (assembler->dc - prev_dc > max_elements) {
-    //   /* Too many elements in matrix. */
-    //   return 0;
-    // }
-    ASSERTM((int) (assembler->dc - (prev_dc + 1)) <= max_elements, ERR_MATRIX_OVERFLOW)
+    ASSERTM(assembler->dc - (prev_dc + 1) <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
   /* TODO get clarification on forums about this */
