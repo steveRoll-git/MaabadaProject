@@ -10,7 +10,11 @@
 #define ERR_SECOND_ARG_INVALID "Invalid Second Argument"
 #define ERR_WHERE_IS_MY_COMMA "Missing Comma between two commands"
 #define NUMBER_NOT_VALID "Invalid Number"
+#define INVALID_LABEL_ERR "Invalid Label"
+#define ERR_UNKNOWN_INSTRUCTION "Unknown Assembly Command"
 
+#define INVALID_INSTRUCTION "Invalid Instruction"
+#define ERR_MATRIX_OVERFLOW "Matrix has too many values for its buffer size"
 
 #define ASSERTM(a, s)                                                                                                  \
   if (!(a)) {                                                                                                          \
