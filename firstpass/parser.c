@@ -72,7 +72,6 @@ bool_t is_mat(char *s) {
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
 operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
   int temp;
-  char *ptr;
   word_t word;
 
   skip_spaces(s);
@@ -238,7 +237,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
   ASSERT(accept(&s, ']'))
 
   /* The number of rows and columns must be positive. */
-  ASSERT(rows <= 0 || cols <= 0)
+  ASSERT(rows > 0 && cols > 0)
   max_elements = rows * cols;
 
   skip_spaces(&s);
@@ -250,7 +249,6 @@ int parse_matrix(char *s, assembler_t *assembler) {
     ASSERTM(assembler->dc - (prev_dc + 1) <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
-  /* TODO get clarification on forums about this */
   /* Add zeroes for any elements that weren't given. */
   for (i = assembler->dc - prev_dc; i < max_elements; i++) {
     add_data(assembler, 0);
@@ -259,7 +257,19 @@ int parse_matrix(char *s, assembler_t *assembler) {
   return 1;
 }
 
-directive_kind_t get_directive_kind(char *token) {
+directive_kind_t read_directive_kind(char **s) {
+  /* This buffer is 2 characters longer than the directive to catch cases where the string differs by a single character
+   * at the end. */
+  char token[DIRECTIVE_MAX_LEN + 2];
+  char *last = token;
+  int len = 0;
+
+  while (isalpha(**s) && len < DIRECTIVE_MAX_LEN + 1) {
+    add_char(&last, s);
+    len++;
+  }
+  *last = 0;
+
   if (strcmp(token, DIRECTIVE_DATA) == 0) {
     return DIRECTIVE_KIND_DATA;
   }
@@ -275,6 +285,7 @@ directive_kind_t get_directive_kind(char *token) {
   if (strcmp(token, DIRECTIVE_EXTERN) == 0) {
     return DIRECTIVE_KIND_EXTERN;
   }
+
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
@@ -302,12 +313,13 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   }
 
   if (word.kind == WORD_NONE && accept(&line, '.')) {
-    word = read_word(&line);
-    directive_kind_t kind = get_directive_kind(word.value);
+    directive_kind_t kind = read_directive_kind(&line);
+    bool_t is_data = kind == DIRECTIVE_KIND_DATA || kind == DIRECTIVE_KIND_STRING || kind == DIRECTIVE_KIND_MAT;
 
-    if (has_label) {
+    if (has_label && is_data) {
       list_add(&assembler->data_table, label, assembler->dc);
     }
+    /* TODO warn if there's a label on a non-data directive */
 
     switch (kind) {
       case DIRECTIVE_KIND_DATA:
@@ -320,8 +332,8 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
         /* TODO */
       case DIRECTIVE_KIND_EXTERN:
         /* TODO */
-      case DIRECTIVE_KIND_UNKNOWN:
-        fprintf(stderr, "Unknown datatype.");
+      default:
+        fprintf(stderr, "Unknown directive.\n");
         return 0;
     }
     /*TODO: external, entry types??*/

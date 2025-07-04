@@ -34,9 +34,12 @@ typedef struct word_t {
 } word_t;
 
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
- * `s`, after skipping leading spaces. */
+ * `s` */
 /* Updates `s` so that it will point to the next character after the word that was read. */
 word_t read_word(char **s);
+
+/* Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character. */
+void add_char(char **dest, char **src);
 
 /* Given an instruction's name, returns information about that instruction. */
 /* If no instruction by that name exists, returns an instruction with -1 as its opcode. */

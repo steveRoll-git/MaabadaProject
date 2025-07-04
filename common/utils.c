@@ -30,7 +30,6 @@ int does_begin_number(char *s) {
   return isdigit(*s) || ((*s == '-' || *s == '+') && isdigit(*(s + 1)));
 }
 
-/* Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character. */
 void add_char(char **dest, char **src) {
   **dest = **src;
   (*dest)++;
@@ -42,9 +41,7 @@ word_t read_word(char **s) {
   char *value_ptr = word.value;
 
   /* Skip past leading spaces. */
-  while (isspace(**s)) {
-    (*s)++;
-  }
+  skip_spaces(s);
 
   if (!isalpha(**s)) {
     word.kind = WORD_NONE;
