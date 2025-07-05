@@ -234,7 +234,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
       return 0;
     }
 
-    ASSERTM(assembler->dc - (prev_dc + 1) <= max_elements, ERR_MATRIX_OVERFLOW)
+    ASSERTM(assembler->dc - prev_dc <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
   /* Add zeroes for any elements that weren't given. */
