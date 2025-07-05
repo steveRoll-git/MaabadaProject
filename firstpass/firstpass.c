@@ -29,7 +29,7 @@ int first_pass(char *input_file_path, char *output_file_path, assembler_t *assem
     line_number++;
 
     if (!res) {
-      fprintf(stderr, " : Line %d \n", line_number);
+      fprintf(stderr, " : Line %d in %s \n", line_number, input_file_path);
       error_flag = TRUE;
       total_errors++;
     }
