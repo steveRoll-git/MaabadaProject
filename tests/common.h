@@ -1,6 +1,6 @@
 #ifndef TESTS_COMMON
 #define TESTS_COMMON
-
+#include <stdio.h>
 #include <stdlib.h>
 #include "../common/data.h"
 #include "../common/utils.h"
