@@ -4,6 +4,9 @@
 /* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
+/* The maximum length of a label. */
+#define MAX_LABEL 30
+
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
 #define INSTRUCTION_ADD "add"
@@ -21,11 +24,13 @@
 #define INSTRUCTION_RTS "rts"
 #define INSTRUCTION_STOP "stop"
 
-#define DIRECTIVE_DATA ".data"
-#define DIRECTIVE_STRING ".string"
-#define DIRECTIVE_MAT ".mat"
-#define DIRECTIVE_ENTRY ".entry"
-#define DIRECTIVE_EXTERN ".extern"
+#define DIRECTIVE_DATA "data"
+#define DIRECTIVE_STRING "string"
+#define DIRECTIVE_MAT "mat"
+#define DIRECTIVE_ENTRY "entry"
+#define DIRECTIVE_EXTERN "extern"
+/* The longest directive is 6 characters long. */
+#define DIRECTIVE_MAX_LEN 6
 
 typedef enum directive_kind_t {
   DIRECTIVE_KIND_DATA,
