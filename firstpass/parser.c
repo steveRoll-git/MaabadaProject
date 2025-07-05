@@ -317,14 +317,9 @@ int parse_matrix(char *s, assembler_t *assembler) {
       return 0;
     }
 
-    // if (assembler->dc - prev_dc > max_elements) {
-    //   /* Too many elements in matrix. */
-    //   return 0;
-    // }
-    ASSERTM((int) (assembler->dc - (prev_dc + 1)) <= max_elements, ERR_MATRIX_OVERFLOW)
+    ASSERTM((assembler->dc - prev_dc) <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
-  /* TODO get clarification on forums about this */
   /* Add zeroes for any elements that weren't given. */
   for (i = assembler->dc - prev_dc; i < max_elements; i++) {
     add_data(assembler, 0);
@@ -386,8 +381,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   /*Is my token an instruction, or data label?*/
   /*If there's a dot, it means it's a data command.*/
 
-  /*TODO: All the functions here parse_data, mat, etc must return the size of DC values entered, so we can set up label
-   * correctly.*/
+
   if (*temp == '.') {
     directive_kind_t kind = get_directive_kind(temp);
 
