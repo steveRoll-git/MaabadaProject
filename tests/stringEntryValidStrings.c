@@ -13,6 +13,8 @@ int main() {
   char letter_after_ending_of_string[MAX_LINE] = ".string \"\"a";
   char letter_before_ending_of_string[MAX_LINE] = ".string b\"\"";
 
+  char one_c[MAX_LINE] = ".string \"";
+
 
   bool_t no_begin_flag = compile_assembly_code(no_begin, &assembler);
   ASSERTM(no_begin_flag == FALSE, "String doesn't contain two \". ");
@@ -31,6 +33,8 @@ int main() {
   bool_t empty_flag = compile_assembly_code(empty, &assembler);
   ASSERTM(empty_flag == FALSE, "Empty string needs to throw an error.");
 
+  bool_t c_flag = compile_assembly_code(one_c, &assembler);
+  ASSERTM(c_flag == FALSE, "Empty string needs to throw an error.");
 
   /*TODO: Is there a reason to check that ALL characters inside the string are valid ASCII characters?*/
 }
