@@ -37,36 +37,24 @@ int parse_matrix_operand(char **s) {
 
   ASSERT(accept(s, '['));
 
-  ASSERT(is_register(*s));
-  row_reg = *(*s + 1) - '0';
-  *s += 2;
+  {
+    word_t word = read_word(s);
+    ASSERT(word.kind == WORD_REGISTER)
+    row_reg = word.register_index;
+  }
 
   ASSERT(accept(s, ']'));
   ASSERT(accept(s, '['));
 
-  ASSERT(is_register(*s));
-
-  col_reg = *(*s + 1) - '0';
-  *s += 2;
+  {
+    word_t word = read_word(s);
+    ASSERT(word.kind == WORD_REGISTER)
+    col_reg = word.register_index;
+  }
 
   ASSERT(accept(s, ']'));
 
   return 1;
-}
-
-bool_t is_mat(char *s) {
-  if (s == NULL) {
-    return FALSE;
-  }
-
-  skip_spaces(&s);
-
-  int size = identifier_length(s);
-
-  s += size;
-
-  skip_spaces(&s);
-  return *s == '[';
 }
 
 /* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/

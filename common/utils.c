@@ -111,58 +111,6 @@ int is_assembly_instruction(char *token) {
   return 0;
 }
 
-int is_label(char *token) {
-  if (token == NULL) {
-    return -1;
-  }
-
-  int length = strlen(token);
-
-  return token[length - 1] == ':';
-}
-
-int is_label_valid(char *label, assembler_t *assembler) {
-  linked_list_t *temp;
-  char *ch = label;
-
-  /* Check if the first character of the label is a letter */
-  if (!(isalpha(*label))) {
-    return 0;
-  }
-  /*TODO: Fix me*/
-  // while (*ch != '\0') {
-  //   if (!isalpha(*ch) && !isdigit(*ch)) {
-  //     return 0;
-  //   }
-  //   ch++;
-  // }
-
-  if (is_register(label)) {
-    return 0;
-  }
-
-  /* Label can't be a keyword name */
-  if (is_assembly_instruction(label) == 1) {
-    return 0;
-  }
-
-  /* Label can't be a name of a macro */
-  if (list_get(&assembler->macro_table, label) != -1L) {
-    return 0;
-  }
-
-  /* Label can't be a name of an existing label */
-  if (list_get(&assembler->label_table, label) != -1L) {
-    return 0;
-  }
-
-  if (list_get(&assembler->data_table, label) != -1L) {
-    return 0;
-  }
-
-  return 1;
-}
-
 /* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
  * stores it in `line`. */
 /* Returns `SENTENCE_NEW_LINE` if there are more lines to be read, `SENTENCE_ERR_BUFF_OVERFLOW` if the line was too
@@ -205,17 +153,6 @@ int identifier_length(const char *ident) {
     ident++;
   }
   return count;
-}
-
-int is_register(const char *token) {
-  if (token == NULL) {
-    return 0;
-  }
-
-  int length = identifier_length(token);
-  char register_number = *(token + 1);
-
-  return length == 2 && *token == 'r' && register_number >= '0' && register_number <= '7';
 }
 
 /* Moves `*s` to point at the next non-space character. */
