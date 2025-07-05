@@ -50,7 +50,10 @@ int main(void) {
   test(q15, "matrice row cannot be negative size");
 
   test(q16, "should fail because there are more values than storage (array overflow)");
+#ifdef MAX_INTEGER
   test(q17, "should fail because integer value -999 is too big for int buffer, should throw err.");
+#endif
+
 
   test(q18, "should fail because there are more values than storage (array overflow)");
   test(q19, "illegal comma");

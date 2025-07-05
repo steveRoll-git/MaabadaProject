@@ -1,47 +1,34 @@
 #include "common.h"
 
-char str1[MAX_LINE] = "a_mc:";
-char str2[MAX_LINE] = "stop:";
-char str3[MAX_LINE] = "mov:";
-char str4[MAX_LINE] = "0R2:";
-char str5[MAX_LINE] = "@mov:";
-char str6[MAX_LINE] = "r2:";
-char str7[MAX_LINE] = "r3:";
-char str8[MAX_LINE] = "AF!!:";
-
-char str9[MAX_LINE] = ":";
-
-void test(char *s, char *m1, char *m2) {
-  assembler_t assembler = assembler_create();
-
-  if (m1 != NULL) {
-    ASSERTM(is_label(s) == TRUE, m1);
-  }
-
-  if (m1 != NULL && m2 != NULL) {
-    ASSERTM(is_label(s) == TRUE, m1);
-    ASSERTM(is_label_valid(s, &assembler) == FALSE, m2);
-  }
-}
+char *str1 = "a_mc:";
+char *str2 = "stop:";
+char *str3 = "mov:";
+char *str4 = "0R2:";
+char *str5 = "@mov:";
+char *str6 = "r2:";
+char *str7 = "r3:";
+char *str8 = "AF!!:";
+char *str9 = ":";
 
 int main(void) {
-  test(str1, "Label Contains :", "labels cannot contain special characters.");
 
-  test(str2, "Label Contains :", "instructions (stop) cant be label");
+  ASSERTM(read_word(&str1).kind == WORD_IDENTIFIER, "labels cannot contain special characters.");
 
+  ASSERTM(read_word(&str2).kind == WORD_INSTRUCTION, "Should return its an instruction.")
 
-  test(str3, "Label Contains :", "instructions (mov) cant be a label");
+  ASSERTM(read_word(&str3).kind == WORD_INSTRUCTION, "Should return its an instruction.")
 
+  ASSERTM(read_word(&str4).kind == WORD_NONE, "");
 
-  ASSERTM(is_label(str4) == FALSE, "First character must be alphabetical, cannot be a number");
+  ASSERTM(read_word(&str5).kind == WORD_NONE, "");
 
-  ASSERTM(is_label(str6) == FALSE, "First character must be alphabetical, cannot be a character.");
+  ASSERTM(read_word(&str6).kind == WORD_REGISTER, "");
 
-  test(str6, "Label Contains :", "label cannot be a register.");
+  ASSERTM(read_word(&str7).kind == WORD_REGISTER, "");
 
-  test(str7, "Label Contains :", "label cannot be a register.");
+  ASSERTM(read_word(&str8).kind == WORD_IDENTIFIER, "");
 
-  test(str8, "Label Contains :", "label isnt valid because it cannot contain special characters.");
+  ASSERTM(read_word(&str9).kind == WORD_NONE, "");
 
-  ASSERTM(is_label(str9) == FALSE, "Label name cant be empty lol");
+  return 0;
 }
