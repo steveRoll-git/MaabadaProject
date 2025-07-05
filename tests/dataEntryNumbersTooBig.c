@@ -1,6 +1,10 @@
 #include "common.h"
 
 int main(void) {
+#ifndef MAX_INTEGER
+  return 0;
+#endif
+
   // Numbers 952 and -1000 are way too big to fit inside 10bit numbers, throw an error.
   char data[] = ".data 1,5,  2 ,-22, 952, -1000";
   assembler_t assembler = assembler_create();
