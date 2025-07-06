@@ -29,18 +29,13 @@ int parse_int(char **s, int *result) {
   return 0;
 }
 
-int parse_matrix_operand(char **s) {
-  int row_reg, col_reg, size;
-
-  size = identifier_length(*s);
-  *s += size;
-
+bool_t parse_matrix_operand(char **s, operand_t *operand) {
   ASSERT(accept(s, '['));
 
   {
     word_t word = read_word(s);
     ASSERT(word.kind == WORD_REGISTER)
-    row_reg = word.register_index;
+    operand->data.matrix.row_reg = word.register_index;
   }
 
   ASSERT(accept(s, ']'));
@@ -49,59 +44,66 @@ int parse_matrix_operand(char **s) {
   {
     word_t word = read_word(s);
     ASSERT(word.kind == WORD_REGISTER)
-    col_reg = word.register_index;
+    operand->data.matrix.col_reg = word.register_index;
   }
 
   ASSERT(accept(s, ']'));
 
-  return 1;
+  return TRUE;
 }
 
-/* Changes PTR, doesn't Return error codes (the way parse_int works), it's a building block for every other function.*/
-operand_kind_t parse_instruction_argument(char **s, assembler_t *assembler) {
-  int temp;
+/* Parses an operand and stores it in the given pointer. Returns whether parsing was successful. */
+bool_t parse_operand(char **s, operand_t *operand) {
   word_t word;
 
   skip_spaces(s);
 
   if (**s == '\0') {
-    return OPERAND_KIND_INVALID;
+    return FALSE;
   }
 
   /* Immediate number */
   if (accept(s, '#')) {
+    int value;
+
+    /* Numbers must start with a digit, '-' or '+'. */
     if (!isdigit(**s) && **s != '-' && **s != '+') {
-      return OPERAND_KIND_INVALID;
+      return FALSE;
     }
 
-    if (!parse_int(s, &temp)) {
+    if (!parse_int(s, &value)) {
       fprintf(stderr, "Error parsing instruction number.");
-      return OPERAND_KIND_INVALID;
+      return FALSE;
     }
 
-    return OPERAND_KIND_WHOLE_NUMBER;
+    operand->kind = OPERAND_KIND_IMMEDIATE;
+    operand->data.immediate = value;
+    return TRUE;
   }
 
   word = read_word(s);
 
   if (word.kind == WORD_REGISTER) {
-    return OPERAND_KIND_REGISTER;
+    operand->kind = OPERAND_KIND_REGISTER;
+    operand->data.register_index = word.register_index;
+    return TRUE;
   }
 
   if (word.kind != WORD_IDENTIFIER) {
-    return OPERAND_KIND_INVALID;
+    return FALSE;
   }
 
   skip_spaces(s);
 
   if (**s == '[') {
-    if (!parse_matrix_operand(s)) {
-      return OPERAND_KIND_INVALID;
-    }
-    return OPERAND_KIND_MATRIX;
+    operand->kind = OPERAND_KIND_MATRIX;
+    strcpy(operand->data.matrix.label, word.value);
+    return parse_matrix_operand(s, operand);
   }
 
-  return OPERAND_KIND_LABEL;
+  operand->kind = OPERAND_KIND_LABEL;
+  strcpy(operand->data.label, word.value);
+  return TRUE;
 }
 
 int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
@@ -138,7 +140,7 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
 
 
     case ONE_ARG:
-      arg1 = parse_instruction_argument(s, assembler);
+      arg1 = parse_operand(s);
       ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
 
       size = get_word_size(arg1, OPERAND_KIND_INVALID);
@@ -150,12 +152,12 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
       return TRUE;
 
     case TWO_ARGS:
-      arg1 = parse_instruction_argument(s, assembler);
+      arg1 = parse_operand(s);
       ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
 
       ASSERTM(accept(s, ','), ERR_WHERE_IS_MY_COMMA);
 
-      arg2 = parse_instruction_argument(s, assembler);
+      arg2 = parse_operand(s);
       ASSERTM(arg2 != OPERAND_KIND_INVALID, ERR_SECOND_ARG_INVALID);
 
       size = get_word_size(arg1, arg2);
@@ -280,7 +282,7 @@ directive_kind_t read_directive_kind(char **s) {
 int compile_assembly_code(char *line, assembler_t *assembler) {
   word_t word;
   bool_t has_label = FALSE;
-  char label[MAX_LABEL + 1];
+  char label[MAX_LABEL];
 
   skip_spaces(&line);
 
@@ -294,7 +296,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   if (word.kind != WORD_NONE && accept(&line, ':')) {
     ASSERTM(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
     ASSERTM(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
-    ASSERTM(strlen(word.value) <= MAX_LABEL, ERR_LABEL_TOO_LONG)
+    ASSERTM(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
     has_label = TRUE;
     strcpy(label, word.value);
     word = read_word(&line);

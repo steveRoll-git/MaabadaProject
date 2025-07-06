@@ -4,8 +4,8 @@
 /* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
-/* The maximum length of a label. */
-#define MAX_LABEL 30
+/* The maximum size of a label in bytes. */
+#define MAX_LABEL 31
 
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
@@ -62,11 +62,11 @@ typedef enum opcode_t {
 
 typedef enum args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } args_t;
 
-typedef struct instruction_t {
+typedef struct instruction_info_t {
   char *name;
   opcode_t opcode;
   args_t arg_amount;
-} instruction_t;
+} instruction_info_t;
 
 typedef enum sentence_t {
   SENTENCE_ERR_BUFF_OVERFLOW = 0,

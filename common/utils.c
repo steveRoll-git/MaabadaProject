@@ -7,24 +7,24 @@
 #include "./data.h"
 
 /* This array stores all needed information about all the instructions. */
-instruction_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
-                                {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
-                                {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
-                                {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
-                                {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
-                                {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
-                                {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
-                                {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
-                                {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
-                                {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
-                                {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
-                                {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
-                                {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
-                                {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
-                                {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
-                                {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
+instruction_info_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
+                                     {INSTRUCTION_CMP, OPCODE_CMP, TWO_ARGS},
+                                     {INSTRUCTION_ADD, OPCODE_ADD, TWO_ARGS},
+                                     {INSTRUCTION_SUB, OPCODE_SUB, TWO_ARGS},
+                                     {INSTRUCTION_NOT, OPCODE_NOT, TWO_ARGS},
+                                     {INSTRUCTION_CLR, OPCODE_CLR, ONE_ARG},
+                                     {INSTRUCTION_LEA, OPCODE_LEA, ONE_ARG},
+                                     {INSTRUCTION_INC, OPCODE_INC, ONE_ARG},
+                                     {INSTRUCTION_DEC, OPCODE_DEC, ONE_ARG},
+                                     {INSTRUCTION_JMP, OPCODE_JMP, ONE_ARG},
+                                     {INSTRUCTION_BNE, OPCODE_BNE, ONE_ARG},
+                                     {INSTRUCTION_RED, OPCODE_RED, ONE_ARG},
+                                     {INSTRUCTION_PRN, OPCODE_PRN, ONE_ARG},
+                                     {INSTRUCTION_JSR, OPCODE_JSR, ONE_ARG},
+                                     {INSTRUCTION_RTS, OPCODE_RTS, NO_ARGS},
+                                     {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS}};
 
-const int num_instructions = sizeof(instructions) / sizeof(struct instruction_t);
+const int num_instructions = sizeof(instructions) / sizeof(struct instruction_info_t);
 
 int does_begin_number(char *s) {
   return isdigit(*s) || ((*s == '-' || *s == '+') && isdigit(*(s + 1)));
@@ -68,7 +68,7 @@ word_t read_word(char **s) {
     word.kind = WORD_MCROEND;
   }
   else {
-    instruction_t *instruction = get_instruction(word.value);
+    instruction_info_t *instruction = get_instruction(word.value);
     if (instruction) {
       word.kind = WORD_INSTRUCTION;
       word.instruction = instruction;
@@ -78,7 +78,7 @@ word_t read_word(char **s) {
   return word;
 }
 
-instruction_t *get_instruction(char *token) {
+instruction_info_t *get_instruction(char *token) {
   int i;
   if (token == NULL) {
     return NULL;

@@ -5,7 +5,7 @@
 #include "../common/data.h"
 #include "../datatypes/assembler.h"
 
-extern instruction_t instructions[];
+extern instruction_info_t instructions[];
 
 typedef enum word_kind_t {
   /* The text that was attempted to be read is not a word. */
@@ -30,7 +30,7 @@ typedef struct word_t {
   /* If `kind` is `WORD_REGISTER`, this stores the register's index, from 0 to 7. */
   char register_index;
   /* If `kind` is `WORD_INSTRUCTION`, this stores a pointer to the instruction. */
-  instruction_t *instruction;
+  instruction_info_t *instruction;
 } word_t;
 
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
@@ -42,8 +42,8 @@ word_t read_word(char **s);
 void add_char(char **dest, char **src);
 
 /* Given an instruction's name, returns information about that instruction. */
-/* If no instruction by that name exists, returns an instruction with -1 as its opcode. */
-instruction_t *get_instruction(char *token);
+/* If no instruction by that name exists, returns NULL. */
+instruction_info_t *get_instruction(char *token);
 
 /*
  * specific parser we've created to read lines,
