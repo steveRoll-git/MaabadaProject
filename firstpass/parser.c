@@ -191,21 +191,22 @@ int parse_string(char *s, assembler_t *assembler) {
   char *last_quotes;
 
   /* .string directive must contain a string enclosed in quotes. */
-  ASSERT(accept(&s, '"'))
+  ASSERTM(accept(&s, '"'), ERR_STRING_MISSING_QUOTE);
 
   last_quotes = strrchr(s, '"');
   /* The string must be enclosed by two quotes. */
-  ASSERT(last_quotes)
+  ASSERTM(last_quotes, ERR_STRING_MISSING_QUOTE)
   /* Extraneous text after string. */
-  ASSERT(is_end(last_quotes + 1))
+  ASSERTM(is_end(last_quotes + 1), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
 
+  /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {
     add_data_word(assembler, *s);
     s++;
   }
   add_data_word(assembler, '\0');
 
-  return 1;
+  return TRUE;
 }
 
 int parse_matrix(char *s, assembler_t *assembler) {
@@ -214,20 +215,20 @@ int parse_matrix(char *s, assembler_t *assembler) {
   int prev_dc = assembler->dc;
   int i;
   skip_spaces(&s);
-  ASSERT(accept(&s, '['))
+  ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_ROW)
   /* Expected a number. */
-  ASSERT(parse_int(&s, &rows))
+  ASSERTM(parse_int(&s, &rows), ERR_NUMBER_NOT_VALID)
   /* Expected ']'. */
-  ASSERT(accept(&s, ']'))
+  ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_ROW)
   /* Expected '['. */
-  ASSERT(accept(&s, '['))
+  ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_COL)
   /* Expected a number. */
-  ASSERT(parse_int(&s, &cols))
+  ASSERTM(parse_int(&s, &cols), ERR_NUMBER_NOT_VALID)
   /* Expected ']'. */
-  ASSERT(accept(&s, ']'))
+  ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_COL)
 
   /* The number of rows and columns must be positive. */
-  ASSERT(rows > 0 && cols > 0)
+  ASSERTM((rows > 0 && cols > 0), ERR_MATRIX_NEGATIVE_STORAGE);
   max_elements = rows * cols;
 
   skip_spaces(&s);
@@ -337,7 +338,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
     ASSERT(parse_instruction_args(&line, word.instruction->arg_amount, assembler))
   }
   else {
-    fprintf(stderr, "Invalid command");
+    fprintf(stderr, ERR_INVALID_COMMAND);
     return 0;
   }
 
