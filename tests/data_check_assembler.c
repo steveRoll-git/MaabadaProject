@@ -11,7 +11,7 @@
 int main() {
   assembler_t assembler = assembler_create();
   char *s = "                             ";
-  args_t arg = ONE_ARG;
+  num_args_t arg = ONE_ARG;
   int result = parse_instruction_args(&s, arg, &assembler);
   ASSERT(result == 0)
   //  TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "should return false, expected arguement got EOF");

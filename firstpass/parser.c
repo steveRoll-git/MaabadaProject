@@ -9,24 +9,24 @@
 #include "../datatypes/linked_list.h"
 
 /* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */
-int accept(char **s, char c) {
+bool_t accept(char **s, char c) {
   skip_spaces(s);
   if (**s == c) {
     (*s)++;
-    return 1;
+    return TRUE;
   }
-  return 0;
+  return FALSE;
 }
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-int parse_int(char **s, int *result) {
+bool_t parse_int(char **s, int *result) {
   int next;
   int scanned_values = sscanf(*s, "%d%n", result, &next);
   if (scanned_values == 1) {
     *s += next;
-    return 1;
+    return TRUE;
   }
-  return 0;
+  return FALSE;
 }
 
 bool_t parse_matrix_operand(char **s, operand_t *operand) {
@@ -127,7 +127,7 @@ int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
   return size1 + size2;
 }
 
-int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) {
+bool_t parse_instruction_args(char **s, const num_args_t args, assembler_t *assembler) {
   skip_spaces(s);
   operand_kind_t arg1, arg2;
   int size;
@@ -171,23 +171,23 @@ int parse_instruction_args(char **s, const args_t args, assembler_t *assembler) 
   return FALSE;
 }
 
-int parse_data(char *s, assembler_t *assembler) {
+bool_t parse_data(char *s, assembler_t *assembler) {
   do {
     int number;
     skip_spaces(&s);
     if (!parse_int(&s, &number)) {
       printf("Malformed number.\n");
-      return 0;
+      return FALSE;
     }
     add_data_word(assembler, number);
     skip_spaces(&s);
   }
   while (accept(&s, ','));
 
-  return 1;
+  return TRUE;
 }
 
-int parse_string(char *s, assembler_t *assembler) {
+bool_t parse_string(char *s, assembler_t *assembler) {
   char *last_quotes;
 
   /* .string directive must contain a string enclosed in quotes. */
@@ -209,7 +209,7 @@ int parse_string(char *s, assembler_t *assembler) {
   return TRUE;
 }
 
-int parse_matrix(char *s, assembler_t *assembler) {
+bool_t parse_matrix(char *s, assembler_t *assembler) {
   int rows, cols;
   int max_elements;
   int prev_dc = assembler->dc;
@@ -234,7 +234,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
   skip_spaces(&s);
   if (!is_end(s)) {
     if (!parse_data(s, assembler)) {
-      return 0;
+      return FALSE;
     }
 
     ASSERTM(assembler->dc - prev_dc <= max_elements, ERR_MATRIX_OVERFLOW)
@@ -245,7 +245,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
     add_data_word(assembler, 0);
   }
 
-  return 1;
+  return TRUE;
 }
 
 directive_kind_t read_directive_kind(char **s) {
@@ -280,7 +280,7 @@ directive_kind_t read_directive_kind(char **s) {
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
-int compile_assembly_code(char *line, assembler_t *assembler) {
+bool_t compile_assembly_code(char *line, assembler_t *assembler) {
   word_t word;
   bool_t has_label = FALSE;
   char label[MAX_LABEL];
@@ -325,7 +325,7 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
         /* TODO */
       default:
         fprintf(stderr, "Unknown directive.\n");
-        return 0;
+        return FALSE;
     }
     /*TODO: external, entry types??*/
   }
@@ -339,8 +339,8 @@ int compile_assembly_code(char *line, assembler_t *assembler) {
   }
   else {
     fprintf(stderr, ERR_INVALID_COMMAND);
-    return 0;
+    return FALSE;
   }
 
-  return 1;
+  return TRUE;
 }

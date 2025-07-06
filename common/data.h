@@ -60,12 +60,12 @@ typedef enum opcode_t {
   OPCODE_STOP = 15
 } opcode_t;
 
-typedef enum args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } args_t;
+typedef enum num_args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } num_args_t;
 
 typedef struct instruction_info_t {
   char *name;
   opcode_t opcode;
-  args_t arg_amount;
+  num_args_t arg_amount;
 } instruction_info_t;
 
 typedef enum sentence_t {
