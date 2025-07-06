@@ -1,9 +1,7 @@
-
 #ifndef PARSER_H
 #define PARSER_H
 
 #include "../common/data.h"
-#include "../datatypes/assembler.h"
 #include "../firstpass/parser.h"
 
 /* The different kinds of operands. */

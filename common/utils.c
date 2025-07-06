@@ -26,10 +26,6 @@ instruction_info_t instructions[] = {{INSTRUCTION_MOV, OPCODE_MOV, TWO_ARGS},
 
 const int num_instructions = sizeof(instructions) / sizeof(struct instruction_info_t);
 
-int does_begin_number(char *s) {
-  return isdigit(*s) || ((*s == '-' || *s == '+') && isdigit(*(s + 1)));
-}
-
 void add_char(char **dest, char **src) {
   **dest = **src;
   (*dest)++;
@@ -93,24 +89,6 @@ instruction_info_t *get_instruction(char *token) {
   return NULL;
 }
 
-int is_assembly_instruction(char *token) {
-  int i, length;
-  if (token == NULL) {
-    return -1;
-  }
-
-  length = identifier_length(token);
-
-  for (i = 0; i < num_instructions; i++) {
-    char *name = instructions[i].name;
-    int instruction_len = strlen(name);
-    if (length == instruction_len && strncmp(token, name, instruction_len) == 0) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 /* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
  * stores it in `line`. */
 /* Returns `SENTENCE_NEW_LINE` if there are more lines to be read, `SENTENCE_ERR_BUFF_OVERFLOW` if the line was too
@@ -141,21 +119,6 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
   return SENTENCE_NEW_LINE;
 }
 
-int identifier_length(const char *ident) {
-  int count = 0;
-
-  if (!isalpha(*ident)) {
-    return 0;
-  }
-
-  while (isalpha(*ident) || isdigit(*ident)) {
-    count++;
-    ident++;
-  }
-  return count;
-}
-
-/* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
   while (*s != NULL && isspace(**s)) {
     (*s)++;

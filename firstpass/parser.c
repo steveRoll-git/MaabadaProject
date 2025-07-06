@@ -1,12 +1,10 @@
 #include "parser.h"
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "../common/ERR.h"
 #include "../common/data.h"
 #include "../common/utils.h"
-#include "../datatypes/linked_list.h"
 
 /* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */
 bool_t accept(char **s, char c) {

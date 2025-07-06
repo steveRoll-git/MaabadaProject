@@ -55,13 +55,6 @@ instruction_info_t *get_instruction(char *token);
 
 sentence_t read_line(FILE *file, char line[MAX_LINE]);
 
-/* Returns whether the string is the name of an assembly instruction. */
-int is_assembly_instruction(char *token);
-
-/* Returns the length of the identifier pointed to by the given string. */
-/* An identifier is a word that starts with a letter, and then only contains letters or digits. */
-int identifier_length(const char *ident);
-
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s);
 
