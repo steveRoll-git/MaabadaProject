@@ -34,10 +34,10 @@ typedef struct assembler_t {
 assembler_t assembler_create();
 
 /* Adds a single word to the assembler's code image. */
-void add_code_word(assembler_t *assembler, int data);
+void add_code_word(assembler_t *assembler, machine_word_t data);
 
 /* Adds a single word to the assembler's data image. */
-void add_data_word(assembler_t *assembler, int data);
+void add_data_word(assembler_t *assembler, machine_word_t data);
 
 void print_data(assembler_t *assembler);
 

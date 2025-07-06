@@ -30,7 +30,7 @@ typedef struct word_t {
   /* If `kind` is `WORD_REGISTER`, this stores the register's index, from 0 to 7. */
   char register_index;
   /* If `kind` is `WORD_INSTRUCTION`, this stores a pointer to the instruction. */
-  instruction_info_t *instruction;
+  instruction_info_t *instruction_info;
 } word_t;
 
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by

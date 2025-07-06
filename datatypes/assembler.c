@@ -14,12 +14,12 @@ assembler_t assembler_create() {
   return assembler;
 }
 
-void add_code_word(assembler_t *assembler, int data) {
+void add_code_word(assembler_t *assembler, machine_word_t data) {
   growing_array_add(&assembler->code_array, data);
   assembler->ic++;
 }
 
-void add_data_word(assembler_t *assembler, int data) {
+void add_data_word(assembler_t *assembler, machine_word_t data) {
   growing_array_add(&assembler->data_array, data);
   assembler->dc++;
 }

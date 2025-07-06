@@ -22,9 +22,10 @@ char q18[MAX_LINE] = ".mat [5][2] 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11";
 char q19[MAX_LINE] = ".mat [2][2] ,";
 char q20[MAX_LINE] = ".mat [1][2] ,,";
 
+static statement_t statement;
+
 void test(char str[MAX_LINE], char *message) {
-  assembler_t assembler = assembler_create();
-  bool_t flag = compile_assembly_code(str, &assembler);
+  bool_t flag = parse_statement(str, &statement);
 
   ASSERTM(flag == FALSE, message);
 }

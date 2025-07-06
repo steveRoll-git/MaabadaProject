@@ -42,27 +42,88 @@ typedef struct operand_t {
   } data;
 } operand_t;
 
-/* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-bool_t parse_int(char **s, int *result);
+/* Information about a call to an instruction. */
+typedef struct instruction_t {
+  /* The info for the invoked instruction. */
+  instruction_info_t *info;
 
-bool_t parse_data(char *s, assembler_t *assembler);
+  /* The number of arguments the instruction was called with. */
+  num_args_t num_args;
+
+  /* The first operand (set only if `num_args` is at least 1.) */
+  operand_t operand_1;
+
+  /* The second operand (set only if `num_args` is 2.) */
+  operand_t operand_2;
+} instruction_t;
+
+/* Information about a directive. */
+typedef struct directive_t {
+  /* What kind of directive this is. */
+  directive_kind_t kind;
+
+  /* Additional info about this directive. */
+  union {
+    /* If this is a .data, .string or .mat directive, this stores the data that was given. */
+    struct {
+      /* The contents of the data. */
+      machine_word_t array[MAX_LINE];
+      /* The size of the data. */
+      int size;
+    } data;
+    /* If this is a .entry or .extern directive, this stores the name of the label that was given. */
+    char label[MAX_LINE];
+  } info;
+} directive_t;
+
+/* The kinds of statements that can be parsed. */
+typedef enum statement_kind_t {
+  /* The statement is empty, or contains a comment. */
+  STATEMENT_EMPTY,
+  /* The statement contains an instruction. */
+  STATEMENT_INSTRUCTION,
+  /* The statement contains a directive. */
+  STATEMENT_DIRECTIVE
+} statement_kind_t;
+
+/* Information about a parsed statement of assembly code. */
+typedef struct statement_t {
+  /* What kind of statement this is. */
+  statement_kind_t kind;
+
+  /* Whether this line has an attached statement. */
+  bool_t has_label;
+
+  /* The statement's label name. */
+  char label[MAX_LABEL];
+
+  /* Stores the data for the instruction or directive. */
+  union {
+    /* If `kind` is `STATEMENT_INSTRUCTION`, stores information about the instruction. */
+    instruction_t instruction;
+    /* If `kind` is `STATEMENT_DIRECTIVE`, stores information about the directive. */
+    directive_t directive;
+  } data;
+} statement_t;
+
+/* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
+bool_t parse_number(char **s, machine_word_t *result);
+
+/* Parses between 0 and 2 operands of an instruction. */
+bool_t parse_instruction_operands(char *s, instruction_t *instruction);
+
+bool_t parse_data(char *s, directive_t *directive);
 
 directive_kind_t read_directive_kind(char **s);
 
-bool_t compile_assembly_code(char *line, assembler_t *assembler);
+bool_t parse_statement(char *line, statement_t *statement);
 
 bool_t parse_operand(char **s, operand_t *operand);
 
-bool_t parse_instruction_args(char **s, const num_args_t args, assembler_t *assembler);
-
 bool_t accept(char **s, char c);
-int is_label_valid(char *label, assembler_t *assembler);
-
-bool_t accept(char **s, char c);
-bool_t parse_int(char **s, int *result);
 bool_t parse_matrix_operand(char **s, operand_t *operand);
 int get_word_size(operand_kind_t arg1, operand_kind_t arg2);
-bool_t parse_string(char *s, assembler_t *assembler);
-bool_t parse_matrix(char *s, assembler_t *assembler);
+bool_t parse_string(char *s, directive_t *directive);
+bool_t parse_matrix(char *s, directive_t *directive);
 
 #endif

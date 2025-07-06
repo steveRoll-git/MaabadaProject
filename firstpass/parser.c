@@ -19,7 +19,7 @@ bool_t accept(char **s, char c) {
 }
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-bool_t parse_int(char **s, int *result) {
+bool_t parse_number(char **s, machine_word_t *result) {
   int next;
   int scanned_values = sscanf(*s, "%d%n", result, &next);
   if (scanned_values == 1) {
@@ -27,6 +27,20 @@ bool_t parse_int(char **s, int *result) {
     return TRUE;
   }
   return FALSE;
+}
+
+bool_t parse_instruction_operands(char *s, instruction_t *instruction) {
+  instruction->num_args = NO_ARGS;
+  if (!is_end(s)) {
+    ASSERT(parse_operand(&s, &instruction->operand_1))
+    instruction->num_args = ONE_ARG;
+    if (accept(&s, ',')) {
+      ASSERT(parse_operand(&s, &instruction->operand_2))
+      instruction->num_args = TWO_ARGS;
+    }
+  }
+  ASSERTM(is_end(s), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS)
+  return TRUE;
 }
 
 bool_t parse_matrix_operand(char **s, operand_t *operand) {
@@ -64,14 +78,14 @@ bool_t parse_operand(char **s, operand_t *operand) {
 
   /* Immediate number */
   if (accept(s, '#')) {
-    int value;
+    machine_word_t value;
 
     /* Numbers must start with a digit, '-' or '+'. */
     if (!isdigit(**s) && **s != '-' && **s != '+') {
       return FALSE;
     }
 
-    if (!parse_int(s, &value)) {
+    if (!parse_number(s, &value)) {
       fprintf(stderr, "Error parsing instruction number.");
       return FALSE;
     }
@@ -106,89 +120,27 @@ bool_t parse_operand(char **s, operand_t *operand) {
   return TRUE;
 }
 
-int get_word_size(operand_kind_t arg1, operand_kind_t arg2) {
-  int size1 = 1, size2 = 1;
-  if (arg1 == OPERAND_KIND_REGISTER && arg2 == OPERAND_KIND_REGISTER) {
-    return 1;
-  }
-
-  if (arg1 == OPERAND_KIND_MATRIX) {
-    size1 = 2;
-  }
-
-  if (arg2 == OPERAND_KIND_MATRIX) {
-    size2 = 2;
-  }
-
-  else if (arg2 == OPERAND_KIND_INVALID) {
-    size2 = 0;
-  }
-
-  return size1 + size2;
-}
-
-bool_t parse_instruction_args(char **s, const num_args_t args, assembler_t *assembler) {
-  skip_spaces(s);
-  operand_kind_t arg1, arg2;
-  int size;
-  assembler->ic += 1;
-
-  switch (args) {
-    case NO_ARGS:
-      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
-      return TRUE;
-
-
-    case ONE_ARG:
-      arg1 = parse_operand(s);
-      ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
-
-      size = get_word_size(arg1, OPERAND_KIND_INVALID);
-      assembler->ic += size;
-
-      skip_spaces(s);
-      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
-
-      return TRUE;
-
-    case TWO_ARGS:
-      arg1 = parse_operand(s);
-      ASSERTM(arg1 != OPERAND_KIND_INVALID, ERR_FIRST_ARG_INVALID);
-
-      ASSERTM(accept(s, ','), ERR_WHERE_IS_MY_COMMA);
-
-      arg2 = parse_operand(s);
-      ASSERTM(arg2 != OPERAND_KIND_INVALID, ERR_SECOND_ARG_INVALID);
-
-      size = get_word_size(arg1, arg2);
-      assembler->ic += size;
-
-      ASSERTM((*s == NULL || **s == '\0'), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
-
-      return TRUE;
-  }
-
-  return FALSE;
-}
-
-bool_t parse_data(char *s, assembler_t *assembler) {
+bool_t parse_data(char *s, directive_t *directive) {
+  int *size = &directive->info.data.size;
+  *size = 0;
   do {
-    int number;
     skip_spaces(&s);
-    if (!parse_int(&s, &number)) {
+    if (!parse_number(&s, &directive->info.data.array[*size])) {
       printf("Malformed number.\n");
       return FALSE;
     }
-    add_data_word(assembler, number);
-    skip_spaces(&s);
+    (*size)++;
   }
   while (accept(&s, ','));
 
   return TRUE;
 }
 
-bool_t parse_string(char *s, assembler_t *assembler) {
+bool_t parse_string(char *s, directive_t *directive) {
   char *last_quotes;
+  int *size = &directive->info.data.size;
+
+  *size = 0;
 
   /* .string directive must contain a string enclosed in quotes. */
   ASSERTM(accept(&s, '"'), ERR_STRING_MISSING_QUOTE);
@@ -201,48 +153,53 @@ bool_t parse_string(char *s, assembler_t *assembler) {
 
   /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {
-    add_data_word(assembler, *s);
+    directive->info.data.array[*size] = *s;
+    (*size)++;
     s++;
   }
-  add_data_word(assembler, '\0');
+  directive->info.data.array[*size] = 0;
+  (*size)++;
 
   return TRUE;
 }
 
-bool_t parse_matrix(char *s, assembler_t *assembler) {
-  int rows, cols;
+bool_t parse_matrix(char *s, directive_t *directive) {
+  machine_word_t rows, cols;
   int max_elements;
-  int prev_dc = assembler->dc;
-  int i;
-  skip_spaces(&s);
+  int *size = &directive->info.data.size;
+  int i = 0;
+
+  *size = 0;
+
   ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_ROW)
   /* Expected a number. */
-  ASSERTM(parse_int(&s, &rows), ERR_NUMBER_NOT_VALID)
+  ASSERTM(parse_number(&s, &rows), ERR_NUMBER_NOT_VALID)
   /* Expected ']'. */
   ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_ROW)
   /* Expected '['. */
   ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_COL)
   /* Expected a number. */
-  ASSERTM(parse_int(&s, &cols), ERR_NUMBER_NOT_VALID)
+  ASSERTM(parse_number(&s, &cols), ERR_NUMBER_NOT_VALID)
   /* Expected ']'. */
   ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_COL)
 
   /* The number of rows and columns must be positive. */
-  ASSERTM((rows > 0 && cols > 0), ERR_MATRIX_NEGATIVE_STORAGE);
+  ASSERTM(rows > 0 && cols > 0, ERR_MATRIX_NEGATIVE_STORAGE);
   max_elements = rows * cols;
 
   skip_spaces(&s);
   if (!is_end(s)) {
-    if (!parse_data(s, assembler)) {
+    if (!parse_data(s, directive)) {
       return FALSE;
     }
 
-    ASSERTM(assembler->dc - prev_dc <= max_elements, ERR_MATRIX_OVERFLOW)
+    ASSERTM(*size <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
   /* Add zeroes for any elements that weren't given. */
-  for (i = assembler->dc - prev_dc; i < max_elements; i++) {
-    add_data_word(assembler, 0);
+  for (i = *size; i < max_elements; i++) {
+    directive->info.data.array[*size] = 0;
+    (*size)++;
   }
 
   return TRUE;
@@ -280,15 +237,14 @@ directive_kind_t read_directive_kind(char **s) {
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
-bool_t compile_assembly_code(char *line, assembler_t *assembler) {
+bool_t parse_statement(char *line, statement_t *statement) {
   word_t word;
-  bool_t has_label = FALSE;
-  char label[MAX_LABEL];
 
   skip_spaces(&line);
 
   if (*line == 0 || *line == ';') {
     /* Entire line of whitespace, ignore. */
+    statement->kind = STATEMENT_EMPTY;
     return TRUE;
   }
 
@@ -298,27 +254,25 @@ bool_t compile_assembly_code(char *line, assembler_t *assembler) {
     ASSERTM(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
     ASSERTM(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
     ASSERTM(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
-    has_label = TRUE;
-    strcpy(label, word.value);
+
+    statement->has_label = TRUE;
+    strcpy(statement->label, word.value);
     word = read_word(&line);
   }
 
   if (word.kind == WORD_NONE && accept(&line, '.')) {
     directive_kind_t kind = read_directive_kind(&line);
-    bool_t is_data = kind == DIRECTIVE_KIND_DATA || kind == DIRECTIVE_KIND_STRING || kind == DIRECTIVE_KIND_MAT;
 
-    if (has_label && is_data) {
-      list_add(&assembler->data_table, label, assembler->dc);
-    }
-    /* TODO warn if there's a label on a non-data directive */
+    statement->kind = STATEMENT_DIRECTIVE;
+    statement->data.directive.kind = kind;
 
     switch (kind) {
       case DIRECTIVE_KIND_DATA:
-        return parse_data(line, assembler);
+        return parse_data(line, &statement->data.directive);
       case DIRECTIVE_KIND_STRING:
-        return parse_string(line, assembler);
+        return parse_string(line, &statement->data.directive);
       case DIRECTIVE_KIND_MAT:
-        return parse_matrix(line, assembler);
+        return parse_matrix(line, &statement->data.directive);
       case DIRECTIVE_KIND_ENTRY:
         /* TODO */
       case DIRECTIVE_KIND_EXTERN:
@@ -331,16 +285,12 @@ bool_t compile_assembly_code(char *line, assembler_t *assembler) {
   }
 
   if (word.kind == WORD_INSTRUCTION) {
-    if (has_label) {
-      list_add(&assembler->label_table, label, assembler->ic);
-    }
-
-    ASSERT(parse_instruction_args(&line, word.instruction->arg_amount, assembler))
-  }
-  else {
-    fprintf(stderr, ERR_INVALID_COMMAND);
-    return FALSE;
+    statement->kind = STATEMENT_INSTRUCTION;
+    statement->data.instruction.info = word.instruction_info;
+    ASSERT(parse_instruction_operands(line, &statement->data.instruction))
+    return TRUE;
   }
 
-  return TRUE;
+  fprintf(stderr, ERR_INVALID_COMMAND);
+  return FALSE;
 }

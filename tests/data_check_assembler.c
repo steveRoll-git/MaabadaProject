@@ -8,77 +8,40 @@
 
 #include "common.h"
 
-int main() {
-  assembler_t assembler = assembler_create();
-  char *s = "                             ";
-  num_args_t arg = ONE_ARG;
-  int result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 0)
-  //  TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "should return false, expected arguement got EOF");
+static instruction_t instruction;
 
+int main() {
+  char *s = "                             ";
+  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(instruction.num_args == NO_ARGS)
 
   s = "#-5.12";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 0)
+  ASSERT(!parse_instruction_operands(s, &instruction));
 
-  // //  TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Assembler only accepts whole numbers");
-  // if (assembler.ic != 103)
-  //   return 1;
-  // TEST_ASSERT_EQUAL_INT(102, assembler.ic);
   s = "#-105";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 1)
-  // //   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Assembler only accepts numbers");
-  ASSERT(105 == assembler.ic);
+  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(instruction.num_args == ONE_ARG)
 
-  //
   s = "               #105                    ";
-  result = parse_instruction_args(&s, arg, &assembler);
-  // TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Assembler only accepts numbers");
-  // TEST_ASSERT_EQUAL_INT(102, assembler.ic);
-  ASSERT(result == 1)
-  ASSERT(assembler.ic == 107)
+  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(instruction.num_args == ONE_ARG)
+
   s = "               #           -55                    ";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 0);
-  // // TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Shouldn't parse spaces between one arg.");
-  //
-  //
+  ASSERT(!parse_instruction_operands(s, &instruction))
+
   s = "               r0                   ";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 1)
-  // // TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Valid Register should be accepted.");
-  // TEST_ASSERT_EQUAL_INT(102, assembler.ic);
+  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(instruction.num_args == ONE_ARG)
 
-  //
-  // // s = (char *) malloc(sizeof(char) * 3);
-  // // for (i = 0; i <= 7; i++) {
-  // //   s[0] = 'r';
-  // //   s[1] = '0' + i;
-  // //   s[2] = '\0';
-  // //   int result = parse_instruction_args(&s, arg, &assembler);
-  // //   TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "Valid Register should be accepted.");
-  // // }
-  //
-  //
   s = "       r       0         ";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 0)
-  // // TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Register name with space doesn't count.");
-  //
-  //
-  s = "r";
-  result = parse_instruction_args(&s, arg, &assembler);
-  ASSERT(result == 1);
-  // // TEST_ASSERT_EQUAL_INT_MESSAGE(1, result, "All Valid Labels are welcomed.");
-  // // TEST_ASSERT_EQUAL_INT(102, assembler.ic);
-  //
-  //
-  s = "stop";
-  result = parse_instruction_args(&s, arg, &assembler);
+  ASSERT(!parse_instruction_operands(s, &instruction))
 
-  // // TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "Arguements Can't be special commands");
-  ASSERT(result == 0);
+  s = "r";
+  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(instruction.num_args == ONE_ARG)
+
+  s = "stop";
+  ASSERT(!parse_instruction_operands(s, &instruction))
 
   return 0;
 }

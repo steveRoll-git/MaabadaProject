@@ -76,4 +76,8 @@ typedef enum sentence_t {
 
 typedef enum { FALSE = 0, TRUE = 1 } bool_t;
 
+/* The type needed to represent a single machine word. */
+/* A word in the virtual machine is 10 bits; The closest type we have to this is `short int` which is 16 bits. */
+typedef short int machine_word_t;
+
 #endif

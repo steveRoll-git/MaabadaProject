@@ -71,7 +71,7 @@ word_t read_word(char **s) {
     instruction_info_t *instruction = get_instruction(word.value);
     if (instruction) {
       word.kind = WORD_INSTRUCTION;
-      word.instruction = instruction;
+      word.instruction_info = instruction;
     }
   }
 
