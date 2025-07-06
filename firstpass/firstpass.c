@@ -3,10 +3,7 @@
 #include "../common/data.h"
 #include "../common/utils.h"
 #include "../datatypes/assembler.h"
-#include "../datatypes/linked_list.h"
 #include "parser.h"
-void compile_line(char *line) {
-}
 
 /* TODO temp arguments */
 int first_pass(char *input_file_path, char *output_file_path, assembler_t *assembler) {

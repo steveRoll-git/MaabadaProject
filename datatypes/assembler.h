@@ -14,6 +14,9 @@ typedef struct assembler_t {
    * `ic`. */
   int dc;
 
+  /* The array that stores the code image. */
+  growing_array_t code_array;
+
   /* The array that stores the data image. */
   growing_array_t data_array;
 
@@ -30,8 +33,11 @@ typedef struct assembler_t {
 /* Creates a new assembler. */
 assembler_t assembler_create();
 
+/* Adds a single word to the assembler's code image. */
+void add_code_word(assembler_t *assembler, int data);
+
 /* Adds a single word to the assembler's data image. */
-void add_data(assembler_t *assembler, int data);
+void add_data_word(assembler_t *assembler, int data);
 
 void print_data(assembler_t *assembler);
 

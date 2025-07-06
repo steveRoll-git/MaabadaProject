@@ -177,7 +177,7 @@ int parse_data(char *s, assembler_t *assembler) {
       printf("Malformed number.\n");
       return 0;
     }
-    add_data(assembler, number);
+    add_data_word(assembler, number);
     skip_spaces(&s);
   }
   while (accept(&s, ','));
@@ -198,10 +198,10 @@ int parse_string(char *s, assembler_t *assembler) {
   ASSERT(is_end(last_quotes + 1))
 
   while (s < last_quotes) {
-    add_data(assembler, *s);
+    add_data_word(assembler, *s);
     s++;
   }
-  add_data(assembler, '\0');
+  add_data_word(assembler, '\0');
 
   return 1;
 }
@@ -239,7 +239,7 @@ int parse_matrix(char *s, assembler_t *assembler) {
 
   /* Add zeroes for any elements that weren't given. */
   for (i = assembler->dc - prev_dc; i < max_elements; i++) {
-    add_data(assembler, 0);
+    add_data_word(assembler, 0);
   }
 
   return 1;

@@ -6,6 +6,7 @@ assembler_t assembler_create() {
   assembler_t assembler;
   assembler.ic = 100;
   assembler.dc = 0;
+  assembler.code_array = growing_array_create();
   assembler.data_array = growing_array_create();
   assembler.macro_table = list_init();
   assembler.label_table = list_init();
@@ -13,7 +14,12 @@ assembler_t assembler_create() {
   return assembler;
 }
 
-void add_data(assembler_t *assembler, int data) {
+void add_code_word(assembler_t *assembler, int data) {
+  growing_array_add(&assembler->code_array, data);
+  assembler->ic++;
+}
+
+void add_data_word(assembler_t *assembler, int data) {
   growing_array_add(&assembler->data_array, data);
   assembler->dc++;
 }
