@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../common/ERR.h"
 #include "../common/data.h"
+#include "../common/errors.h"
 #include "../common/utils.h"
 
 /* If the current character that `s` points to is equal to `c`, advance and return 1, otherwise return 0. */

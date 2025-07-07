@@ -16,6 +16,8 @@
 #define ERR_INVALID_INSTRUCTION "Invalid Instruction"
 #define ERR_INVALID_COMMAND "Invalid Command"
 #define ERR_UNKNOWN_DIRECTIVE "Unknown directive"
+#define ERR_NOT_ENOUGH_ARGS "Instruction did not receive enough arguments"
+#define ERR_TOO_MANY_ARGS "Instruction received too many arguments"
 
 
 /* Numbers */

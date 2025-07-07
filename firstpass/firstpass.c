@@ -52,18 +52,18 @@ void write_instruction(assembler_t *assembler, instruction_t *instruction) {
   add_code_word(assembler, first_word);
 }
 
-bool_t compile_statement(assembler_t *assembler, statement_t *statement) {
+result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   if (statement->kind == STATEMENT_INSTRUCTION) {
     instruction_t *instruction = &statement->data.instruction;
     if (instruction->num_args != instruction->info->arg_amount) {
-      /* Instruction ___ expected _ args but got _ */
-      return FALSE;
+      return instruction->num_args > instruction->info->arg_amount ? ERR_TOO_MANY_ARGS : ERR_NOT_ENOUGH_ARGS;
     }
   }
   if (statement->has_label) {
     if (statement->kind == STATEMENT_INSTRUCTION) {
     }
   }
+  return SUCCESS;
 }
 
 void write_statement(assembler_t *assembler, statement_t *statement) {
@@ -87,6 +87,10 @@ bool_t first_pass(char *input_file_path, char *output_file_path, assembler_t *as
   while (read_line(in, line) != SENTENCE_EOF) {
     statement_t statement;
     result_t res = parse_statement(line, &statement);
+
+    if (res == SUCCESS) {
+      res = compile_statement(assembler, &statement);
+    }
 
     if (res != SUCCESS) {
       printf("Error at %s:%d: %s\n", input_file_path, line_number, res);

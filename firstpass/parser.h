@@ -1,8 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../common/ERR.h"
 #include "../common/data.h"
+#include "../common/errors.h"
 #include "../firstpass/parser.h"
 
 /* The different kinds of operands. */
