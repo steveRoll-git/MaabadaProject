@@ -9,14 +9,14 @@ static instruction_t instruction;
 
 int test_parse_instruction_zero_args1(void) {
   char *s = "             A              ";
-  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(parse_instruction_operands(s, &instruction) == SUCCESS)
   ASSERT(instruction.num_args == ONE_ARG)
   return TRUE;
 }
 
 int test_parse_instruction_zero_args2(void) {
   char *s = "       R1 ";
-  ASSERT(parse_instruction_operands(s, &instruction))
+  ASSERT(parse_instruction_operands(s, &instruction) == SUCCESS)
   ASSERT(instruction.num_args == ONE_ARG)
 
   return TRUE;

@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../common/ERR.h"
 #include "../common/data.h"
 #include "../firstpass/parser.h"
 
@@ -20,7 +21,7 @@ typedef struct operand_t {
   /* Stores the operand's data, with different data depending on what `kind` it is. */
   union {
     /* If `kind` is `OPERAND_KIND_IMMEDIATE`, stores the value of the immediate number. */
-    int immediate;
+    machine_word_t immediate;
 
     /* If `kind` is `OPERAND_KIND_LABEL`, stores the label's name. */
     char label[MAX_LABEL];
@@ -105,23 +106,23 @@ typedef struct statement_t {
 } statement_t;
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-bool_t parse_number(char **s, machine_word_t *result);
+char *parse_number(char **s, machine_word_t *result);
 
 /* Parses between 0 and 2 operands of an instruction. */
-bool_t parse_instruction_operands(char *s, instruction_t *instruction);
+char *parse_instruction_operands(char *s, instruction_t *instruction);
 
-bool_t parse_data(char *s, directive_t *directive);
+char *parse_data(char *s, directive_t *directive);
 
 directive_kind_t read_directive_kind(char **s);
 
-bool_t parse_statement(char *line, statement_t *statement);
+result_t parse_statement(char *line, statement_t *statement);
 
-bool_t parse_operand(char **s, operand_t *operand);
+char *parse_operand(char **s, operand_t *operand);
 
 bool_t accept(char **s, char c);
-bool_t parse_matrix_operand(char **s, operand_t *operand);
+char *parse_matrix_operand(char **s, operand_t *operand);
 int get_word_size(operand_kind_t arg1, operand_kind_t arg2);
-bool_t parse_string(char *s, directive_t *directive);
-bool_t parse_matrix(char *s, directive_t *directive);
+char *parse_string(char *s, directive_t *directive);
+char *parse_matrix(char *s, directive_t *directive);
 
 #endif

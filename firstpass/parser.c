@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "../common/ERR.h"
 #include "../common/data.h"
 #include "../common/utils.h"
@@ -17,80 +18,73 @@ bool_t accept(char **s, char c) {
 }
 
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-bool_t parse_number(char **s, machine_word_t *result) {
+result_t parse_number(char **s, machine_word_t *result) {
   int next;
   int scanned_values = sscanf(*s, "%d%n", result, &next);
   if (scanned_values == 1) {
     *s += next;
-    return TRUE;
+    return SUCCESS;
   }
-  return FALSE;
+  return ERR_NUMBER_NOT_VALID;
 }
 
-bool_t parse_instruction_operands(char *s, instruction_t *instruction) {
+result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   instruction->num_args = NO_ARGS;
   if (!is_end(s)) {
-    ASSERT(parse_operand(&s, &instruction->operand_1))
+    TRY(parse_operand(&s, &instruction->operand_1))
     instruction->num_args = ONE_ARG;
     if (accept(&s, ',')) {
-      ASSERT(parse_operand(&s, &instruction->operand_2))
+      TRY(parse_operand(&s, &instruction->operand_2))
       instruction->num_args = TWO_ARGS;
     }
   }
-  ASSERTM(is_end(s), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS)
-  return TRUE;
+  ASSERT(is_end(s), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS)
+  return SUCCESS;
 }
 
-bool_t parse_matrix_operand(char **s, operand_t *operand) {
-  ASSERT(accept(s, '['));
+result_t parse_matrix_operand(char **s, operand_t *operand) {
+  ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_ROW)
 
   {
     word_t word = read_word(s);
-    ASSERT(word.kind == WORD_REGISTER)
+    ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.row_reg = word.register_index;
   }
 
-  ASSERT(accept(s, ']'));
-  ASSERT(accept(s, '['));
+  ASSERT(accept(s, ']'), ERR_MATRIX_END_BRACKET_ROW);
+  ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_COL);
 
   {
     word_t word = read_word(s);
-    ASSERT(word.kind == WORD_REGISTER)
+    ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.col_reg = word.register_index;
   }
 
-  ASSERT(accept(s, ']'));
+  ASSERT(accept(s, ']'), ERR_MATRIX_END_BRACKET_COL)
 
-  return TRUE;
+  return SUCCESS;
 }
 
 /* Parses an operand and stores it in the given pointer. Returns whether parsing was successful. */
-bool_t parse_operand(char **s, operand_t *operand) {
+result_t parse_operand(char **s, operand_t *operand) {
   word_t word;
 
   skip_spaces(s);
 
-  if (**s == '\0') {
-    return FALSE;
-  }
+  ASSERT(**s != '\0', ERR_NO_ARG);
+
 
   /* Immediate number */
   if (accept(s, '#')) {
     machine_word_t value;
 
-    /* Numbers must start with a digit, '-' or '+'. */
-    if (!isdigit(**s) && **s != '-' && **s != '+') {
-      return FALSE;
-    }
+    ASSERT(isdigit(**s) || **s == '-' || **s == '+', ERR_NUMBER_FIRST_CHAR_WRONG);
+    TRY(parse_number(s, &value))
 
-    if (!parse_number(s, &value)) {
-      fprintf(stderr, "Error parsing instruction number.");
-      return FALSE;
-    }
 
     operand->kind = OPERAND_KIND_IMMEDIATE;
     operand->data.immediate = value;
-    return TRUE;
+    return SUCCESS;
   }
 
   word = read_word(s);
@@ -98,12 +92,10 @@ bool_t parse_operand(char **s, operand_t *operand) {
   if (word.kind == WORD_REGISTER) {
     operand->kind = OPERAND_KIND_REGISTER;
     operand->data.register_index = word.register_index;
-    return TRUE;
+    return SUCCESS;
   }
 
-  if (word.kind != WORD_IDENTIFIER) {
-    return FALSE;
-  }
+  ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUEMENT);
 
   skip_spaces(s);
 
@@ -115,39 +107,43 @@ bool_t parse_operand(char **s, operand_t *operand) {
 
   operand->kind = OPERAND_KIND_LABEL;
   strcpy(operand->data.label, word.value);
-  return TRUE;
+  return SUCCESS;
 }
 
-bool_t parse_data(char *s, directive_t *directive) {
+result_t parse_data(char *s, directive_t *directive) {
   int *size = &directive->info.data.size;
   *size = 0;
+
   do {
     skip_spaces(&s);
-    if (!parse_number(&s, &directive->info.data.array[*size])) {
-      printf("Malformed number.\n");
-      return FALSE;
-    }
+
+    TRY(parse_number(&s, &directive->info.data.array[*size]));
+
+    // if (!parse_number(&s, &directive->info.data.array[*size])) {
+    //   printf("Malformed number.\n");
+    //   return FALSE;
+    // }
     (*size)++;
   }
   while (accept(&s, ','));
 
-  return TRUE;
+  return SUCCESS;
 }
 
-bool_t parse_string(char *s, directive_t *directive) {
+result_t parse_string(char *s, directive_t *directive) {
   char *last_quotes;
   int *size = &directive->info.data.size;
 
   *size = 0;
 
   /* .string directive must contain a string enclosed in quotes. */
-  ASSERTM(accept(&s, '"'), ERR_STRING_MISSING_QUOTE);
+  ASSERT(accept(&s, '"'), ERR_STRING_MISSING_QUOTE);
 
   last_quotes = strrchr(s, '"');
   /* The string must be enclosed by two quotes. */
-  ASSERTM(last_quotes, ERR_STRING_MISSING_QUOTE)
+  ASSERT(last_quotes, ERR_STRING_MISSING_QUOTE)
   /* Extraneous text after string. */
-  ASSERTM(is_end(last_quotes + 1), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
+  ASSERT(is_end(last_quotes + 1), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
 
   /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {
@@ -158,10 +154,10 @@ bool_t parse_string(char *s, directive_t *directive) {
   directive->info.data.array[*size] = 0;
   (*size)++;
 
-  return TRUE;
+  return SUCCESS;
 }
 
-bool_t parse_matrix(char *s, directive_t *directive) {
+result_t parse_matrix(char *s, directive_t *directive) {
   machine_word_t rows, cols;
   int max_elements;
   int *size = &directive->info.data.size;
@@ -169,29 +165,26 @@ bool_t parse_matrix(char *s, directive_t *directive) {
 
   *size = 0;
 
-  ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_ROW)
+  ASSERT(accept(&s, '['), ERR_MATRIX_START_BRACKET_ROW)
   /* Expected a number. */
-  ASSERTM(parse_number(&s, &rows), ERR_NUMBER_NOT_VALID)
+  TRY(parse_number(&s, &rows))
   /* Expected ']'. */
-  ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_ROW)
+  ASSERT(accept(&s, ']'), ERR_MATRIX_END_BRACKET_ROW)
   /* Expected '['. */
-  ASSERTM(accept(&s, '['), ERR_MATRIX_START_BRACKET_COL)
+  ASSERT(accept(&s, '['), ERR_MATRIX_START_BRACKET_COL)
   /* Expected a number. */
-  ASSERTM(parse_number(&s, &cols), ERR_NUMBER_NOT_VALID)
+  TRY(parse_number(&s, &cols))
   /* Expected ']'. */
-  ASSERTM(accept(&s, ']'), ERR_MATRIX_END_BRACKET_COL)
+  ASSERT(accept(&s, ']'), ERR_MATRIX_END_BRACKET_COL)
 
   /* The number of rows and columns must be positive. */
-  ASSERTM(rows > 0 && cols > 0, ERR_MATRIX_NEGATIVE_STORAGE);
+  ASSERT(rows > 0 && cols > 0, ERR_MATRIX_NEGATIVE_STORAGE);
   max_elements = rows * cols;
 
   skip_spaces(&s);
   if (!is_end(s)) {
-    if (!parse_data(s, directive)) {
-      return FALSE;
-    }
-
-    ASSERTM(*size <= max_elements, ERR_MATRIX_OVERFLOW)
+    TRY(parse_data(s, directive))
+    ASSERT(*size <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
   /* Add zeroes for any elements that weren't given. */
@@ -200,7 +193,7 @@ bool_t parse_matrix(char *s, directive_t *directive) {
     (*size)++;
   }
 
-  return TRUE;
+  return SUCCESS;
 }
 
 directive_kind_t read_directive_kind(char **s) {
@@ -235,7 +228,7 @@ directive_kind_t read_directive_kind(char **s) {
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
-bool_t parse_statement(char *line, statement_t *statement) {
+result_t parse_statement(char *line, statement_t *statement) {
   word_t word;
 
   skip_spaces(&line);
@@ -243,15 +236,15 @@ bool_t parse_statement(char *line, statement_t *statement) {
   if (*line == 0 || *line == ';') {
     /* Entire line of whitespace, ignore. */
     statement->kind = STATEMENT_EMPTY;
-    return TRUE;
+    return SUCCESS;
   }
 
   word = read_word(&line);
 
   if (word.kind != WORD_NONE && accept(&line, ':')) {
-    ASSERTM(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
-    ASSERTM(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
-    ASSERTM(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
+    ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
+    ASSERT(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
+    ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
 
     statement->has_label = TRUE;
     strcpy(statement->label, word.value);
@@ -276,8 +269,7 @@ bool_t parse_statement(char *line, statement_t *statement) {
       case DIRECTIVE_KIND_EXTERN:
         /* TODO */
       default:
-        fprintf(stderr, "Unknown directive.\n");
-        return FALSE;
+        return ERR_UNKNOWN_DIRECTIVE;
     }
     /*TODO: external, entry types??*/
   }
@@ -285,10 +277,8 @@ bool_t parse_statement(char *line, statement_t *statement) {
   if (word.kind == WORD_INSTRUCTION) {
     statement->kind = STATEMENT_INSTRUCTION;
     statement->data.instruction.info = word.instruction_info;
-    ASSERT(parse_instruction_operands(line, &statement->data.instruction))
-    return TRUE;
+    TRY(parse_instruction_operands(line, &statement->data.instruction))
+    return SUCCESS;
   }
-
-  fprintf(stderr, ERR_INVALID_COMMAND);
-  return FALSE;
+  return ERR_INVALID_COMMAND;
 }

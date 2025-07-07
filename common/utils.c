@@ -109,7 +109,6 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
        * newline and return 0. */
       while ((c = getc(file)) != EOF && c != '\n') {
       }
-      printf("Error: Line is longer than 80 characters.\n");
       return SENTENCE_ERR_BUFF_OVERFLOW;
     }
     line[count] = (char) c;

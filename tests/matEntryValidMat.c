@@ -25,9 +25,9 @@ char q20[MAX_LINE] = ".mat [1][2] ,,";
 static statement_t statement;
 
 void test(char str[MAX_LINE], char *message) {
-  bool_t flag = parse_statement(str, &statement);
+  result_t flag = parse_statement(str, &statement);
 
-  ASSERTM(flag == FALSE, message);
+  ASSERTM(flag != SUCCESS, message);
 }
 
 int main(void) {
