@@ -18,6 +18,9 @@
 #define ERR_UNKNOWN_DIRECTIVE "Unknown directive"
 #define ERR_NOT_ENOUGH_ARGS "Instruction did not receive enough arguments"
 #define ERR_TOO_MANY_ARGS "Instruction received too many arguments"
+#define ERR_SRC_IMMEDIATE "This instruction doesn't support immediate source operands"
+#define ERR_SRC_REGISTER "This instruction doesn't support register source operands"
+#define ERR_DST_IMMEDIATE "This instruction doesn't support immediate destination operands"
 
 
 /* Numbers */

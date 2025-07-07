@@ -119,17 +119,39 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
     if (statement->kind == STATEMENT_INSTRUCTION) {
       list_add(&assembler->label_table, statement->label, assembler->ic);
     }
-    else {
+    else if (statement->kind == STATEMENT_DIRECTIVE) {
       list_add(&assembler->data_table, statement->label, assembler->dc);
     }
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {
     instruction_t *instruction = &statement->data.instruction;
-    if (instruction->num_args != instruction->info->arg_amount) {
-      return instruction->num_args > instruction->info->arg_amount ? ERR_TOO_MANY_ARGS : ERR_NOT_ENOUGH_ARGS;
+    instruction_info_t *info = instruction->info;
+
+    if (instruction->num_args != info->arg_amount) {
+      /* The number of arguments given does not match the number of arguments the instruction expects. */
+      return instruction->num_args > info->arg_amount ? ERR_TOO_MANY_ARGS : ERR_NOT_ENOUGH_ARGS;
     }
-    /* TODO check that instruction is called with supported operand kinds */
+
+    if (instruction->num_args >= ONE_ARG) {
+      /* Make sure that the instruction is called with operand kinds that it supports. */
+      /* All instructions support label and matrix addressing, so only immediate and register operands are checked. */
+
+      operand_t *src = &instruction->operand_1, *dst = &instruction->operand_1;
+
+      if (instruction->num_args == TWO_ARGS) {
+        dst = &instruction->operand_2;
+        if (!info->src_immediate_register &&
+            (src->kind == OPERAND_KIND_IMMEDIATE || src->kind == OPERAND_KIND_REGISTER)) {
+          return src->kind == OPERAND_KIND_IMMEDIATE ? ERR_SRC_IMMEDIATE : ERR_SRC_REGISTER;
+        }
+      }
+
+      if (!info->dst_immediate && dst->kind == OPERAND_KIND_IMMEDIATE) {
+        return ERR_DST_IMMEDIATE;
+      }
+    }
+
     write_instruction(assembler, instruction);
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
