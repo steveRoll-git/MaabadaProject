@@ -5,60 +5,48 @@
 #ifndef ERR_H
 #define ERR_H
 
-#define ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS "Extranous Data"
-#define ERR_INVALID_ARGUEMENT "Invalid Argument"
+#define ERR_EXTRANEOUS_TEXT "Extranous text after instruction arguments."
+#define ERR_INVALID_ARGUMENT "Invalid argument syntax."
 
 /* Instructions */
-#define ERR_FIRST_ARG_INVALID "Invalid First Argument"
-#define ERR_SECOND_ARG_INVALID "Invalid Second Argument"
-#define ERR_WHERE_IS_MY_COMMA "Missing Comma between two commands"
-#define ERR_UNKNOWN_INSTRUCTION "Unknown Assembly Command"
-#define ERR_INVALID_INSTRUCTION "Invalid Instruction"
-#define ERR_INVALID_COMMAND "Invalid Command"
-#define ERR_UNKNOWN_DIRECTIVE "Unknown directive"
-#define ERR_NOT_ENOUGH_ARGS "Instruction did not receive enough arguments"
-#define ERR_TOO_MANY_ARGS "Instruction received too many arguments"
-#define ERR_SRC_IMMEDIATE "This instruction doesn't support immediate source operands"
-#define ERR_SRC_REGISTER "This instruction doesn't support register source operands"
-#define ERR_DST_IMMEDIATE "This instruction doesn't support immediate destination operands"
+#define ERR_UNKNOWN_INSTRUCTION "Unknown instruction."
+#define ERR_UNKNOWN_DIRECTIVE "Unknown directive."
+#define ERR_NOT_ENOUGH_ARGS "Instruction did not receive enough arguments."
+#define ERR_TOO_MANY_ARGS "Instruction received too many arguments."
+#define ERR_SRC_IMMEDIATE "This instruction doesn't support immediate source operands."
+#define ERR_SRC_REGISTER "This instruction doesn't support register source operands."
+#define ERR_DST_IMMEDIATE "This instruction doesn't support immediate destination operands."
 
 
 /* Numbers */
-#define ERR_NUMBER_NOT_VALID "Invalid Number"
-#define ERR_NUMBER_FIRST_CHAR_WRONG "First Character of number isn't [+\\-]|[1-9]"
+#define ERR_NUMBER_NOT_VALID "Invalid number."
+#define ERR_NUMBER_AFTER_HASH "A hash must immediately be followed by a number."
 
 /*Labels*/
-#define ERR_INVALID_LABEL "Invalid Label"
-#define ERR_LABEL_UNDERSCORES "Label name cannot contain underscores"
-#define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters"
+#define ERR_INVALID_LABEL "Invalid label name: Must not be a reserved word."
+#define ERR_LABEL_UNDERSCORES "Label name cannot contain underscores."
+#define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters."
 
 /* Matrix*/
-#define ERR_MATRIX_OVERFLOW "Matrix has too many values for its buffer size"
+#define ERR_MATRIX_OVERFLOW "Matrix has more values than it can store."
 #define ERR_MATRIX_START_BRACKET_ROW "Missing '[' for row index."
 #define ERR_MATRIX_END_BRACKET_ROW "Missing ']' for row index."
 #define ERR_MATRIX_START_BRACKET_COL "Missing '[' for column index."
 #define ERR_MATRIX_END_BRACKET_COL "Missing ']' for column index."
-#define ERR_MATRIX_NEGATIVE_STORAGE "Matrix Rows And cols must be larger than 0"
-#define ERR_WRONG_MATRIX_ACCESS "Matrix rows and columns can only be accessed with registers"
-
+#define ERR_MATRIX_NEGATIVE_STORAGE "Matrix rows and colums must be positive integers."
+#define ERR_WRONG_MATRIX_ACCESS "Matrix rows and columns can only be accessed with registers."
 
 /*String*/
-#define ERR_STRING_MISSING_QUOTE "Missing quote sign"
+#define ERR_STRING_MISSING_QUOTE_START "String argument must start with quotation marks."
+#define ERR_STRING_MISSING_QUOTE_END "String argument must end with quotation marks."
 
 /* Arguments */
-#define ERR_NO_ARG "Missing Argument"
+#define ERR_NO_ARG "Expected an argument."
 
-/* Checks that the condition is true. If it's not, causes the running function to return the given error message as a
+/* Checks that the condition is true. If not, causes the running function to return the given error message as a
  * `result_t`. */
 #define ASSERT(a, s)                                                                                                   \
   if (!(a)) {                                                                                                          \
-    return (result_t) s;                                                                                               \
-  }
-
-/* The given expression should be one of `result_t` type. If it does not return `SUCCESS`, causes the running function
- * to return the given error string. */
-#define TRY_M(a, s)                                                                                                    \
-  if ((a) != SUCCESS) {                                                                                                \
     return (result_t) s;                                                                                               \
   }
 

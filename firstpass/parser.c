@@ -38,7 +38,7 @@ result_t parse_instruction_operands(char *s, instruction_t *instruction) {
       instruction->num_args = TWO_ARGS;
     }
   }
-  ASSERT(is_end(s), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS)
+  ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT)
   return SUCCESS;
 }
 
@@ -78,9 +78,8 @@ result_t parse_operand(char **s, operand_t *operand) {
   if (accept(s, '#')) {
     machine_word_t value;
 
-    ASSERT(isdigit(**s) || **s == '-' || **s == '+', ERR_NUMBER_FIRST_CHAR_WRONG);
+    ASSERT(isdigit(**s) || **s == '-' || **s == '+', ERR_NUMBER_AFTER_HASH);
     TRY(parse_number(s, &value))
-
 
     operand->kind = OPERAND_KIND_IMMEDIATE;
     operand->data.immediate = value;
@@ -95,7 +94,7 @@ result_t parse_operand(char **s, operand_t *operand) {
     return SUCCESS;
   }
 
-  ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUEMENT);
+  ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUMENT);
 
   skip_spaces(s);
 
@@ -137,13 +136,13 @@ result_t parse_string(char *s, directive_t *directive) {
   *size = 0;
 
   /* .string directive must contain a string enclosed in quotes. */
-  ASSERT(accept(&s, '"'), ERR_STRING_MISSING_QUOTE);
+  ASSERT(accept(&s, '"'), ERR_STRING_MISSING_QUOTE_START);
 
   last_quotes = strrchr(s, '"');
   /* The string must be enclosed by two quotes. */
-  ASSERT(last_quotes, ERR_STRING_MISSING_QUOTE)
+  ASSERT(last_quotes, ERR_STRING_MISSING_QUOTE_END)
   /* Extraneous text after string. */
-  ASSERT(is_end(last_quotes + 1), ERR_EXTRANOUS_INFORMATION_AFTER_ARGUEMENTS);
+  ASSERT(is_end(last_quotes + 1), ERR_EXTRANEOUS_TEXT);
 
   /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {
@@ -280,5 +279,6 @@ result_t parse_statement(char *line, statement_t *statement) {
     TRY(parse_instruction_operands(line, &statement->data.instruction))
     return SUCCESS;
   }
-  return ERR_INVALID_COMMAND;
+
+  return ERR_UNKNOWN_INSTRUCTION;
 }
