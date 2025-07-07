@@ -27,6 +27,8 @@
 #define IMM_MASK 0xff
 #define IMM_BITS(n) ((n & IMM_MASK) << IMM_FIRST_BIT)
 
+#define DATA_MASK 0x3ff
+
 machine_word_t make_code_word(unsigned int opcode, unsigned int src_operand, unsigned int dst_operand, int era) {
   machine_word_t word = 0;
   word |= OPCODE_BITS(opcode);
@@ -91,6 +93,27 @@ void write_instruction(assembler_t *assembler, instruction_t *instruction) {
   }
 }
 
+void write_directive(assembler_t *assembler, directive_t *directive) {
+  int i;
+  switch (directive->kind) {
+    case DIRECTIVE_KIND_DATA:
+    case DIRECTIVE_KIND_STRING:
+    case DIRECTIVE_KIND_MAT:
+      for (i = 0; i < directive->info.data.size; i++) {
+        add_data_word(assembler, directive->info.data.array[i]);
+      }
+      break;
+    case DIRECTIVE_KIND_ENTRY:
+      /*TODO*/
+      break;
+    case DIRECTIVE_KIND_EXTERN:
+      /*TODO*/
+      break;
+    default:
+      break;
+  }
+}
+
 result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   if (statement->has_label) {
     if (statement->kind == STATEMENT_INSTRUCTION) {
@@ -108,6 +131,9 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
     }
     /* TODO check that instruction is called with supported operand kinds */
     write_instruction(assembler, instruction);
+  }
+  else if (statement->kind == STATEMENT_DIRECTIVE) {
+    write_directive(assembler, &statement->data.directive);
   }
 
   return SUCCESS;
