@@ -60,6 +60,12 @@ typedef enum opcode_t {
   OPCODE_STOP = 15
 } opcode_t;
 
+typedef enum encoding_kind_t {
+  ENCODING_ABSOLUTE,
+  ENCODING_EXTERNAL,
+  ENCODING_RELOCATABLE,
+} encoding_kind_t;
+
 typedef enum num_args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } num_args_t;
 
 typedef struct instruction_info_t {

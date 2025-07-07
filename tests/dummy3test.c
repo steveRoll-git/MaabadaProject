@@ -22,5 +22,5 @@ int main(void) {
   int expected_args[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0', 6, -9, 1, 5, 22, 1, 2, 3, 4};
   ASSERT(memcmp(expected_args, assembler.data_array.ptr, sizeof(expected_args)));
 
-  return result;
+  return result == TRUE;
 }

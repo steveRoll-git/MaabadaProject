@@ -7,66 +7,110 @@
 
 #define OPCODE_FIRST_BIT 6
 #define OPCODE_MASK 0xf
+#define OPCODE_BITS(n) ((n & OPCODE_MASK) << OPCODE_FIRST_BIT)
+
 #define SRC_FIRST_BIT 4
 #define SRC_MASK 0x3
+#define SRC_BITS(n) ((n & SRC_MASK) << SRC_FIRST_BIT)
+
 #define DST_FIRST_BIT 2
 #define DST_MASK 0x3
-#define ROW_FIRST_BIT 6
-#define COL_FIRST_BIT 2
-#define REG_MASK 0xf
-#define IMM_MASK 0xff
+#define DST_BITS(n) ((n & DST_MASK) << DST_FIRST_BIT)
 
-machine_word_t make_code_word(int opcode, int src_operand, int dst_operand, int era) {
+#define REG1_FIRST_BIT 6
+#define REG2_FIRST_BIT 2
+#define REG_MASK 0xf
+#define REG1_BITS(n) ((n & REG_MASK) << REG1_FIRST_BIT)
+#define REG2_BITS(n) ((n & REG_MASK) << REG2_FIRST_BIT)
+
+#define IMM_FIRST_BIT 2
+#define IMM_MASK 0xff
+#define IMM_BITS(n) ((n & IMM_MASK) << IMM_FIRST_BIT)
+
+machine_word_t make_code_word(unsigned int opcode, unsigned int src_operand, unsigned int dst_operand, int era) {
   machine_word_t word = 0;
-  word |= (opcode & OPCODE_MASK) << OPCODE_FIRST_BIT;
-  word |= (src_operand & SRC_MASK) << SRC_FIRST_BIT;
-  word |= (dst_operand & DST_MASK) << DST_FIRST_BIT;
+  word |= OPCODE_BITS(opcode);
+  word |= SRC_BITS(src_operand);
+  word |= DST_BITS(dst_operand);
   return word;
 }
 
-void write_operand(assembler_t *assembler, operand_t *operand) {
+/* Creates a word where one register occupies bits 6-9 and the other occupies bits 2-5. */
+machine_word_t make_joined_register_word(char reg_1, char reg_2) {
+  return REG1_BITS(reg_1) | REG2_BITS(reg_2);
+}
+
+void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
-      add_code_word(assembler, (operand->data.immediate & IMM_MASK) << DST_FIRST_BIT);
+      add_code_word(assembler, IMM_BITS(operand->data.immediate));
       break;
+
     case OPERAND_KIND_LABEL:
       add_code_word(assembler, 0); /* TODO */
       break;
+
     case OPERAND_KIND_MATRIX:
       /* The first word in matrix addressing is the address of the label. */
       add_code_word(assembler, 0); /* TODO */
-      add_code_word(assembler,
-                    (operand->data.matrix.row_reg & REG_MASK) << ROW_FIRST_BIT |
-                            (operand->data.matrix.col_reg & REG_MASK) << COL_FIRST_BIT);
+      add_code_word(assembler, make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg));
       break;
+
     case OPERAND_KIND_REGISTER:
+      if (is_second) {
+        add_code_word(assembler, REG2_BITS(operand->data.register_index));
+      }
+      else {
+        add_code_word(assembler, REG1_BITS(operand->data.register_index));
+      }
       break;
   }
 }
 
 void write_instruction(assembler_t *assembler, instruction_t *instruction) {
-  machine_word_t first_word = make_code_word(instruction->info->opcode,
-                                             instruction->num_args >= 1 ? instruction->operand_1.kind : 0,
-                                             instruction->num_args >= 2 ? instruction->operand_2.kind : 0,
-                                             0 /*TODO*/);
-  add_code_word(assembler, first_word);
+  operand_t *operand_1 = &instruction->operand_1;
+  operand_t *operand_2 = &instruction->operand_2;
+
+  add_code_word(assembler,
+                make_code_word(instruction->info->opcode,
+                               instruction->num_args >= 1 ? operand_1->kind : 0,
+                               instruction->num_args >= 2 ? operand_2->kind : 0,
+                               ENCODING_ABSOLUTE /*TODO?*/));
+
+  if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
+    /* If both operands are registers, we write a single word that contains both of them. */
+    add_code_word(assembler, make_joined_register_word(operand_1->data.register_index, operand_2->data.register_index));
+  }
+  else {
+    if (instruction->num_args >= ONE_ARG) {
+      write_operand(assembler, &instruction->operand_1, FALSE);
+    }
+    if (instruction->num_args == TWO_ARGS) {
+      write_operand(assembler, &instruction->operand_2, TRUE);
+    }
+  }
 }
 
 result_t compile_statement(assembler_t *assembler, statement_t *statement) {
+  if (statement->has_label) {
+    if (statement->kind == STATEMENT_INSTRUCTION) {
+      list_add(&assembler->label_table, statement->label, assembler->ic);
+    }
+    else {
+      list_add(&assembler->data_table, statement->label, assembler->dc);
+    }
+  }
+
   if (statement->kind == STATEMENT_INSTRUCTION) {
     instruction_t *instruction = &statement->data.instruction;
     if (instruction->num_args != instruction->info->arg_amount) {
       return instruction->num_args > instruction->info->arg_amount ? ERR_TOO_MANY_ARGS : ERR_NOT_ENOUGH_ARGS;
     }
+    /* TODO check that instruction is called with supported operand kinds */
+    write_instruction(assembler, instruction);
   }
-  if (statement->has_label) {
-    if (statement->kind == STATEMENT_INSTRUCTION) {
-    }
-  }
-  return SUCCESS;
-}
 
-void write_statement(assembler_t *assembler, statement_t *statement) {
+  return SUCCESS;
 }
 
 /* TODO temp arguments */
@@ -96,9 +140,6 @@ bool_t first_pass(char *input_file_path, char *output_file_path, assembler_t *as
       printf("Error at %s:%d: %s\n", input_file_path, line_number, res);
       error_flag = TRUE;
       total_errors++;
-    }
-    else if (statement.kind != STATEMENT_EMPTY) {
-      compile_statement(assembler, &statement);
     }
 
     line_number++;
