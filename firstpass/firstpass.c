@@ -115,13 +115,12 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
 }
 
 result_t compile_statement(assembler_t *assembler, statement_t *statement) {
+  if (statement->kind == STATEMENT_EMPTY) {
+    return SUCCESS;
+  }
+
   if (statement->has_label) {
-    if (statement->kind == STATEMENT_INSTRUCTION) {
-      add_code_label(assembler, statement->label);
-    }
-    else if (statement->kind == STATEMENT_DIRECTIVE) {
-      add_data_label(assembler, statement->label);
-    }
+    add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE, FALSE);
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {
@@ -140,6 +139,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
       operand_t *src = &instruction->operand_1, *dst = &instruction->operand_1;
 
       if (instruction->num_args == TWO_ARGS) {
+        /* If an instruction has two arguments, the first one is the source and the second is the destination. */
         dst = &instruction->operand_2;
         if (!info->src_immediate_register &&
             (src->kind == OPERAND_KIND_IMMEDIATE || src->kind == OPERAND_KIND_REGISTER)) {
@@ -194,9 +194,7 @@ bool_t first_pass(char *input_file_path, char *output_file_path, assembler_t *as
   }
 
   merge_data(assembler);
-  /*TODO: Merge between DC and IC into label_table.*/
 
-  // merge_dc_to_ic()
   printf("Total Errors: %d\n", total_errors);
   return error_flag;
 }

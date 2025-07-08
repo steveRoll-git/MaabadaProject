@@ -12,6 +12,9 @@ typedef struct table_t table_t;
 /* Creates a new table where the size of values is the given parameter. */
 table_t *table_create(size_t value_size);
 
+/* Returns the number of values in the table. */
+size_t table_count(table_t *table);
+
 /* Adds a key to the table, and returns a pointer at which the value for this key should be stored. */
 void *table_add(table_t *table, table_key_t key);
 
@@ -22,6 +25,9 @@ void *table_add(table_t *table, table_key_t key);
 /* Finds the value that's associated with the given string. */
 /* Returns a pointer to that value if it exists, or NULL otherwise. */
 void *table_get(table_t *table, table_key_t key);
+
+/* Returns a pointer to the value at the given index. */
+void *table_at(table_t *table, int index);
 
 /* Frees the memory used by this table. */
 /* (This does not free any pointers that the table's values may have.) */

@@ -6,11 +6,40 @@
 #include "../common/utils.h"
 #include "../datatypes/assembler.h"
 #include "../datatypes/list.h"
+#include "../datatypes/table.h"
 #include "../firstpass/firstpass.h"
 #include "../firstpass/parser.h"
 #include "../preprocess/macroprocessor.h"
 
 /* Assembler is redefined here so we can access its members easily */
+
+/* Represents a reference to a label. */
+typedef struct label_reference_t {
+  /* The index in the code image where the label's address should be written to. */
+  size_t location;
+
+  /* The line in the source code where this label was referenced, for use in error messages. */
+  int line;
+} label_reference_t;
+
+/* Information about a label. */
+typedef struct label_info_t {
+  /* Whether this label's definition has been found. */
+  bool_t found;
+
+  /* Stores the IC value this label points to, or if this is a data label, the DC value it points to. */
+  /* This is only defined after the label's definition has been found in the code. */
+  size_t value;
+
+  /* False if this label points to an instruction; True if the label points to data. */
+  bool_t is_data;
+
+  /* Whether this label was defined with a `.extern` directive. */
+  bool_t is_external;
+
+  /* List of `label_reference_t` values - references to this label. */
+  list_t *references;
+} label_info_t;
 
 typedef struct assembler_t {
   /* The Instruction Counter: The address where the next instruction's first word will be. */
@@ -28,14 +57,12 @@ typedef struct assembler_t {
   list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
-  linked_list_t macro_table;
+  table_t *macro_table;
 
-  /* Stores the names of labels that point to instructions. */
-  linked_list_t label_table;
-
-  /* Stores the names of labels that point to data words. */
-  linked_list_t data_table;
+  /* Associates label names with `label_info_t` values. */
+  table_t *label_table;
 } assembler_t;
+
 
 #define ASSERTM(a, message)                                                                                            \
   if (!(a)) {                                                                                                          \

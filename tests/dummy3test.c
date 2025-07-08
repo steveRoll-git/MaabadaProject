@@ -1,7 +1,9 @@
 #include <string.h>
 
-
 #include "common.h"
+
+#define ASSERT_LABEL(label, expected)                                                                                  \
+  ASSERT(((label_info_t *) table_get(assembler->label_table, label))->value == expected)
 
 int main(void) {
   assembler_t *assembler = assembler_create();
@@ -9,15 +11,14 @@ int main(void) {
   int result = first_pass(in, NULL, assembler);
   print_data(assembler);
 
-  ASSERT(list_get(&assembler->label_table, "MAIN") == 100);
+  ASSERT_LABEL("MAIN", 100)
 
-  ASSERT(list_get(&assembler->label_table, "LOOP") == 107);
-  ASSERT(list_get(&assembler->label_table, "END") == 121);
-  ASSERT(list_get(&assembler->label_table, "STR") == 122);
-  ASSERT(list_get(&assembler->label_table, "LENGTH") == 129);
-  ASSERT(list_get(&assembler->label_table, "K") == 132);
-  ASSERT(list_get(&assembler->label_table, "M1") == 133);
-
+  ASSERT_LABEL("LOOP", 107)
+  ASSERT_LABEL("END", 121)
+  ASSERT_LABEL("STR", 122)
+  ASSERT_LABEL("LENGTH", 129)
+  ASSERT_LABEL("K", 132)
+  ASSERT_LABEL("M1", 133)
 
   int expected_args[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0', 6, -9, 1, 5, 22, 1, 2, 3, 4};
   ASSERT(memcmp(expected_args, list_at(assembler->data_array, 0), sizeof(expected_args)));

@@ -26,6 +26,7 @@
 #define ERR_INVALID_LABEL "Invalid label name: Must not be a reserved word."
 #define ERR_LABEL_UNDERSCORES "Label name cannot contain underscores."
 #define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters."
+#define ERR_LABEL_ALREADY_DEFINED "This label has already been defined in this file."
 
 /* Matrix*/
 #define ERR_MATRIX_OVERFLOW "Matrix has more values than it can store."
@@ -64,6 +65,7 @@
 /* Any function that can succeed or fail returns this type. If the function succeeds, it returns 0, otherwise it returns
  * a pointer to the string that represents the error. */
 typedef char *result_t;
+
 #define SUCCESS 0
 
 #endif // ERR_H

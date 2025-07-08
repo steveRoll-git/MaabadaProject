@@ -4,6 +4,35 @@
 #include <stdlib.h>
 
 #include "list.h"
+#include "table.h"
+
+/* Represents a reference to a label. */
+typedef struct label_reference_t {
+  /* The index in the code image where the label's address should be written to. */
+  size_t location;
+
+  /* The line in the source code where this label was referenced, for use in error messages. */
+  int line;
+} label_reference_t;
+
+/* Information about a label. */
+typedef struct label_info_t {
+  /* Whether this label's definition has been found. */
+  bool_t found;
+
+  /* Stores the IC value this label points to, or if this is a data label, the DC value it points to. */
+  /* This is only defined after the label's definition has been found in the code. */
+  size_t value;
+
+  /* False if this label points to an instruction; True if the label points to data. */
+  bool_t is_data;
+
+  /* Whether this label was defined with a `.extern` directive. */
+  bool_t is_external;
+
+  /* List of `label_reference_t` values - references to this label. */
+  list_t *references;
+} label_info_t;
 
 typedef struct assembler_t {
   /* The Instruction Counter: The address where the next instruction's first word will be. */
@@ -21,13 +50,10 @@ typedef struct assembler_t {
   list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
-  linked_list_t macro_table;
+  table_t *macro_table;
 
-  /* Stores the names of labels that point to instructions. */
-  linked_list_t label_table;
-
-  /* Stores the names of labels that point to data words. */
-  linked_list_t data_table;
+  /* Associates label names with `label_info_t` values. */
+  table_t *label_table;
 } assembler_t;
 
 assembler_t *assembler_create() {
@@ -36,9 +62,8 @@ assembler_t *assembler_create() {
   assembler->dc = 0;
   assembler->code_array = list_create(sizeof(machine_word_t));
   assembler->data_array = list_create(sizeof(machine_word_t));
-  assembler->macro_table = list_init();
-  assembler->label_table = list_init();
-  assembler->data_table = list_init();
+  assembler->macro_table = table_create(sizeof(long));
+  assembler->label_table = table_create(sizeof(label_info_t));
   return assembler;
 }
 
@@ -52,35 +77,43 @@ void add_data_word(assembler_t *assembler, machine_word_t data) {
   assembler->dc++;
 }
 
-void add_code_label(assembler_t *assembler, char *label) {
-  llist_add(&assembler->label_table, label, assembler->ic);
-}
+result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t is_external) {
+  label_info_t *info = table_get(assembler->label_table, label);
 
-void add_data_label(assembler_t *assembler, char *label) {
-  llist_add(&assembler->data_table, label, assembler->dc);
+  if (info == NULL) {
+    info = table_add(assembler->label_table, label);
+    info->references = list_create(sizeof(label_reference_t));
+  }
+  else {
+    /* Make sure that the label wasn't already defined. */
+    ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
+  }
+
+  info->found = TRUE;
+  info->is_data = is_data;
+  info->is_external = is_external;
+  if (!is_external) {
+    info->value = is_data ? assembler->dc : assembler->ic;
+  }
+
+  return SUCCESS;
 }
 
 void merge_data(assembler_t *assembler) {
-  list_node_t *node = assembler->data_table.head;
+  int i;
 
-
-  while (node != NULL) {
-    llist_add(&assembler->label_table, node->name, node->value + assembler->ic);
-    node = node->next;
+  for (i = 0; i < table_count(assembler->label_table); i++) {
+    label_info_t *info = table_at(assembler->label_table, i);
+    if (info->found && info->is_data) {
+      info->value += assembler->ic;
+    }
   }
-
-  purge_list(&assembler->data_table);
 }
 
 void print_data(assembler_t *assembler) {
   int i = 0;
   printf("IC: %d \n", assembler->ic);
   printf("DC: %d \n", assembler->dc);
-
-  printf("Label Table: ");
-  print_list(&assembler->label_table);
-  printf("\n Data Table: ");
-  print_list(&assembler->data_table);
 
   printf("\n ARGS (For DC): { ");
 
@@ -93,7 +126,6 @@ void print_data(assembler_t *assembler) {
 void assembler_free(assembler_t *assembler) {
   list_free(assembler->code_array);
   list_free(assembler->data_array);
-  purge_list(&assembler->data_table);
-  purge_list(&assembler->label_table);
+  table_free(assembler->label_table);
   free(assembler);
 }

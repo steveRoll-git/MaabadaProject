@@ -14,10 +14,6 @@ typedef struct list_t {
   size_t capacity;
 } list_t;
 
-size_t list_count(list_t *list) {
-  return list->count;
-}
-
 list_t *list_create(size_t element_size) {
   list_t *list = malloc(sizeof(list_t));
   list->ptr = NULL;
@@ -25,6 +21,10 @@ list_t *list_create(size_t element_size) {
   list->count = 0;
   list->capacity = 0;
   return list;
+}
+
+size_t list_count(list_t *list) {
+  return list->count;
 }
 
 void *list_at(list_t *list, int index) {

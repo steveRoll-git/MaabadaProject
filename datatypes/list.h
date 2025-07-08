@@ -6,13 +6,13 @@
 /* A list that can dynamically grow as more elements are added to it. */
 typedef struct list_t list_t;
 
-/* Returns the number of elements in the list. */
-size_t list_count(list_t *list);
-
 /* Creates and returns a new list with the specified element size. It will have an initial capacity of 0. */
 list_t *list_create(size_t element_size);
 
-/* Returns a pointer to the element at the given index in this list. */
+/* Returns the number of elements in the list. */
+size_t list_count(list_t *list);
+
+/* Returns a pointer to the element at the given index. */
 void *list_at(list_t *list, int index);
 
 /* Makes sure that the list can store one more element, and returns a pointer to the last element. */
