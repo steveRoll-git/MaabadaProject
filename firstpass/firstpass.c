@@ -117,10 +117,10 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
 result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   if (statement->has_label) {
     if (statement->kind == STATEMENT_INSTRUCTION) {
-      list_add(&assembler->label_table, statement->label, assembler->ic);
+      add_code_label(assembler, statement->label);
     }
     else if (statement->kind == STATEMENT_DIRECTIVE) {
-      list_add(&assembler->data_table, statement->label, assembler->dc);
+      add_data_label(assembler, statement->label);
     }
   }
 
