@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "../common/utils.h"
-#include "../datatypes/linked_list.h"
 #include "../datatypes/table.h"
 
 /* The various kinds of lines that the preprocessor's `parse_line` can give. */

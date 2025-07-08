@@ -2,8 +2,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include "../datatypes/assembler.h"
-#include "../datatypes/linked_list.h"
 #include "./data.h"
 
 /* This array stores all needed information about all the instructions. */

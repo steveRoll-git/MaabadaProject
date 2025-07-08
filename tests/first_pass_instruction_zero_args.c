@@ -1,7 +1,4 @@
 #include "../common/data.h"
-#include "../common/utils.h"
-#include "../datatypes/assembler.h"
-#include "../datatypes/linked_list.h"
 #include "../firstpass/parser.h"
 #include "common.h"
 
