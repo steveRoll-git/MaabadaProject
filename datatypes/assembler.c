@@ -15,12 +15,12 @@ assembler_t assembler_create() {
 }
 
 void add_code_word(assembler_t *assembler, machine_word_t data) {
-  ARRAY_ADD(&assembler->code_array, data);
+  ARRAY_ADD(assembler->code_array, data);
   assembler->ic++;
 }
 
 void add_data_word(assembler_t *assembler, machine_word_t data) {
-  ARRAY_ADD(&assembler->data_array, data);
+  ARRAY_ADD(assembler->data_array, data);
   assembler->dc++;
 }
 
@@ -49,8 +49,8 @@ void print_data(assembler_t *assembler) {
 
   printf("\n ARGS (For DC): { ");
 
-  for (i = 0; i < assembler->data_array.count; i++) {
-    printf("%d,  ", ((machine_word_t *) assembler->data_array.ptr)[i]);
+  for (i = 0; i < array_count(assembler->data_array); i++) {
+    printf("%d,  ", *(machine_word_t *) array_at(assembler->data_array, i));
   }
   printf("}\n");
 }

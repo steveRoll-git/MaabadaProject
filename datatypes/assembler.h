@@ -15,10 +15,10 @@ typedef struct assembler_t {
   int dc;
 
   /* The array that stores the code image. */
-  array_t code_array;
+  array_t *code_array;
 
   /* The array that stores the data image. */
-  array_t data_array;
+  array_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
   linked_list_t macro_table;

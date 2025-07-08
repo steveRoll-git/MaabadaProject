@@ -14,17 +14,17 @@ void *table_add(table_t *table, table_key_t key) {
   /* We make a copy of the parameter, and use that as the key. */
   table_key_t new_key = malloc(sizeof(char) * strlen(key));
   strcpy(new_key, key);
-  ARRAY_ADD(&table->key_array, new_key)
+  ARRAY_ADD(table->key_array, new_key)
 
-  return array_add(&table->value_array);
+  return array_add(table->value_array);
 }
 
 void *table_get(table_t *table, table_key_t key) {
   int i;
-  for (i = 0; i < table->key_array.count; i++) {
-    table_key_t current_key = *(table_key_t *) array_at(&table->key_array, i);
+  for (i = 0; i < array_count(table->key_array); i++) {
+    table_key_t current_key = *(table_key_t *) array_at(table->key_array, i);
     if (strcmp(key, current_key) == 0) {
-      return array_at(&table->value_array, i);
+      return array_at(table->value_array, i);
     }
   }
   return NULL;
@@ -33,11 +33,11 @@ void *table_get(table_t *table, table_key_t key) {
 void table_free(table_t *table) {
   int i;
   /* Free all the key strings. */
-  for (i = 0; i < table->key_array.count; i++) {
-    table_key_t key = *(table_key_t *) array_at(&table->key_array, i);
+  for (i = 0; i < array_count(table->key_array); i++) {
+    table_key_t key = *(table_key_t *) array_at(table->key_array, i);
     free(key);
   }
-  array_free(&table->key_array);
+  array_free(table->key_array);
 
-  array_free(&table->value_array);
+  array_free(table->value_array);
 }
