@@ -23,6 +23,8 @@ set(project_files
         datatypes/assembler.h
         firstpass/firstpass.h
         common/errors.h
+        datatypes/table.c
+        datatypes/table.h
 )
 
 enable_testing()

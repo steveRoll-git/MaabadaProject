@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "../common/utils.h"
 #include "../datatypes/linked_list.h"
+#include "../datatypes/table.h"
 
 /* The various kinds of lines that the preprocessor's `parse_line` can give. */
 typedef enum {
@@ -77,7 +77,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   parse_line_status_t status = LINE_NORMAL;
-  linked_list_t macro_table = list_init();
+  table_t macro_table = table_create(sizeof(long));
 
   in = fopen(input_file_path, "rb");
 
@@ -105,8 +105,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
       /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next
        * `mcroend`. */
       long offset = ftell(in);
-      list_add(&macro_table, macro_name, offset);
-      print_list(&macro_table);
+      TABLE_ADD(&macro_table, macro_name, offset);
 
       do {
         if (read_line(in, line) != SENTENCE_NEW_LINE) {
@@ -118,14 +117,14 @@ int preprocess(char *input_file_path, char *output_file_path) {
     }
     else if (status == LINE_MACROCALL) {
       /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
-      long offset = list_get(&macro_table, macro_name);
-      if (offset == -1L) {
+      long *offset = table_get(&macro_table, macro_name);
+      if (offset == NULL) {
         printf("No macro named '%s' has been defined.\n", macro_name);
         return 0;
       }
 
       FILE *temp = fopen(input_file_path, "r");
-      if (fseek(temp, offset, SEEK_SET)) {
+      if (fseek(temp, *offset, SEEK_SET)) {
         fprintf(stderr, "fseek didn't work while trying to read macro");
         return 0;
       }

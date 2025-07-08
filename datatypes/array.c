@@ -7,6 +7,10 @@ array_t array_create(size_t element_size) {
   return (array_t) {NULL, element_size, 0, 0};
 }
 
+void *array_at(array_t *array, int index) {
+  return array->ptr + index * array->element_size;
+}
+
 void *array_add(array_t *array) {
   if (array->count == array->capacity) {
     /* If adding one more element will cause the array's count to exceed its capacity, we increase the capacity and
