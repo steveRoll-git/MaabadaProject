@@ -17,8 +17,8 @@ set(project_files
         common/utils.h
         firstpass/parser.c
         firstpass/parser.h
-        datatypes/array.c
-        datatypes/array.h
+        datatypes/list.c
+        datatypes/list.h
         datatypes/assembler.c
         datatypes/assembler.h
         firstpass/firstpass.h

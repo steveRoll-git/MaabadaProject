@@ -16,7 +16,7 @@ typedef struct linked_list_t {
 } linked_list_t;
 
 /* Adds a new macro into our linkedlist*/
-void list_add(linked_list_t *list, char *name, long value);
+void llist_add(linked_list_t *list, char *name, long value);
 
 /* Checks if the list contains a node with the given name - if it does, returns that node's value, otherwise returns -1.
  */

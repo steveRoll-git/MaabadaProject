@@ -1,7 +1,6 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
-#include "array.h"
 #include "linked_list.h"
 
 /* Represents a reference to a label. */

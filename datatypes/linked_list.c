@@ -10,7 +10,7 @@ linked_list_t list_init() {
   return (linked_list_t) {NULL, NULL};
 }
 
-void list_add(linked_list_t *list, char *name, long value) {
+void llist_add(linked_list_t *list, char *name, long value) {
   list_node_t *ptr = malloc(sizeof(list_node_t));
   ptr->name = (char *) malloc(sizeof(char) * strlen(name));
   strcpy(ptr->name, name);

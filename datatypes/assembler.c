@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "list.h"
+
 typedef struct assembler_t {
   /* The Instruction Counter: The address where the next instruction's first word will be. */
   int ic;
@@ -13,10 +15,10 @@ typedef struct assembler_t {
   int dc;
 
   /* The array that stores the code image. */
-  array_t *code_array;
+  list_t *code_array;
 
   /* The array that stores the data image. */
-  array_t *data_array;
+  list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
   linked_list_t macro_table;
@@ -32,8 +34,8 @@ assembler_t *assembler_create() {
   assembler_t *assembler = malloc(sizeof(assembler_t));
   assembler->ic = 100;
   assembler->dc = 0;
-  assembler->code_array = array_create(sizeof(machine_word_t));
-  assembler->data_array = array_create(sizeof(machine_word_t));
+  assembler->code_array = list_create(sizeof(machine_word_t));
+  assembler->data_array = list_create(sizeof(machine_word_t));
   assembler->macro_table = list_init();
   assembler->label_table = list_init();
   assembler->data_table = list_init();
@@ -41,21 +43,21 @@ assembler_t *assembler_create() {
 }
 
 void add_code_word(assembler_t *assembler, machine_word_t data) {
-  ARRAY_ADD(assembler->code_array, data);
+  LIST_ADD(assembler->code_array, data);
   assembler->ic++;
 }
 
 void add_data_word(assembler_t *assembler, machine_word_t data) {
-  ARRAY_ADD(assembler->data_array, data);
+  LIST_ADD(assembler->data_array, data);
   assembler->dc++;
 }
 
 void add_code_label(assembler_t *assembler, char *label) {
-  list_add(&assembler->label_table, label, assembler->ic);
+  llist_add(&assembler->label_table, label, assembler->ic);
 }
 
 void add_data_label(assembler_t *assembler, char *label) {
-  list_add(&assembler->data_table, label, assembler->dc);
+  llist_add(&assembler->data_table, label, assembler->dc);
 }
 
 void merge_data(assembler_t *assembler) {
@@ -63,7 +65,7 @@ void merge_data(assembler_t *assembler) {
 
 
   while (node != NULL) {
-    list_add(&assembler->label_table, node->name, node->value + assembler->ic);
+    llist_add(&assembler->label_table, node->name, node->value + assembler->ic);
     node = node->next;
   }
 
@@ -82,15 +84,15 @@ void print_data(assembler_t *assembler) {
 
   printf("\n ARGS (For DC): { ");
 
-  for (i = 0; i < array_count(assembler->data_array); i++) {
-    printf("%d,  ", *(machine_word_t *) array_at(assembler->data_array, i));
+  for (i = 0; i < list_count(assembler->data_array); i++) {
+    printf("%d,  ", *(machine_word_t *) list_at(assembler->data_array, i));
   }
   printf("}\n");
 }
 
 void assembler_free(assembler_t *assembler) {
-  array_free(assembler->code_array);
-  array_free(assembler->data_array);
+  list_free(assembler->code_array);
+  list_free(assembler->data_array);
   purge_list(&assembler->data_table);
   purge_list(&assembler->label_table);
   free(assembler);

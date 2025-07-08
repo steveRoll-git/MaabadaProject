@@ -1,7 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "array.h"
+#include "list.h"
 
 /* The type of the table's keys. */
 typedef char *table_key_t;

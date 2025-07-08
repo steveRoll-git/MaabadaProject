@@ -6,6 +6,7 @@
 #include "../common/utils.h"
 #include "../datatypes/assembler.h"
 #include "../datatypes/linked_list.h"
+#include "../datatypes/list.h"
 #include "../firstpass/firstpass.h"
 #include "../firstpass/parser.h"
 #include "../preprocess/macroprocessor.h"
@@ -22,10 +23,10 @@ typedef struct assembler_t {
   int dc;
 
   /* The array that stores the code image. */
-  array_t *code_array;
+  list_t *code_array;
 
   /* The array that stores the data image. */
-  array_t *data_array;
+  list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
   linked_list_t macro_table;
