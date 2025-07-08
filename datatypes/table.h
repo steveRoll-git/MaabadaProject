@@ -7,15 +7,10 @@
 typedef char *table_key_t;
 
 /* A table associates strings with values. It can store and retrieve values based on a string key. */
-typedef struct table_t {
-  /* This array stores the string keys. */
-  array_t *key_array;
-  /* For each index in the key array, its value is at the same index in this array. */
-  array_t *value_array;
-} table_t;
+typedef struct table_t table_t;
 
 /* Creates a new table where the size of values is the given parameter. */
-table_t table_create(size_t value_size);
+table_t *table_create(size_t value_size);
 
 /* Adds a key to the table, and returns a pointer at which the value for this key should be stored. */
 void *table_add(table_t *table, table_key_t key);

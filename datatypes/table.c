@@ -3,10 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-table_t table_create(size_t value_size) {
-  table_t table;
-  table.key_array = array_create(sizeof(char *));
-  table.value_array = array_create(value_size);
+typedef struct table_t {
+  /* This array stores the string keys. */
+  array_t *key_array;
+  /* For each index in the key array, its value is at the same index in this array. */
+  array_t *value_array;
+} table_t;
+
+table_t *table_create(size_t value_size) {
+  table_t *table = malloc(sizeof(table_t));
+  table->key_array = array_create(sizeof(char *));
+  table->value_array = array_create(value_size);
   return table;
 }
 
@@ -40,4 +47,6 @@ void table_free(table_t *table) {
   array_free(table->key_array);
 
   array_free(table->value_array);
+
+  free(table);
 }

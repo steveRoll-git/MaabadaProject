@@ -77,7 +77,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   parse_line_status_t status = LINE_NORMAL;
-  table_t macro_table = table_create(sizeof(long));
+  table_t *macro_table = table_create(sizeof(long));
 
   in = fopen(input_file_path, "rb");
 
@@ -105,7 +105,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
       /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next
        * `mcroend`. */
       long offset = ftell(in);
-      TABLE_ADD(&macro_table, macro_name, offset);
+      TABLE_ADD(macro_table, macro_name, offset);
 
       do {
         if (read_line(in, line) != SENTENCE_NEW_LINE) {
@@ -117,7 +117,7 @@ int preprocess(char *input_file_path, char *output_file_path) {
     }
     else if (status == LINE_MACROCALL) {
       /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
-      long *offset = table_get(&macro_table, macro_name);
+      long *offset = table_get(macro_table, macro_name);
       if (offset == NULL) {
         printf("No macro named '%s' has been defined.\n", macro_name);
         return 0;
