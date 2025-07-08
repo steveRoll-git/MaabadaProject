@@ -6,8 +6,8 @@ assembler_t assembler_create() {
   assembler_t assembler;
   assembler.ic = 100;
   assembler.dc = 0;
-  assembler.code_array = growing_array_create();
-  assembler.data_array = growing_array_create();
+  assembler.code_array = array_create(sizeof(machine_word_t));
+  assembler.data_array = array_create(sizeof(machine_word_t));
   assembler.macro_table = list_init();
   assembler.label_table = list_init();
   assembler.data_table = list_init();
@@ -15,12 +15,12 @@ assembler_t assembler_create() {
 }
 
 void add_code_word(assembler_t *assembler, machine_word_t data) {
-  growing_array_add(&assembler->code_array, data);
+  ARRAY_ADD(&assembler->code_array, data);
   assembler->ic++;
 }
 
 void add_data_word(assembler_t *assembler, machine_word_t data) {
-  growing_array_add(&assembler->data_array, data);
+  ARRAY_ADD(&assembler->data_array, data);
   assembler->dc++;
 }
 
@@ -50,7 +50,7 @@ void print_data(assembler_t *assembler) {
   printf("\n ARGS (For DC): { ");
 
   for (i = 0; i < assembler->data_array.count; i++) {
-    printf("%d,  ", assembler->data_array.ptr[i]);
+    printf("%d,  ", ((machine_word_t *) assembler->data_array.ptr)[i]);
   }
   printf("}\n");
 }
