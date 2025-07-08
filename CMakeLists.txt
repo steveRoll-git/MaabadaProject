@@ -22,13 +22,9 @@ set(project_files
         datatypes/assembler.c
         datatypes/assembler.h
         firstpass/firstpass.h
-        common/ERR.h
+        common/errors.h
 )
 
-add_library(firstpass firstpass/parser.c firstpass/firstpass.c firstpass/firstpass.h)
-add_library(common common/utils.c common/data.h
-        common/ERR.h)
-add_library(datatypes datatypes/linked_list.c datatypes/growing_array.c datatypes/assembler.c)
 enable_testing()
 
 add_executable(MaabadaProject
