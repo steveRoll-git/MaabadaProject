@@ -15,14 +15,13 @@ set(project_files
         include/macroprocessor.h
         include/parser.h
         include/table.h
-        include/utils.h
         source/assembler.c
+        source/data.c
         source/firstpass.c
         source/list.c
         source/macroprocessor.c
         source/parser.c
         source/table.c
-        source/utils.c
 )
 
 enable_testing()

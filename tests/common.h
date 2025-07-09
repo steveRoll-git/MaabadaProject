@@ -2,14 +2,13 @@
 #define TESTS_COMMON
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/utils.h"
-#include "../include/list.h"
-#include "../include/table.h"
-#include "../include/parser.h"
 #include "../include/assembler.h"
 #include "../include/data.h"
 #include "../include/firstpass.h"
+#include "../include/list.h"
 #include "../include/macroprocessor.h"
+#include "../include/parser.h"
+#include "../include/table.h"
 
 /* Assembler is redefined here so we can access its members easily */
 

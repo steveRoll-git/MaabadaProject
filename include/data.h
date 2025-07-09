@@ -88,10 +88,10 @@ typedef struct instruction_info_t {
   bool_t src_immediate_register;
 } instruction_info_t;
 
-typedef enum sentence_t {
-  SENTENCE_ERR_BUFF_OVERFLOW = 0,
-  SENTENCE_NEW_LINE = 1,
-  SENTENCE_EOF = 2,
-} sentence_t;
+/* This array stores all needed information about all the instructions. */
+extern instruction_info_t instructions[];
+
+/* The total number of instructions in the language. */
+extern const int num_instructions;
 
 #endif

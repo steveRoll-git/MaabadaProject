@@ -3,7 +3,6 @@
 #include "common.h"
 
 #include "../include/parser.h"
-#include "../include/utils.h"
 
 static directive_t directive;
 

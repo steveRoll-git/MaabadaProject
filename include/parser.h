@@ -1,8 +1,36 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <stdio.h>
+
 #include "data.h"
 #include "errors.h"
+
+typedef enum word_kind_t {
+  /* The text that was attempted to be read is not a word. */
+  WORD_NONE,
+  /* The 'mcro' preprocessor keyword. */
+  WORD_MCRO,
+  /* The name of an instruction. */
+  WORD_MCROEND,
+  /* The name of an instruction. */
+  WORD_INSTRUCTION,
+  /* A name of a register: 'r0' through 'r7'. */
+  WORD_REGISTER,
+  /* Any name that isn't a reserved word. */
+  WORD_IDENTIFIER
+} word_kind_t;
+
+typedef struct word_t {
+  /* What kind of word this is. */
+  word_kind_t kind;
+  /* This word's contents. */
+  char value[MAX_LINE];
+  /* If `kind` is `WORD_REGISTER`, this stores the register's index, from 0 to 7. */
+  char register_index;
+  /* If `kind` is `WORD_INSTRUCTION`, this stores a pointer to the instruction. */
+  instruction_info_t *instruction_info;
+} word_t;
 
 /* The different kinds of operands. */
 typedef enum operand_kind_t {
@@ -104,24 +132,26 @@ typedef struct statement_t {
   } data;
 } statement_t;
 
-/* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-char *parse_number(char **s, machine_word_t *result);
+typedef enum sentence_t {
+  SENTENCE_ERR_BUFF_OVERFLOW = 0,
+  SENTENCE_NEW_LINE = 1,
+  SENTENCE_EOF = 2,
+} sentence_t;
 
-/* Parses between 0 and 2 operands of an instruction. */
-char *parse_instruction_operands(char *s, instruction_t *instruction);
+/* Returns whether there are no more non-space characters in `s`. */
+int is_end(char *s);
 
-char *parse_data(char *s, directive_t *directive);
+/* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
+ * stores it in `line`. */
+/* Returns `SENTENCE_NEW_LINE` if there are more lines to be read, `SENTENCE_ERR_BUFF_OVERFLOW` if the line was too
+ * long, and `SENTENCE_EOF` if there are no more lines to read. */
+sentence_t read_line(FILE *file, char line[MAX_LINE]);
 
-directive_kind_t read_directive_kind(char **s);
+/* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
+ * `s` */
+/* Updates `s` so that it will point to the next character after the word that was read. */
+word_t read_word(char **s);
 
 result_t parse_statement(char *line, statement_t *statement);
-
-char *parse_operand(char **s, operand_t *operand);
-
-bool_t accept(char **s, char c);
-char *parse_matrix_operand(char **s, operand_t *operand);
-int get_word_size(operand_kind_t arg1, operand_kind_t arg2);
-char *parse_string(char *s, directive_t *directive);
-char *parse_matrix(char *s, directive_t *directive);
 
 #endif

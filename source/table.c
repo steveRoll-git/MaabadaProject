@@ -1,4 +1,5 @@
 #include "../include/table.h"
+#include "../include/list.h"
 
 #include <stdlib.h>
 #include <string.h>
