@@ -77,12 +77,27 @@ void add_data_word(assembler_t *assembler, machine_word_t data) {
   assembler->dc++;
 }
 
+/* Initializes a new empty `label_info_t` value for the given label. */
+label_info_t *init_label_info(assembler_t *assembler, char *label) {
+  label_info_t *info = table_add(assembler->label_table, label);
+  info->references = list_create(sizeof(label_reference_t));
+  return info;
+}
+
+void add_label_reference(assembler_t *assembler, char *label, int line) {
+  label_info_t *info = table_get(assembler->label_table, label);
+  if (info == NULL) {
+    info = init_label_info(assembler, label);
+  }
+  LIST_ADD(info->references, ((label_reference_t) {assembler->ic, line}))
+  add_code_word(assembler, 0);
+}
+
 result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t is_external) {
   label_info_t *info = table_get(assembler->label_table, label);
 
   if (info == NULL) {
-    info = table_add(assembler->label_table, label);
-    info->references = list_create(sizeof(label_reference_t));
+    info = init_label_info(assembler, label);
   }
   else {
     /* Make sure that the label wasn't already defined. */

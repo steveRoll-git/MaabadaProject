@@ -49,7 +49,7 @@ void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second)
       break;
 
     case OPERAND_KIND_LABEL:
-      add_code_word(assembler, 0); /* TODO */
+      add_label_reference(assembler, operand->data.label, 0 /* TODO */);
       break;
 
     case OPERAND_KIND_MATRIX:
