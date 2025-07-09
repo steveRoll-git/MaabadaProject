@@ -26,8 +26,11 @@ void *table_add(table_t *table, table_key_t key);
 /* Returns a pointer to that value if it exists, or NULL otherwise. */
 void *table_get(table_t *table, table_key_t key);
 
+/* Returns a pointer to the key at the given index. */
+table_key_t table_key_at(table_t *table, int index);
+
 /* Returns a pointer to the value at the given index. */
-void *table_at(table_t *table, int index);
+void *table_value_at(table_t *table, int index);
 
 /* Frees the memory used by this table. */
 /* (This does not free any pointers that the table's values may have.) */

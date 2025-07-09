@@ -103,7 +103,7 @@ void merge_data(assembler_t *assembler) {
   int i;
 
   for (i = 0; i < table_count(assembler->label_table); i++) {
-    label_info_t *info = table_at(assembler->label_table, i);
+    label_info_t *info = table_value_at(assembler->label_table, i);
     if (info->found && info->is_data) {
       info->value += assembler->ic;
     }
@@ -115,12 +115,24 @@ void print_data(assembler_t *assembler) {
   printf("IC: %d \n", assembler->ic);
   printf("DC: %d \n", assembler->dc);
 
-  printf("\n ARGS (For DC): { ");
+  printf("\nARGS (For DC): { ");
 
   for (i = 0; i < list_count(assembler->data_array); i++) {
     printf("%d,  ", *(machine_word_t *) list_at(assembler->data_array, i));
   }
   printf("}\n");
+
+  printf("Labels:\n");
+
+  for (i = 0; i < table_count(assembler->label_table); i++) {
+    int j;
+    label_info_t *info = table_value_at(assembler->label_table, i);
+    printf("%s: ", table_key_at(assembler->label_table, i));
+    for (j = 0; j < list_count(info->references); j++) {
+      printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line);
+    }
+    printf("\n");
+  }
 }
 
 void assembler_free(assembler_t *assembler) {
