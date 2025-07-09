@@ -2,8 +2,8 @@
 #define FIRSTPASS_UTILS_H
 
 #include <stdio.h>
-#include "../common/data.h"
-#include "../datatypes/assembler.h"
+#include "data.h"
+#include "utils.h"
 
 extern instruction_info_t instructions[];
 

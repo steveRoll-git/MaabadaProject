@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../common/data.h"
-#include "../firstpass/parser.h"
-
+#include "../include/data.h"
+#include "../include/parser.h"
 #include "common.h"
+
 
 static instruction_t instruction;
 

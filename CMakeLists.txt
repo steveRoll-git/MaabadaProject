@@ -7,22 +7,22 @@ include_directories(preprocess/libs)
 include(CTest)
 
 set(project_files
-        preprocess/macroprocessor.c
-        preprocess/macroprocessor.h
-        common/data.h
-        firstpass/firstpass.c
-        common/utils.c
-        common/utils.h
-        firstpass/parser.c
-        firstpass/parser.h
-        datatypes/list.c
-        datatypes/list.h
-        datatypes/assembler.c
-        datatypes/assembler.h
-        firstpass/firstpass.h
-        common/errors.h
-        datatypes/table.c
-        datatypes/table.h
+        include/assembler.h
+        include/data.h
+        include/errors.h
+        include/firstpass.h
+        include/list.h
+        include/macroprocessor.h
+        include/parser.h
+        include/table.h
+        include/utils.h
+        source/assembler.c
+        source/firstpass.c
+        source/list.c
+        source/macroprocessor.c
+        source/parser.c
+        source/table.c
+        source/utils.c
 )
 
 enable_testing()

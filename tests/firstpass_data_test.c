@@ -2,8 +2,8 @@
 
 #include "common.h"
 
-#include "../common/utils.h"
-#include "../firstpass/parser.h"
+#include "../include/parser.h"
+#include "../include/utils.h"
 
 static directive_t directive;
 

@@ -1,4 +1,4 @@
-#include "../common/utils.h"
+#include "../include/utils.h"
 
 int main() {
   instruction_info_t *a = get_instruction("mov");

@@ -1,8 +1,8 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
-#include "../common/data.h"
-#include "../common/errors.h"
+#include "../include/errors.h"
+#include "data.h"
 
 /* Represents an assembler as it's traversing a source file. */
 typedef struct assembler_t assembler_t;

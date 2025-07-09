@@ -1,8 +1,8 @@
-#include "./utils.h"
+#include "../include/utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include "./data.h"
+#include "../include/data.h"
 
 /* This array stores all needed information about all the instructions. */
 instruction_info_t instructions[] = {

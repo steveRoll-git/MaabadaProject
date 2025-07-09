@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "../common/utils.h"
-#include "../datatypes/table.h"
+#include "../include/table.h"
+#include "../include/utils.h"
 
 /* The various kinds of lines that the preprocessor's `parse_line` can give. */
 typedef enum {

@@ -1,9 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../common/data.h"
-#include "../common/errors.h"
-#include "../firstpass/parser.h"
+#include "data.h"
+#include "errors.h"
 
 /* The different kinds of operands. */
 typedef enum operand_kind_t {
