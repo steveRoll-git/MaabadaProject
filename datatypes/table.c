@@ -4,7 +4,7 @@
 #include <string.h>
 
 typedef struct table_t {
-  /* This array stores the string keys. */
+  /* List of `table_key_t` - stores the string keys. */
   list_t *key_list;
   /* For each index in the key array, its value is at the same index in this array. */
   list_t *value_list;

@@ -43,10 +43,10 @@ typedef struct assembler_t {
    * `ic`. */
   int dc;
 
-  /* The array that stores the code image. */
+  /* List of `machine_word_t` - stores the code image. */
   list_t *code_array;
 
-  /* The array that stores the data image. */
+  /* List of `machine_word_t` - stores the data image. */
   list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
