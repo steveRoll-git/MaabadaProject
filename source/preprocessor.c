@@ -1,3 +1,5 @@
+#include "../include/preprocessor.h"
+
 #include <stdio.h>
 #include <string.h>
 #include "../include/parser.h"
@@ -62,6 +64,7 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
 
   return LINE_NORMAL;
 }
+
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
@@ -70,7 +73,7 @@ void print_macro(FILE *out, FILE *in) {
   }
 }
 
-int preprocess(char *input_file_path, char *output_file_path) {
+bool_t preprocess(char *input_file_path, char *output_file_path) {
   FILE *in;
   FILE *out;
   char line[MAX_LINE];

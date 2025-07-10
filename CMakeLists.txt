@@ -12,14 +12,14 @@ set(project_files
         include/data.h
         include/errors.h
         include/list.h
-        include/macroprocessor.h
+        include/preprocessor.h
         include/parser.h
         include/table.h
         source/assembler.c
         source/codegen.c
         source/data.c
         source/list.c
-        source/macroprocessor.c
+        source/preprocessor.c
         source/parser.c
         source/table.c
 )

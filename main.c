@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/macroprocessor.h"
+#include "include/preprocessor.h"
 
+/* The file extension for input source files. */
 #define EXTENSION_AS ".as"
+/* The file extension for files after preprocessing. */
 #define EXTENSION_AM ".am"
 
 /* Creates a new string whose value is strings `a` and `b` joined together. */
