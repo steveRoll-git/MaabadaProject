@@ -65,12 +65,20 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
   return LINE_NORMAL;
 }
 
+/* Prints a macro from the `in` file to the `out` file. */
+/* The `in` file is assumed to be positioned at the line where the macro begins. */
+/* It prints each line from `in` to `out`, until it encounters an `mcroend` line. */
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE] = "";
 
   while (fgets(line, MAX_LINE, in) && parse_line(line, NULL, 0) != LINE_MCROEND) {
     fprintf(out, "%s", line);
   }
+}
+
+/* Prints the given line into the file. */
+void print_line(FILE *out, char *line) {
+  fprintf(out, "%s\n", line);
 }
 
 bool_t preprocess(char *input_file_path, char *output_file_path) {
@@ -101,7 +109,7 @@ bool_t preprocess(char *input_file_path, char *output_file_path) {
 
     if (status == LINE_NORMAL) {
       /* A line with no special meaning to the preprocessor. We output it as is. */
-      fprintf(out, "%s\n", line);
+      print_line(out, line);
     }
     else if (status == LINE_MCRO) {
       /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next
@@ -118,11 +126,13 @@ bool_t preprocess(char *input_file_path, char *output_file_path) {
       while (status != LINE_MCROEND);
     }
     else if (status == LINE_MACROCALL) {
-      /* A macro has been called. We check if it exists in the macro table, and if it does, print its contents. */
+      /* A line with a single word in it may be a macro call. */
+      /* We check if it exists in the macro table, and if it does, output its contents. */
       long *offset = table_get(macro_table, macro_name);
       if (offset == NULL) {
-        printf("No macro named '%s' has been defined.\n", macro_name);
-        return 0;
+        /* If there's no macro by this name, we output the line as is. */
+        print_line(out, line);
+        continue;
       }
 
       FILE *temp = fopen(input_file_path, "r");

@@ -11,6 +11,7 @@ add r2, r1
 
 a_mc
 b
+z
 a_mc
 
 mov r1, r3

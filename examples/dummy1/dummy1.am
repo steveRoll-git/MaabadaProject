@@ -5,6 +5,7 @@ add r2, r1
 	inc r2
 	mov A, r1
     asdf asdf
+z
 	inc r2
 	mov A, r1
 
