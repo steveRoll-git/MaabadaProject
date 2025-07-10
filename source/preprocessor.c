@@ -82,48 +82,55 @@ void print_line(FILE *out, char *line) {
 }
 
 bool_t preprocess(char *input_file_path, char *output_file_path) {
-  FILE *in;
-  FILE *out;
+  FILE *in_file;
+  FILE *out_file;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
+  bool_t success = TRUE;
   parse_line_status_t status = LINE_NORMAL;
   table_t *macro_table = table_create(sizeof(long));
 
-  in = fopen(input_file_path, "rb");
+  in_file = fopen(input_file_path, "rb");
 
   /* If the input file is unavailable, exit. */
-  if (in == NULL) {
+  if (in_file == NULL) {
     printf("Couldn't open input file\n");
-    return 0;
+    return FALSE;
   }
 
-  out = fopen(output_file_path, "w");
+  out_file = fopen(output_file_path, "w");
   /* TODO check if out is null */
 
-  while (!feof(in)) {
-    if (read_line(in, line) == 0) {
-      return 0;
+  while (!feof(in_file)) {
+    if (read_line(in_file, line) == 0) {
+      success = FALSE;
+      break;
     }
 
     status = parse_line(line, macro_name, 1);
 
     if (status == LINE_NORMAL) {
       /* A line with no special meaning to the preprocessor. We output it as is. */
-      print_line(out, line);
+      print_line(out_file, line);
     }
     else if (status == LINE_MCRO) {
       /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next
        * `mcroend`. */
-      long offset = ftell(in);
+      long offset = ftell(in_file);
       TABLE_ADD(macro_table, macro_name, offset);
 
       do {
-        if (read_line(in, line) != SENTENCE_NEW_LINE) {
-          return 0;
+        if (read_line(in_file, line) != SENTENCE_NEW_LINE) {
+          success = FALSE;
+          break;
         }
         status = parse_line(line, macro_name, 0);
       }
       while (status != LINE_MCROEND);
+
+      if (!success) {
+        break;
+      }
     }
     else if (status == LINE_MACROCALL) {
       /* A line with a single word in it may be a macro call. */
@@ -131,23 +138,28 @@ bool_t preprocess(char *input_file_path, char *output_file_path) {
       long *offset = table_get(macro_table, macro_name);
       if (offset == NULL) {
         /* If there's no macro by this name, we output the line as is. */
-        print_line(out, line);
+        print_line(out_file, line);
         continue;
       }
 
       FILE *temp = fopen(input_file_path, "r");
       if (fseek(temp, *offset, SEEK_SET)) {
         fprintf(stderr, "fseek didn't work while trying to read macro");
-        return 0;
+        success = FALSE;
+        break;
       }
 
-      print_macro(out, temp);
+      print_macro(out_file, temp);
       fclose(temp);
     }
     else if (status == LINE_ERROR) {
-      /* TODO continue to next file */
-      return 0;
+      success = FALSE;
+      break;
     }
   }
-  return 1;
+
+  fclose(in_file);
+  fclose(out_file);
+
+  return success;
 }

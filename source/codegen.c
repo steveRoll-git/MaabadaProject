@@ -165,7 +165,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
 bool_t codegen(char *input_file_path, assembler_t *assembler) {
   FILE *in, *out;
   char line[MAX_LINE];
-  bool_t error_flag = FALSE;
+  bool_t success = TRUE;
   int line_number = 1, total_errors = 0;
 
   in = fopen(input_file_path, "rb");
@@ -186,15 +186,13 @@ bool_t codegen(char *input_file_path, assembler_t *assembler) {
 
     if (res != SUCCESS) {
       printf("Error at %s:%d: %s\n", input_file_path, line_number, res);
-      error_flag = TRUE;
+      success = FALSE;
       total_errors++;
     }
 
     line_number++;
   }
 
-  merge_data(assembler);
-
   printf("Total Errors: %d\n", total_errors);
-  return error_flag;
+  return success;
 }

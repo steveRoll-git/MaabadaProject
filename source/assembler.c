@@ -152,8 +152,10 @@ void print_data(assembler_t *assembler) {
 }
 
 void assembler_free(assembler_t *assembler) {
-  list_free(assembler->code_array);
-  list_free(assembler->data_array);
-  table_free(assembler->label_table);
-  free(assembler);
+  if (assembler) {
+    list_free(assembler->code_array);
+    list_free(assembler->data_array);
+    table_free(assembler->label_table);
+    free(assembler);
+  }
 }

@@ -24,6 +24,8 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t i
 
 void print_data(assembler_t *assembler);
 
+/* Called after the whole file's code has been generated. */
+/* Updates the location of all data labels, so that they will point to the correct region after the code image. */
 void merge_data(assembler_t *assembler);
 
 /* Frees all the data used by the assembler, including the pointer to it. */
