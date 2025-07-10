@@ -24,7 +24,7 @@ size_t table_count(table_t *table) {
 
 void *table_add(table_t *table, table_key_t key) {
   /* We make a copy of the parameter, and use that as the key. */
-  table_key_t new_key = malloc(sizeof(char) * strlen(key));
+  table_key_t new_key = malloc(sizeof(char) * strlen(key) + 1);
   strcpy(new_key, key);
   LIST_ADD(table->key_list, new_key)
 
