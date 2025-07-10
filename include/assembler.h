@@ -3,12 +3,13 @@
 
 #include "../include/errors.h"
 #include "data.h"
+#include "table.h"
 
 /* Represents an assembler as it's traversing a source file. */
 typedef struct assembler_t assembler_t;
 
-/* Creates a new assembler. */
-assembler_t *assembler_create();
+/* Creates a new assembler. Requires the macro table from the preprocessing stage. */
+assembler_t *assembler_create(table_t *macro_table);
 
 /* Adds a single word to the assembler's code image. */
 void add_code_word(assembler_t *assembler, machine_word_t data);

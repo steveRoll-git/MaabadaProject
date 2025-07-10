@@ -17,7 +17,6 @@
 #define ERR_SRC_REGISTER "This instruction doesn't support register source operands."
 #define ERR_DST_IMMEDIATE "This instruction doesn't support immediate destination operands."
 
-
 /* Numbers */
 #define ERR_NUMBER_NOT_VALID "Invalid number."
 #define ERR_NUMBER_AFTER_HASH "A hash must immediately be followed by a number."
@@ -27,6 +26,7 @@
 #define ERR_LABEL_UNDERSCORES "Label name cannot contain underscores."
 #define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters."
 #define ERR_LABEL_ALREADY_DEFINED "This label has already been defined in this file."
+#define ERR_LABEL_NAME_IS_MACRO "The name of this label is already used as a macro."
 
 /* Matrix*/
 #define ERR_MATRIX_OVERFLOW "Matrix has more values than it can store."

@@ -81,14 +81,13 @@ void print_line(FILE *out, char *line) {
   fprintf(out, "%s\n", line);
 }
 
-bool_t preprocess(char *input_file_path, char *output_file_path) {
+bool_t preprocess(char *input_file_path, char *output_file_path, table_t *macro_table) {
   FILE *in_file;
   FILE *out_file;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   bool_t success = TRUE;
   parse_line_status_t status = LINE_NORMAL;
-  table_t *macro_table = table_create(sizeof(long));
 
   in_file = fopen(input_file_path, "rb");
 

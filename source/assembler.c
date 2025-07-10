@@ -56,13 +56,13 @@ typedef struct assembler_t {
   table_t *label_table;
 } assembler_t;
 
-assembler_t *assembler_create() {
+assembler_t *assembler_create(table_t *macro_table) {
   assembler_t *assembler = malloc(sizeof(assembler_t));
   assembler->ic = 100;
   assembler->dc = 0;
   assembler->code_array = list_create(sizeof(machine_word_t));
   assembler->data_array = list_create(sizeof(machine_word_t));
-  assembler->macro_table = table_create(sizeof(long));
+  assembler->macro_table = macro_table;
   assembler->label_table = table_create(sizeof(label_info_t));
   return assembler;
 }
@@ -104,6 +104,7 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t i
     /* Make sure that the label wasn't already defined. */
     ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
   }
+  ASSERT(table_get(assembler->macro_table, label) == NULL, ERR_LABEL_NAME_IS_MACRO)
 
   info->found = TRUE;
   info->is_data = is_data;
