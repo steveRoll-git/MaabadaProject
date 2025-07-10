@@ -8,7 +8,7 @@
 int main(void) {
   assembler_t *assembler = assembler_create();
   char *in = "../examples/wont_work/matricesTesting.am";
-  int result = first_pass(in, NULL, assembler);
+  int result = codegen(in, assembler);
   print_data(assembler);
 
   ASSERT_LABEL("MAIN", 100)

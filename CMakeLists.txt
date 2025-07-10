@@ -8,16 +8,16 @@ include(CTest)
 
 set(project_files
         include/assembler.h
+        include/codegen.h
         include/data.h
         include/errors.h
-        include/firstpass.h
         include/list.h
         include/macroprocessor.h
         include/parser.h
         include/table.h
         source/assembler.c
+        source/codegen.c
         source/data.c
-        source/firstpass.c
         source/list.c
         source/macroprocessor.c
         source/parser.c

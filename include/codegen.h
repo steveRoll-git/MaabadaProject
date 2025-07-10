@@ -1,0 +1,12 @@
+#ifndef CODEGEN_H
+#define CODEGEN_H
+
+#include "assembler.h"
+#include "data.h"
+
+/* Goes over the input file, and generates binary code for all the instructions and directives. */
+/* Binary code for label addresses isn't generated yet - but the values of labels that were found, and references to
+ * them, are stored in the label table. */
+bool_t codegen(char *input_file_path, assembler_t *assembler);
+
+#endif

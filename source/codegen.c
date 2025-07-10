@@ -1,3 +1,5 @@
+#include "../include/codegen.h"
+
 #include <stdio.h>
 
 #include "../include/assembler.h"
@@ -160,8 +162,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   return SUCCESS;
 }
 
-/* TODO temp arguments */
-bool_t first_pass(char *input_file_path, char *output_file_path, assembler_t *assembler) {
+bool_t codegen(char *input_file_path, assembler_t *assembler) {
   FILE *in, *out;
   char line[MAX_LINE];
   bool_t error_flag = FALSE;
