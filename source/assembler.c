@@ -151,10 +151,19 @@ void print_data(assembler_t *assembler) {
   }
 }
 
+void label_info_free(label_info_t *info) {
+  list_free(info->references);
+}
+
 void assembler_free(assembler_t *assembler) {
   if (assembler) {
+    int i;
     list_free(assembler->code_array);
     list_free(assembler->data_array);
+    for (i = 0; i < table_count(assembler->label_table); i++) {
+      label_info_t *info = table_value_at(assembler->label_table, i);
+      label_info_free(info);
+    }
     table_free(assembler->label_table);
     free(assembler);
   }
