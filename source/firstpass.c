@@ -3,7 +3,6 @@
 #include "../include/assembler.h"
 #include "../include/data.h"
 #include "../include/parser.h"
-#include "../include/utils.h"
 
 #define OPCODE_FIRST_BIT 6
 #define OPCODE_MASK 0xf

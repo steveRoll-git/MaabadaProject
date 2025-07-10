@@ -5,7 +5,6 @@
 
 #include "../include/data.h"
 #include "../include/errors.h"
-#include "../include/utils.h"
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
