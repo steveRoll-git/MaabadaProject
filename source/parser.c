@@ -351,13 +351,14 @@ result_t parse_statement(char *line, statement_t *statement) {
 
   word = read_word(&line);
 
-  if (word.kind != WORD_NONE && accept(&line, ':')) {
+  if (word.kind != WORD_NONE && *line == ':') {
     ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
     ASSERT(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
     ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
 
     statement->has_label = TRUE;
     strcpy(statement->label, word.value);
+    line++; /* Move past the `:`. */
     word = read_word(&line);
   }
 
