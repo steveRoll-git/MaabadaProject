@@ -4,8 +4,8 @@
 /* The maximum size of a single line in bytes (80 characters and a null terminator.) */
 #define MAX_LINE 81
 
-/* The maximum length of a label. */
-#define MAX_LABEL 30
+/* The maximum size of a label in bytes. */
+#define MAX_LABEL 31
 
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
@@ -31,6 +31,12 @@
 #define DIRECTIVE_EXTERN "extern"
 /* The longest directive is 6 characters long. */
 #define DIRECTIVE_MAX_LEN 6
+
+typedef enum { FALSE = 0, TRUE = 1 } bool_t;
+
+/* The type needed to represent a single machine word. */
+/* A word in the virtual machine is 10 bits; The closest type we have to this is `short int` which is 16 bits. */
+typedef short int machine_word_t;
 
 typedef enum directive_kind_t {
   DIRECTIVE_KIND_DATA,
@@ -60,20 +66,32 @@ typedef enum opcode_t {
   OPCODE_STOP = 15
 } opcode_t;
 
-typedef enum args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } args_t;
+typedef enum encoding_kind_t {
+  ENCODING_ABSOLUTE,
+  ENCODING_EXTERNAL,
+  ENCODING_RELOCATABLE,
+} encoding_kind_t;
 
-typedef struct instruction_t {
+typedef enum num_args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } num_args_t;
+
+/* Stores information about an instruction. */
+typedef struct instruction_info_t {
+  /* The instruction's name. */
   char *name;
+  /* The instruction's opcode. */
   opcode_t opcode;
-  args_t arg_amount;
-} instruction_t;
+  /* How many operands this instruction needs. */
+  num_args_t arg_amount;
+  /* Whether the destination operand supports the immediate addressing mode. */
+  bool_t dst_immediate;
+  /* Whether the source operand supports the immediate or register addressing modes. */
+  bool_t src_immediate_register;
+} instruction_info_t;
 
-typedef enum sentence_t {
-  SENTENCE_ERR_BUFF_OVERFLOW = 0,
-  SENTENCE_NEW_LINE = 1,
-  SENTENCE_EOF = 2,
-} sentence_t;
+/* This array stores all needed information about all the instructions. */
+extern instruction_info_t instructions[];
 
-typedef enum { FALSE = 0, TRUE = 1 } bool_t;
+/* The total number of instructions in the language. */
+extern const int num_instructions;
 
 #endif

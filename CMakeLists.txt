@@ -7,28 +7,23 @@ include_directories(preprocess/libs)
 include(CTest)
 
 set(project_files
-        datatypes/linked_list.c
-        datatypes/linked_list.h
-        preprocess/macroprocessor.c
-        preprocess/macroprocessor.h
-        common/data.h
-        firstpass/firstpass.c
-        common/utils.c
-        common/utils.h
-        firstpass/parser.c
-        firstpass/parser.h
-        datatypes/growing_array.c
-        datatypes/growing_array.h
-        datatypes/assembler.c
-        datatypes/assembler.h
-        firstpass/firstpass.h
-        common/ERR.h
+        include/assembler.h
+        include/data.h
+        include/errors.h
+        include/firstpass.h
+        include/list.h
+        include/macroprocessor.h
+        include/parser.h
+        include/table.h
+        source/assembler.c
+        source/data.c
+        source/firstpass.c
+        source/list.c
+        source/macroprocessor.c
+        source/parser.c
+        source/table.c
 )
 
-add_library(firstpass firstpass/parser.c firstpass/firstpass.c firstpass/firstpass.h)
-add_library(common common/utils.c common/data.h
-        common/ERR.h)
-add_library(datatypes datatypes/linked_list.c datatypes/growing_array.c datatypes/assembler.c)
 enable_testing()
 
 add_executable(MaabadaProject

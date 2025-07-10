@@ -1,24 +1,22 @@
-#include "../common/data.h"
-#include "../common/utils.h"
-#include "../datatypes/assembler.h"
-#include "../datatypes/linked_list.h"
-#include "../firstpass/parser.h"
+#include "../include/data.h"
+#include "../include/parser.h"
 #include "common.h"
 
+static instruction_t instruction;
+
 int test_parse_instruction_zero_args1(void) {
-  assembler_t assembler = assembler_create();
   char *s = "             A              ";
-  int result = parse_instruction_args(&s, NO_ARGS, &assembler);
-  ASSERT(0 == result)
+  ASSERT(parse_instruction_operands(s, &instruction) == SUCCESS)
+  ASSERT(instruction.num_args == ONE_ARG)
+  return TRUE;
 }
 
 int test_parse_instruction_zero_args2(void) {
-  assembler_t assembler = assembler_create();
   char *s = "       R1 ";
-  int result = parse_instruction_args(&s, NO_ARGS, &assembler);
-  ASSERTM(result == 0, "Zero arguements instruction parsing MUST only have whitespace as args.");
+  ASSERT(parse_instruction_operands(s, &instruction) == SUCCESS)
+  ASSERT(instruction.num_args == ONE_ARG)
 
-  return 0;
+  return TRUE;
 }
 
 
