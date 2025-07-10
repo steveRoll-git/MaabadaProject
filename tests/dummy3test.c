@@ -6,9 +6,11 @@
   ASSERT(((label_info_t *) table_get(assembler->label_table, label))->value == expected)
 
 int main(void) {
-  assembler_t *assembler = assembler_create();
+  assembler_t *assembler = assembler_create(table_create(0));
   char *in = "../examples/wont_work/matricesTesting.am";
-  int result = codegen(in, assembler);
+  bool_t success = codegen(in, assembler);
+  ASSERT(success);
+  merge_data(assembler);
   print_data(assembler);
 
   ASSERT_LABEL("MAIN", 100)
@@ -23,5 +25,5 @@ int main(void) {
   int expected_args[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0', 6, -9, 1, 5, 22, 1, 2, 3, 4};
   ASSERT(memcmp(expected_args, list_at(assembler->data_array, 0), sizeof(expected_args)));
 
-  return result == TRUE;
+  return EXIT_SUCCESS;
 }
