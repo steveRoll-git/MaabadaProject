@@ -19,4 +19,4 @@ instruction_info_t instructions[] = {
         {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS,  FALSE, FALSE}
 };
 
-const int num_instructions = sizeof(instructions) / sizeof(struct instruction_info_t);
+const int num_instructions = sizeof(instructions) / sizeof(instruction_info_t);

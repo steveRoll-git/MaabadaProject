@@ -2,8 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include "include/macroprocessor.h"
+
 #define EXTENSION_AS ".as"
 #define EXTENSION_AM ".am"
+
+/* Creates a new string whose value is strings `a` and `b` joined together. */
+/* The returned pointer must be freed when it is no longer needed. */
+char *join_strings(char *a, char *b) {
+  char *result = malloc(strlen(a) + strlen(b) + 1);
+  strcpy(result, a);
+  strcat(result, b);
+  return result;
+}
 
 int main(int argc, char *argv[]) {
   int success;
@@ -14,13 +24,11 @@ int main(int argc, char *argv[]) {
   /* TODO accept multiple files */
   char *file_name = argv[1];
   /* The input file's path is the name given as an argument, plus the ".as" extension. */
-  char *input_file_path = malloc(strlen(file_name) + strlen(EXTENSION_AS) + 1);
-  strcpy(input_file_path, file_name);
-  strcat(input_file_path, EXTENSION_AS);
-  char *preprocessor_output_path = malloc(strlen(file_name) + strlen(EXTENSION_AM) + 1);
-  strcpy(preprocessor_output_path, file_name);
-  strcat(preprocessor_output_path, EXTENSION_AM);
+  char *input_file_path = join_strings(file_name, EXTENSION_AS);
+  char *preprocessor_output_path = join_strings(file_name, EXTENSION_AM);
+
   success = preprocess(input_file_path, preprocessor_output_path);
+
   free(input_file_path);
   free(preprocessor_output_path);
 
