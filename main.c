@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "datatypes/linked_list.h"
-#include "firstpass/parser.h"
-#include "preprocess/macroprocessor.h"
+#include "include/macroprocessor.h"
 #define EXTENSION_AS ".as"
 #define EXTENSION_AM ".am"
 

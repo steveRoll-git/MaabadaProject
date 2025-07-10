@@ -1,8 +1,12 @@
 ; 2 args that dont get all args
-; this file is made to check that the errors work correctly, when the file runs there has to be EXACTLY 19 errors.
+; this file is made to check that the errors work correctly, when the file runs there has to be ********EXACTLY 21 errors**********.
 
 mov r1
 mov #-2
+
+add r1, #5
+add r7, r3
+lea #5, r1
 
 cmp #-5
 
