@@ -127,7 +127,7 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
 /* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
 result_t parse_number(char **s, machine_word_t *result) {
   int next;
-  int scanned_values = sscanf(*s, "%d%n", result, &next);
+  int scanned_values = sscanf(*s, "%hd%n", result, &next);
   if (scanned_values == 1) {
     *s += next;
     return SUCCESS;
