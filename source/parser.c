@@ -340,6 +340,8 @@ directive_kind_t read_directive_kind(char **s) {
 result_t parse_statement(char *line, statement_t *statement) {
   word_t word;
 
+  statement->has_label = FALSE;
+
   skip_spaces(&line);
 
   if (*line == 0 || *line == ';') {

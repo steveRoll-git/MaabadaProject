@@ -120,7 +120,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   }
 
   if (statement->has_label) {
-    add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE, FALSE);
+    TRY(add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE, FALSE))
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {

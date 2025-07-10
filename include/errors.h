@@ -5,7 +5,7 @@
 #ifndef ERR_H
 #define ERR_H
 
-#define ERR_EXTRANEOUS_TEXT "Extranous text after instruction arguments."
+#define ERR_EXTRANEOUS_TEXT "Extraneous text after instruction arguments."
 #define ERR_INVALID_ARGUMENT "Invalid argument syntax."
 
 /* Instructions */
