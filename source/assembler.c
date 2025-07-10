@@ -80,6 +80,7 @@ void add_data_word(assembler_t *assembler, machine_word_t data) {
 /* Initializes a new empty `label_info_t` value for the given label. */
 label_info_t *init_label_info(assembler_t *assembler, char *label) {
   label_info_t *info = table_add(assembler->label_table, label);
+  info->found = FALSE;
   info->references = list_create(sizeof(label_reference_t));
   return info;
 }
@@ -142,7 +143,7 @@ void print_data(assembler_t *assembler) {
   for (i = 0; i < table_count(assembler->label_table); i++) {
     int j;
     label_info_t *info = table_value_at(assembler->label_table, i);
-    printf("%s: ", table_key_at(assembler->label_table, i));
+    printf("%s = %llu: ", table_key_at(assembler->label_table, i), info->value);
     for (j = 0; j < list_count(info->references); j++) {
       printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line);
     }
