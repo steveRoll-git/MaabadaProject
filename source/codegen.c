@@ -178,14 +178,14 @@ bool_t codegen(char *input_file_path, assembler_t *assembler) {
 
   while (read_line(in, line) != SENTENCE_EOF) {
     statement_t statement;
-    result_t res = parse_statement(line, &statement);
+    result_t result = parse_statement(line, &statement);
 
-    if (res == SUCCESS) {
-      res = compile_statement(assembler, &statement);
+    if (result == SUCCESS) {
+      result = compile_statement(assembler, &statement);
     }
 
-    if (res != SUCCESS) {
-      printf("Error at %s:%d: %s\n", input_file_path, line_number, res);
+    if (result != SUCCESS) {
+      print_error(input_file_path, line_number, result);
       success = FALSE;
       total_errors++;
     }

@@ -1,14 +1,15 @@
-//
-// Created by Yontank on 03/07/2025.
-//
+#ifndef ERRORS_H
+#define ERRORS_H
 
-#ifndef ERR_H
-#define ERR_H
+/* Any function that can succeed or fail returns this type. If the function succeeds, it returns 0, otherwise it returns
+ * a pointer to the string that represents the error. */
+typedef char *result_t;
 
-#define ERR_EXTRANEOUS_TEXT "Extraneous text after instruction arguments."
-#define ERR_INVALID_ARGUMENT "Invalid argument syntax."
+/* Functions that return a `result_t` should return this if they ran successfully. */
+#define SUCCESS 0
 
 /* Instructions */
+
 #define ERR_UNKNOWN_INSTRUCTION "Unknown instruction."
 #define ERR_UNKNOWN_DIRECTIVE "Unknown directive."
 #define ERR_NOT_ENOUGH_ARGS "Instruction did not receive enough arguments."
@@ -17,18 +18,27 @@
 #define ERR_SRC_REGISTER "This instruction doesn't support register source operands."
 #define ERR_DST_IMMEDIATE "This instruction doesn't support immediate destination operands."
 
+/* Arguments */
+
+#define ERR_NO_ARG "Expected an argument."
+#define ERR_EXTRANEOUS_TEXT "Extraneous text after instruction arguments."
+#define ERR_INVALID_ARGUMENT "Invalid argument syntax."
+
 /* Numbers */
+
 #define ERR_NUMBER_NOT_VALID "Invalid number."
 #define ERR_NUMBER_AFTER_HASH "A hash must immediately be followed by a number."
 
-/*Labels*/
+/* Labels */
+
 #define ERR_INVALID_LABEL "Invalid label name: Must not be a reserved word."
 #define ERR_LABEL_UNDERSCORES "Label name cannot contain underscores."
 #define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters."
 #define ERR_LABEL_ALREADY_DEFINED "This label has already been defined in this file."
 #define ERR_LABEL_NAME_IS_MACRO "The name of this label is already used as a macro."
 
-/* Matrix*/
+/* Matrix */
+
 #define ERR_MATRIX_OVERFLOW "Matrix has more values than it can store."
 #define ERR_MATRIX_START_BRACKET_ROW "Missing '[' for row index."
 #define ERR_MATRIX_END_BRACKET_ROW "Missing ']' for row index."
@@ -37,12 +47,10 @@
 #define ERR_MATRIX_NEGATIVE_STORAGE "Matrix rows and colums must be positive integers."
 #define ERR_WRONG_MATRIX_ACCESS "Matrix rows and columns can only be accessed with registers."
 
-/*String*/
+/* String */
+
 #define ERR_STRING_MISSING_QUOTE_START "String argument must start with quotation marks."
 #define ERR_STRING_MISSING_QUOTE_END "String argument must end with quotation marks."
-
-/* Arguments */
-#define ERR_NO_ARG "Expected an argument."
 
 /* Checks that the condition is true. If not, causes the running function to return the given error message as a
  * `result_t`. */
@@ -62,10 +70,7 @@
   }                                                                                                                    \
   while (0);
 
-/* Any function that can succeed or fail returns this type. If the function succeeds, it returns 0, otherwise it returns
- * a pointer to the string that represents the error. */
-typedef char *result_t;
+/* Prints an error message. */
+void print_error(char *file_name, int line_number, char *message);
 
-#define SUCCESS 0
-
-#endif // ERR_H
+#endif
