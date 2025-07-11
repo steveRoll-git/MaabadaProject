@@ -46,6 +46,11 @@ bool_t assemble_file(char *file_name) {
 
   merge_data(assembler);
 
+  if (!resolve_labels(assembler, processed_path)) {
+    success = FALSE;
+    goto end;
+  }
+
 end:
   free(input_file_path);
   free(processed_path);

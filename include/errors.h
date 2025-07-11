@@ -36,6 +36,7 @@ typedef char *result_t;
 #define ERR_LABEL_TOO_LONG "Label name is longer than 30 characters."
 #define ERR_LABEL_ALREADY_DEFINED "This label has already been defined in this file."
 #define ERR_LABEL_NAME_IS_MACRO "The name of this label is already used as a macro."
+#define ERR_LABEL_NOT_DEFINED "This label was not defined."
 
 /* Matrix */
 

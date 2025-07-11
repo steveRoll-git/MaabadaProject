@@ -9,7 +9,7 @@
 /* Represents a reference to a label. */
 typedef struct label_reference_t {
   /* The index in the code image where the label's address should be written to. */
-  size_t location;
+  int location;
 
   /* The line in the source code where this label was referenced, for use in error messages. */
   int line;
@@ -22,7 +22,7 @@ typedef struct label_info_t {
 
   /* Stores the IC value this label points to, or if this is a data label, the DC value it points to. */
   /* This is only defined after the label's definition has been found in the code. */
-  size_t value;
+  int value;
 
   /* False if this label points to an instruction; True if the label points to data. */
   bool_t is_data;
@@ -125,6 +125,28 @@ void merge_data(assembler_t *assembler) {
       info->value += assembler->ic;
     }
   }
+}
+
+bool_t resolve_labels(assembler_t *assembler, char *file_path) {
+  bool_t success = TRUE;
+  int i;
+
+  for (i = 0; i < table_count(assembler->label_table); i++) {
+    label_info_t *info = table_value_at(assembler->label_table, i);
+    int j;
+    for (j = 0; j < list_count(info->references); j++) {
+      label_reference_t *reference = list_at(info->references, j);
+      if (info->found) {
+        *(machine_word_t *) list_at(assembler->code_array, reference->location) = info->value;
+      }
+      else {
+        success = FALSE;
+        print_error(file_path, reference->line, ERR_LABEL_NOT_DEFINED);
+      }
+    }
+  }
+
+  return success;
 }
 
 void print_data(assembler_t *assembler) {

@@ -29,6 +29,11 @@ void print_data(assembler_t *assembler);
 /* Updates the location of all data labels, so that they will point to the correct region after the code image. */
 void merge_data(assembler_t *assembler);
 
+/* Resolves all label references. All label operands in the code image will have the label's value, if it's defined. */
+/* If there are any references to labels that were not defined, prints error messages for them and returns FALSE,
+ * otherwise returns TRUE. */
+bool_t resolve_labels(assembler_t *assembler, char *file_path);
+
 /* Frees all the data used by the assembler, including the pointer to it. */
 void assembler_free(assembler_t *assembler);
 #endif

@@ -43,19 +43,19 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
   return REG1_BITS(reg_1) | REG2_BITS(reg_2);
 }
 
-void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
+void write_operand(assembler_t *assembler, int line_number, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
       add_code_word(assembler, IMM_BITS(operand->data.immediate));
       break;
 
     case OPERAND_KIND_LABEL:
-      add_label_reference(assembler, operand->data.label, 0 /* TODO */);
+      add_label_reference(assembler, operand->data.label, line_number);
       break;
 
     case OPERAND_KIND_MATRIX:
       /* The first word in matrix addressing is the address of the label. */
-      add_code_word(assembler, 0); /* TODO */
+      add_label_reference(assembler, operand->data.matrix.label, line_number);
       add_code_word(assembler, make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg));
       break;
 
@@ -70,7 +70,7 @@ void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second)
   }
 }
 
-void write_instruction(assembler_t *assembler, instruction_t *instruction) {
+void write_instruction(assembler_t *assembler, int line_number, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
@@ -86,10 +86,10 @@ void write_instruction(assembler_t *assembler, instruction_t *instruction) {
   }
   else {
     if (instruction->num_args >= ONE_ARG) {
-      write_operand(assembler, &instruction->operand_1, FALSE);
+      write_operand(assembler, line_number, &instruction->operand_1, FALSE);
     }
     if (instruction->num_args == TWO_ARGS) {
-      write_operand(assembler, &instruction->operand_2, TRUE);
+      write_operand(assembler, line_number, &instruction->operand_2, TRUE);
     }
   }
 }
@@ -115,7 +115,7 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
   }
 }
 
-result_t compile_statement(assembler_t *assembler, statement_t *statement) {
+result_t compile_statement(assembler_t *assembler, int line_number, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
     return SUCCESS;
   }
@@ -153,7 +153,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
       }
     }
 
-    write_instruction(assembler, instruction);
+    write_instruction(assembler, line_number, instruction);
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
     write_directive(assembler, &statement->data.directive);
@@ -181,7 +181,7 @@ bool_t codegen(char *input_file_path, assembler_t *assembler) {
     result_t result = parse_statement(line, &statement);
 
     if (result == SUCCESS) {
-      result = compile_statement(assembler, &statement);
+      result = compile_statement(assembler, line_number, &statement);
     }
 
     if (result != SUCCESS) {
