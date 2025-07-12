@@ -57,19 +57,18 @@ void add_char(char **dest, char **src) {
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
  * `s` */
 /* Updates `s` so that it will point to the next character after the word that was read. */
-word_t read_word(char **s) {
-  word_t word;
-  char *value_ptr = word.value;
+void read_word(char **s, word_t *word) {
+  char *value_ptr = word->value;
 
   /* Skip past leading spaces. */
   skip_spaces(s);
 
   if (!isalpha(**s)) {
-    word.kind = WORD_NONE;
-    return word;
+    word->kind = WORD_NONE;
+    return;
   }
 
-  word.kind = WORD_IDENTIFIER;
+  word->kind = WORD_IDENTIFIER;
 
   /* Copy characters from `str` to `token`'s value as long as they're not spaces or null. */
   while (isalnum(**s) || **s == '_') {
@@ -77,26 +76,24 @@ word_t read_word(char **s) {
   }
   *value_ptr = 0;
 
-  if (value_ptr - word.value == 2 && word.value[0] == 'r' && word.value[1] >= '0' && word.value[1] <= '7') {
+  if (value_ptr - word->value == 2 && word->value[0] == 'r' && word->value[1] >= '0' && word->value[1] <= '7') {
     /* If the token is 2 characters long, and it's the letter 'r' and a digit from 0 to 7, it's a register name. */
-    word.kind = WORD_REGISTER;
-    word.register_index = word.value[1] - '0';
+    word->kind = WORD_REGISTER;
+    word->register_index = word->value[1] - '0';
   }
-  else if (strcmp(word.value, "mcro") == 0) {
-    word.kind = WORD_MCRO;
+  else if (strcmp(word->value, "mcro") == 0) {
+    word->kind = WORD_MCRO;
   }
-  else if (strcmp(word.value, "mcroend") == 0) {
-    word.kind = WORD_MCROEND;
+  else if (strcmp(word->value, "mcroend") == 0) {
+    word->kind = WORD_MCROEND;
   }
   else {
-    instruction_info_t *instruction = get_instruction(word.value);
+    instruction_info_t *instruction = get_instruction(word->value);
     if (instruction) {
-      word.kind = WORD_INSTRUCTION;
-      word.instruction_info = instruction;
+      word->kind = WORD_INSTRUCTION;
+      word->instruction_info = instruction;
     }
   }
-
-  return word;
 }
 
 sentence_t read_line(FILE *file, char line[MAX_LINE]) {
@@ -137,10 +134,11 @@ result_t parse_number(char **s, machine_word_t *result) {
 
 /* Parses the index accessors of a matrix operand, right after the label name. */
 result_t parse_matrix_operand(char **s, operand_t *operand) {
+  word_t word;
   ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_ROW)
 
   {
-    word_t word = read_word(s);
+    read_word(s, &word);
     ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.row_reg = word.register_index;
   }
@@ -149,7 +147,7 @@ result_t parse_matrix_operand(char **s, operand_t *operand) {
   ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_COL);
 
   {
-    word_t word = read_word(s);
+    read_word(s, &word);
     ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.col_reg = word.register_index;
   }
@@ -179,7 +177,7 @@ result_t parse_operand(char **s, operand_t *operand) {
     return SUCCESS;
   }
 
-  word = read_word(s);
+  read_word(s, &word);
 
   if (word.kind == WORD_REGISTER) {
     operand->kind = OPERAND_KIND_REGISTER;
@@ -349,7 +347,7 @@ result_t parse_statement(char *line, statement_t *statement) {
     return SUCCESS;
   }
 
-  word = read_word(&line);
+  read_word(&line, &word);
 
   if (word.kind != WORD_NONE && *line == ':') {
     ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
@@ -359,7 +357,7 @@ result_t parse_statement(char *line, statement_t *statement) {
     statement->has_label = TRUE;
     strcpy(statement->label, word.value);
     line++; /* Move past the `:`. */
-    word = read_word(&line);
+    read_word(&line, &word);
   }
 
   if (word.kind == WORD_NONE && accept(&line, '.')) {

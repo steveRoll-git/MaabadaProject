@@ -6,12 +6,13 @@
 #include "data.h"
 #include "errors.h"
 
+/* The different kinds of words that can be read by `read_word`. */
 typedef enum word_kind_t {
   /* The text that was attempted to be read is not a word. */
   WORD_NONE,
   /* The 'mcro' preprocessor keyword. */
   WORD_MCRO,
-  /* The name of an instruction. */
+  /* The 'mcroend' preprocessor keyword. */
   WORD_MCROEND,
   /* The name of an instruction. */
   WORD_INSTRUCTION,
@@ -150,7 +151,7 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]);
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
  * `s` */
 /* Updates `s` so that it will point to the next character after the word that was read. */
-word_t read_word(char **s);
+void read_word(char **s, word_t *word);
 
 result_t parse_statement(char *line, statement_t *statement);
 

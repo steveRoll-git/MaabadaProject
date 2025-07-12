@@ -10,25 +10,36 @@ char *str7 = "r3:";
 char *str8 = "AF!!:";
 char *str9 = ":";
 
+static word_t word;
+
 int main(void) {
 
-  ASSERTM(read_word(&str1).kind == WORD_IDENTIFIER, "labels cannot contain special characters.");
+  read_word(&str1, &word);
+  ASSERTM(word.kind == WORD_IDENTIFIER, "labels cannot contain special characters.");
 
-  ASSERTM(read_word(&str2).kind == WORD_INSTRUCTION, "Should return its an instruction.")
+  read_word(&str2, &word);
+  ASSERTM(word.kind == WORD_INSTRUCTION, "Should return its an instruction.")
 
-  ASSERTM(read_word(&str3).kind == WORD_INSTRUCTION, "Should return its an instruction.")
+  read_word(&str3, &word);
+  ASSERTM(word.kind == WORD_INSTRUCTION, "Should return its an instruction.")
 
-  ASSERTM(read_word(&str4).kind == WORD_NONE, "");
+  read_word(&str4, &word);
+  ASSERTM(word.kind == WORD_NONE, "");
 
-  ASSERTM(read_word(&str5).kind == WORD_NONE, "");
+  read_word(&str5, &word);
+  ASSERTM(word.kind == WORD_NONE, "");
 
-  ASSERTM(read_word(&str6).kind == WORD_REGISTER, "");
+  read_word(&str6, &word);
+  ASSERTM(word.kind == WORD_REGISTER, "");
 
-  ASSERTM(read_word(&str7).kind == WORD_REGISTER, "");
+  read_word(&str7, &word);
+  ASSERTM(word.kind == WORD_REGISTER, "");
 
-  ASSERTM(read_word(&str8).kind == WORD_IDENTIFIER, "");
+  read_word(&str8, &word);
+  ASSERTM(word.kind == WORD_IDENTIFIER, "");
 
-  ASSERTM(read_word(&str9).kind == WORD_NONE, "");
+  read_word(&str9, &word);
+  ASSERTM(word.kind == WORD_NONE, "");
 
   return 0;
 }

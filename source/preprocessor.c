@@ -18,11 +18,11 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
   word_t word;
   char *cur_line = line;
 
-  word = read_word(&cur_line);
+  read_word(&cur_line, &word);
 
   if (word.kind == WORD_MCRO) {
     /* A line that starts with `mcro` begins a macro definition. */
-    word = read_word(&cur_line);
+    read_word(&cur_line, &word);
     if (word.kind != WORD_IDENTIFIER) {
       if (print_errors) {
         printf("Macro initialization doesn't contain a valid name.\n");
