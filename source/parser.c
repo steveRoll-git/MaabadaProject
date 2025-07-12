@@ -127,14 +127,17 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
 result_t parse_number(char **s, machine_word_t *out) {
   char *orig = *s;
   long result = strtol(*s, s, 10);
+
   if (*s == orig) {
     /* If `s` is at the same position as when parsing began, then `strtol` did not parse a number. */
     return ERR_NUMBER_NOT_VALID;
   }
+
   if (**s == '_' || isalpha(**s)) {
     /* If an underscore or letter appears right after the number, it's not a valid number. */
     return ERR_NUMBER_NOT_VALID;
   }
+
   *out = (machine_word_t) result;
   return SUCCESS;
 }
@@ -142,9 +145,11 @@ result_t parse_number(char **s, machine_word_t *out) {
 /* Parses the index accessors of a matrix operand, right after the label name. */
 result_t parse_matrix_operand(char **s, operand_t *operand) {
   word_t word;
+
   ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_ROW)
 
   {
+    /* The word in between the first '[]' is the row, and must be a register. */
     read_word(s, &word);
     ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.row_reg = word.register_index;
@@ -154,6 +159,7 @@ result_t parse_matrix_operand(char **s, operand_t *operand) {
   ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_COL);
 
   {
+    /* The word in between the second '[]' is the column, and must be a register. */
     read_word(s, &word);
     ASSERT(word.kind == WORD_REGISTER, ERR_WRONG_MATRIX_ACCESS)
     operand->data.matrix.col_reg = word.register_index;
@@ -172,10 +178,12 @@ result_t parse_operand(char **s, operand_t *operand) {
 
   ASSERT(**s != '\0', ERR_NO_ARG);
 
-  /* Immediate number */
   if (accept(s, '#')) {
+    /* Operands that begin with a '#' are immediate number operands. */
+
     machine_word_t value;
 
+    /* `parse_number` skips leading spaces, so we must verify that the text right after the `#` starts a number. */
     ASSERT(isdigit(**s) || **s == '-' || **s == '+', ERR_NUMBER_AFTER_HASH);
     TRY(parse_number(s, &value))
 
@@ -187,37 +195,48 @@ result_t parse_operand(char **s, operand_t *operand) {
   read_word(s, &word);
 
   if (word.kind == WORD_REGISTER) {
+    /* Operands r0-r7 are register operands. */
+
     operand->kind = OPERAND_KIND_REGISTER;
     operand->data.register_index = word.register_index;
     return SUCCESS;
   }
 
+  /* If none of the above conditions passed, the operand may be a label or a matrix access. */
+  /* Both of those must begin with an identifier. */
   ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUMENT);
 
   skip_spaces(s);
 
+  /* If there is a '[' right after the label, then it's a matrix operand. */
   if (**s == '[') {
     operand->kind = OPERAND_KIND_MATRIX;
     strcpy(operand->data.matrix.label, word.value);
     return parse_matrix_operand(s, operand);
   }
 
+  /* Otherwise, the operand is a label. */
   operand->kind = OPERAND_KIND_LABEL;
   strcpy(operand->data.label, word.value);
   return SUCCESS;
 }
 
-/* Parses zero, one or two operands, right after an instruction. */
+/* Parses between zero and two operands, right after an instruction. */
 result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   instruction->num_args = NO_ARGS;
   if (!is_end(s)) {
+    /* If more text after the instruction is present, parse the first operand. */
     TRY(parse_operand(&s, &instruction->operand_1))
     instruction->num_args = ONE_ARG;
+
     if (accept(&s, ',')) {
+      /* If there is a comma after the first operand, parse the second operand. */
       TRY(parse_operand(&s, &instruction->operand_2))
       instruction->num_args = TWO_ARGS;
     }
   }
+
+  /* No more text must be present after the operands have been parsed. */
   ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT)
   return SUCCESS;
 }
@@ -227,6 +246,7 @@ result_t parse_data(char *s, directive_t *directive) {
   int *size = &directive->info.data.size;
   *size = 0;
 
+  /* At least one number must appear in `.data`, so this loop runs at least once. */
   do {
     TRY(parse_number(&s, &directive->info.data.array[*size]));
     (*size)++;
@@ -264,7 +284,7 @@ result_t parse_string(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Parses the arguments of the .mat directive. */
+/* Parses the arguments of the .mat directive, and stores its contents in the directive's data array. */
 result_t parse_matrix(char *s, directive_t *directive) {
   machine_word_t rows, cols;
   int max_elements;
@@ -273,6 +293,7 @@ result_t parse_matrix(char *s, directive_t *directive) {
 
   *size = 0;
 
+  /* Expected '['. */
   ASSERT(accept(&s, '['), ERR_MATRIX_START_BRACKET_ROW)
   /* Expected a number. */
   TRY(parse_number(&s, &rows))
@@ -291,7 +312,9 @@ result_t parse_matrix(char *s, directive_t *directive) {
 
   skip_spaces(&s);
   if (!is_end(s)) {
+    /* If more text is present, parse numbers separated by columns - just like in `.data`. */
     TRY(parse_data(s, directive))
+    /* Matrix can't contain more values than the given size. */
     ASSERT(*size <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
@@ -304,7 +327,7 @@ result_t parse_matrix(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Returns which directive the word under `s` represents. */
+/* Returns which directive the word under `s` represents, and moves `s` to point past that word. */
 directive_kind_t read_directive_kind(char **s) {
   /* This buffer is 2 characters longer than the directive to catch cases where the string differs by a single character
    * at the end. */
@@ -312,6 +335,7 @@ directive_kind_t read_directive_kind(char **s) {
   char *last = token;
   int len = 0;
 
+  /* Copy the next word in `s` into `token`. */
   while (isalpha(**s) && len < DIRECTIVE_MAX_LEN + 1) {
     add_char(&last, s);
     len++;
@@ -354,17 +378,25 @@ result_t parse_statement(char *line, statement_t *statement) {
   read_word(&line, &word);
 
   if (word.kind != WORD_NONE && *line == ':') {
-    ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL);
+    /* If there is a word in the beginning that's immediately followed by a ':', it's a label. */
+
+    /* Labels may only be identifiers. */
+    ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL)
+    /* Labels may not contain underscores. */
     ASSERT(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
+    /* Labels may not be longer than 30 characters. */
     ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
 
     statement->has_label = TRUE;
     strcpy(statement->label, word.value);
-    line++; /* Move past the `:`. */
+    /* Move past the `:`. */
+    line++;
     read_word(&line, &word);
   }
 
   if (word.kind == WORD_NONE && accept(&line, '.')) {
+    /* If the line starts with a `.`, it's a directive. */
+
     directive_kind_t kind = read_directive_kind(&line);
 
     statement->kind = STATEMENT_DIRECTIVE;
@@ -388,11 +420,13 @@ result_t parse_statement(char *line, statement_t *statement) {
   }
 
   if (word.kind == WORD_INSTRUCTION) {
+    /* If the line begins with an instruction, parse the operands. */
     statement->kind = STATEMENT_INSTRUCTION;
     statement->data.instruction.info = word.instruction_info;
     TRY(parse_instruction_operands(line, &statement->data.instruction))
     return SUCCESS;
   }
 
+  /* A line cannot begin with anything else - return an error. */
   return ERR_UNKNOWN_INSTRUCTION;
 }
