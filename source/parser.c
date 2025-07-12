@@ -1,6 +1,7 @@
 #include "../include/parser.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../include/data.h"
@@ -121,15 +122,21 @@ sentence_t read_line(FILE *file, char line[MAX_LINE]) {
   return SENTENCE_NEW_LINE;
 }
 
-/* Parses an integer (with an optional + or -) and stores it in `result`. Returns whether it was successful. */
-result_t parse_number(char **s, machine_word_t *result) {
-  int next;
-  int scanned_values = sscanf(*s, "%hd%n", result, &next);
-  if (scanned_values == 1) {
-    *s += next;
-    return SUCCESS;
+/* Skips leading spaces and parses an integer (with an optional + or -), and stores it in `result`. */
+/* Returns whether it was successful. */
+result_t parse_number(char **s, machine_word_t *out) {
+  char *orig = *s;
+  long result = strtol(*s, s, 10);
+  if (*s == orig) {
+    /* If `s` is at the same position as when parsing began, then `strtol` did not parse a number. */
+    return ERR_NUMBER_NOT_VALID;
   }
-  return ERR_NUMBER_NOT_VALID;
+  if (**s == '_' || isalpha(**s)) {
+    /* If an underscore or letter appears right after the number, it's not a valid number. */
+    return ERR_NUMBER_NOT_VALID;
+  }
+  *out = (machine_word_t) result;
+  return SUCCESS;
 }
 
 /* Parses the index accessors of a matrix operand, right after the label name. */
@@ -221,10 +228,7 @@ result_t parse_data(char *s, directive_t *directive) {
   *size = 0;
 
   do {
-    skip_spaces(&s);
-
     TRY(parse_number(&s, &directive->info.data.array[*size]));
-
     (*size)++;
   }
   while (accept(&s, ','));
