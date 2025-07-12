@@ -7,8 +7,8 @@
 #include "../include/codegen.h"
 #include "../include/data.h"
 #include "../include/list.h"
-#include "../include/preprocessor.h"
 #include "../include/parser.h"
+#include "../include/preprocessor.h"
 #include "../include/table.h"
 
 /* Assembler is redefined here so we can access its members easily */
@@ -16,7 +16,7 @@
 /* Represents a reference to a label. */
 typedef struct label_reference_t {
   /* The index in the code image where the label's address should be written to. */
-  size_t location;
+  int location;
 
   /* The line in the source code where this label was referenced, for use in error messages. */
   int line;
@@ -29,7 +29,7 @@ typedef struct label_info_t {
 
   /* Stores the IC value this label points to, or if this is a data label, the DC value it points to. */
   /* This is only defined after the label's definition has been found in the code. */
-  size_t value;
+  int value;
 
   /* False if this label points to an instruction; True if the label points to data. */
   bool_t is_data;
@@ -50,10 +50,10 @@ typedef struct assembler_t {
    * `ic`. */
   int dc;
 
-  /* The array that stores the code image. */
+  /* List of `machine_word_t` - stores the code image. */
   list_t *code_array;
 
-  /* The array that stores the data image. */
+  /* List of `machine_word_t` - stores the data image. */
   list_t *data_array;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
