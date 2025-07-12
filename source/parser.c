@@ -237,7 +237,7 @@ result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   }
 
   /* No more text must be present after the operands have been parsed. */
-  ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT)
+  ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT_INSTRUCTION)
   return SUCCESS;
 }
 
@@ -252,6 +252,8 @@ result_t parse_data(char *s, directive_t *directive) {
     (*size)++;
   }
   while (accept(&s, ','));
+
+  ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT_DIRECTIVE)
 
   return SUCCESS;
 }
@@ -270,7 +272,7 @@ result_t parse_string(char *s, directive_t *directive) {
   /* The string must be enclosed by two quotes. */
   ASSERT(last_quotes, ERR_STRING_MISSING_QUOTE_END)
   /* Extraneous text after string. */
-  ASSERT(is_end(last_quotes + 1), ERR_EXTRANEOUS_TEXT);
+  ASSERT(is_end(last_quotes + 1), ERR_EXTRANEOUS_TEXT_DIRECTIVE);
 
   /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {

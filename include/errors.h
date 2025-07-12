@@ -21,7 +21,8 @@ typedef char *result_t;
 /* Arguments */
 
 #define ERR_NO_ARG "Expected an argument."
-#define ERR_EXTRANEOUS_TEXT "Extraneous text after instruction arguments."
+#define ERR_EXTRANEOUS_TEXT_INSTRUCTION "Extraneous text after instruction."
+#define ERR_EXTRANEOUS_TEXT_DIRECTIVE "Extraneous text after directive."
 #define ERR_INVALID_ARGUMENT "Invalid argument syntax."
 
 /* Numbers */

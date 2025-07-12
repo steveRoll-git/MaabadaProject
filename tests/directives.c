@@ -44,9 +44,11 @@ int main(void) {
 
   ASSERT(parse_statement(".data   a", &statement) != SUCCESS)
   ASSERT(parse_statement(".data   ", &statement) != SUCCESS)
+  ASSERT(parse_statement(".data   1, 2, 3 asdf", &statement) != SUCCESS)
   ASSERT(parse_statement(".string \"abc", &statement) != SUCCESS)
   ASSERT(parse_statement(".string \"abc\" extra text", &statement) != SUCCESS)
   ASSERT(parse_statement("   .mat   [ 0   ] [ 1 ] -65", &statement) != SUCCESS)
+  ASSERT(parse_statement("   .mat   [ 1   ] [ 1 ] 123 vjskdfo", &statement) != SUCCESS)
   ASSERT(parse_statement(".asdf", &statement) != SUCCESS)
   ASSERT(parse_statement(".dataa 1, 3", &statement) != SUCCESS)
   ASSERT(parse_statement(".stringa \"a\"", &statement) != SUCCESS)
