@@ -163,7 +163,7 @@ result_t compile_statement(assembler_t *assembler, int line_number, statement_t 
 }
 
 bool_t codegen(char *input_file_path, assembler_t *assembler) {
-  FILE *in, *out;
+  FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
   int line_number = 1, total_errors = 0;
