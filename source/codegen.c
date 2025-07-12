@@ -18,6 +18,9 @@
 #define DST_MASK 0x3
 #define DST_BITS(n) ((n & DST_MASK) << DST_FIRST_BIT)
 
+#define ERA_MASK 0x3
+#define ERA_BITS(n) (n & ERA_MASK)
+
 #define REG1_FIRST_BIT 6
 #define REG2_FIRST_BIT 2
 #define REG_MASK 0xf
@@ -30,11 +33,22 @@
 
 #define DATA_MASK 0x3ff
 
-machine_word_t make_code_word(unsigned int opcode, unsigned int src_operand, unsigned int dst_operand, int era) {
+/* Returns the first word of an instruction based on the opcode and the source/destination operands. */
+machine_word_t make_code_word(instruction_t *instruction) {
   machine_word_t word = 0;
-  word |= OPCODE_BITS(opcode);
-  word |= SRC_BITS(src_operand);
-  word |= DST_BITS(dst_operand);
+
+  word |= OPCODE_BITS(instruction->info->opcode);
+
+  if (instruction->num_args == ONE_ARG) {
+    /* If the instruction has just one operand, it is the destination operand. */
+    word |= DST_BITS(instruction->operand_1.kind);
+  }
+  else if (instruction->num_args == TWO_ARGS) {
+    /* If the instruction has two operands, the first is the source, and the second is the destination. */
+    word |= SRC_BITS(instruction->operand_1.kind);
+    word |= DST_BITS(instruction->operand_2.kind);
+  }
+
   return word;
 }
 
@@ -43,6 +57,8 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
   return REG1_BITS(reg_1) | REG2_BITS(reg_2);
 }
 
+/* Outputs the operand's binary code into the assembler's code image. */
+/* If the operand references a label, its location will be added to the label table, and resolved later. */
 void write_operand(assembler_t *assembler, int line_number, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
@@ -70,15 +86,12 @@ void write_operand(assembler_t *assembler, int line_number, operand_t *operand, 
   }
 }
 
+/* Outputs the instruction's binary code into the assembler's code image. */
 void write_instruction(assembler_t *assembler, int line_number, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
-  add_code_word(assembler,
-                make_code_word(instruction->info->opcode,
-                               instruction->num_args >= 1 ? operand_1->kind : 0,
-                               instruction->num_args >= 2 ? operand_2->kind : 0,
-                               ENCODING_ABSOLUTE /*TODO?*/));
+  add_code_word(assembler, make_code_word(instruction));
 
   if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
     /* If both operands are registers, we write a single word that contains both of them. */
@@ -94,6 +107,7 @@ void write_instruction(assembler_t *assembler, int line_number, instruction_t *i
   }
 }
 
+/* Outputs the directive's binary code into the assembler's data image. */
 void write_directive(assembler_t *assembler, directive_t *directive) {
   int i;
   switch (directive->kind) {
@@ -115,16 +129,21 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
   }
 }
 
+/* Checks that a statement is well-formed, and generates its code. */
 result_t compile_statement(assembler_t *assembler, int line_number, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
+    /* Empty statements require no action. */
     return SUCCESS;
   }
 
   if (statement->has_label) {
+    /* If the statement has a label, add it to the label table. */
     TRY(add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE, FALSE))
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {
+    /* Before generating code for the instruction, check that it's called correctly. */
+    /* (With the correct number of operands, and the correct kinds of operands.) */
     instruction_t *instruction = &statement->data.instruction;
     instruction_info_t *info = instruction->info;
 
@@ -181,10 +200,12 @@ bool_t codegen(char *input_file_path, assembler_t *assembler) {
     result_t result = parse_statement(line, &statement);
 
     if (result == SUCCESS) {
+      /* If the line was successfully parsed, compile it. */
       result = compile_statement(assembler, line_number, &statement);
     }
 
     if (result != SUCCESS) {
+      /* If the line has incorrect syntax or couldn't be compiled, print an error. */
       print_error(input_file_path, line_number, result);
       success = FALSE;
       total_errors++;
