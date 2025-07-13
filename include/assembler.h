@@ -15,6 +15,9 @@ typedef struct assembler_t {
   /* The path to the file being assembled. Used in error messages. */
   char *file_path;
 
+  /* The number of the line currently being processed. */
+  int line_number;
+
   /* The Instruction Counter: The address where the next instruction's first word will be. */
   int ic;
 
@@ -46,13 +49,13 @@ void add_code_word(assembler_t *assembler, machine_word_t data);
 void add_data_word(assembler_t *assembler, machine_word_t data);
 
 /* Adds a single word to the code image, that will reference a label after it's resolved. */
-void add_label_reference(assembler_t *assembler, char *label, int line_number);
+void add_label_reference(assembler_t *assembler, char *label);
 
 /* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */
 result_t add_label(assembler_t *assembler, char *label, bool_t is_data);
 
 /* Specifies that the given label is an entry. */
-result_t add_entry(assembler_t *assembler, char *label, int line_number);
+result_t add_entry(assembler_t *assembler, char *label);
 
 /* Specifies that the given label is external. */
 result_t add_extern(assembler_t *assembler, char *label);

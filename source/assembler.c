@@ -42,6 +42,7 @@ typedef struct label_info_t {
 assembler_t *assembler_create(char *file_path, table_t *macro_table) {
   assembler_t *assembler = malloc(sizeof(assembler_t));
   assembler->file_path = file_path;
+  assembler->line_number = 1;
   assembler->ic = CODE_IMAGE_START_ADDRESS;
   assembler->dc = 0;
   assembler->code_array = list_create(sizeof(machine_word_t));
@@ -82,13 +83,13 @@ label_info_t *get_label_info(assembler_t *assembler, char *label) {
   return info;
 }
 
-void add_label_reference(assembler_t *assembler, char *label, int line_number) {
+void add_label_reference(assembler_t *assembler, char *label) {
   label_info_t *info = get_label_info(assembler, label);
   label_reference_t *reference = list_add(info->references);
   /* The reference's location will later be used as an index to the code image, */
   /* so we subtract the start address (100) from the IC. */
   reference->location = assembler->ic - CODE_IMAGE_START_ADDRESS;
-  reference->line_number = line_number;
+  reference->line_number = assembler->line_number;
 
   add_code_word(assembler, 0);
 }
@@ -109,12 +110,12 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data) {
   return SUCCESS;
 }
 
-result_t add_entry(assembler_t *assembler, char *label, int line_number) {
+result_t add_entry(assembler_t *assembler, char *label) {
   label_info_t *info = get_label_info(assembler, label);
   ASSERT(!info->is_entry, ERR_LABEL_ALREADY_ENTRY)
 
   info->is_entry = TRUE;
-  info->entry_line = line_number;
+  info->entry_line = assembler->line_number;
 
   return SUCCESS;
 }

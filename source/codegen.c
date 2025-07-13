@@ -59,19 +59,19 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
 
 /* Outputs the operand's binary code into the assembler's code image. */
 /* If the operand references a label, its location will be added to the label table, and resolved later. */
-void write_operand(assembler_t *assembler, int line_number, operand_t *operand, bool_t is_second) {
+void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
       add_code_word(assembler, IMM_BITS(operand->data.immediate));
       break;
 
     case OPERAND_KIND_LABEL:
-      add_label_reference(assembler, operand->data.label, line_number);
+      add_label_reference(assembler, operand->data.label);
       break;
 
     case OPERAND_KIND_MATRIX:
       /* The first word in matrix addressing is the address of the label. */
-      add_label_reference(assembler, operand->data.matrix.label, line_number);
+      add_label_reference(assembler, operand->data.matrix.label);
       add_code_word(assembler, make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg));
       break;
 
@@ -87,7 +87,7 @@ void write_operand(assembler_t *assembler, int line_number, operand_t *operand, 
 }
 
 /* Outputs the instruction's binary code into the assembler's code image. */
-void write_instruction(assembler_t *assembler, int line_number, instruction_t *instruction) {
+void write_instruction(assembler_t *assembler, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
@@ -99,16 +99,16 @@ void write_instruction(assembler_t *assembler, int line_number, instruction_t *i
   }
   else {
     if (instruction->num_args >= ONE_ARG) {
-      write_operand(assembler, line_number, &instruction->operand_1, FALSE);
+      write_operand(assembler, &instruction->operand_1, FALSE);
     }
     if (instruction->num_args == TWO_ARGS) {
-      write_operand(assembler, line_number, &instruction->operand_2, TRUE);
+      write_operand(assembler, &instruction->operand_2, TRUE);
     }
   }
 }
 
 /* Outputs the directive's binary code into the assembler's data image. */
-result_t write_directive(assembler_t *assembler, int line_number, directive_t *directive) {
+result_t write_directive(assembler_t *assembler, directive_t *directive) {
   int i;
   switch (directive->kind) {
     case DIRECTIVE_KIND_DATA:
@@ -120,7 +120,7 @@ result_t write_directive(assembler_t *assembler, int line_number, directive_t *d
       break;
 
     case DIRECTIVE_KIND_ENTRY:
-      TRY(add_entry(assembler, directive->info.label, line_number))
+      TRY(add_entry(assembler, directive->info.label))
       break;
 
     case DIRECTIVE_KIND_EXTERN:
@@ -135,7 +135,7 @@ result_t write_directive(assembler_t *assembler, int line_number, directive_t *d
 }
 
 /* Checks that a statement is well-formed, and generates its code. */
-result_t compile_statement(assembler_t *assembler, int line_number, statement_t *statement) {
+result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
     /* Empty statements require no action. */
     return SUCCESS;
@@ -177,10 +177,10 @@ result_t compile_statement(assembler_t *assembler, int line_number, statement_t 
       }
     }
 
-    write_instruction(assembler, line_number, instruction);
+    write_instruction(assembler, instruction);
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
-    TRY(write_directive(assembler, line_number, &statement->data.directive))
+    TRY(write_directive(assembler, &statement->data.directive))
   }
 
   return SUCCESS;
@@ -190,7 +190,7 @@ bool_t codegen(assembler_t *assembler) {
   FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
-  int line_number = 1, total_errors = 0;
+  int total_errors = 0;
 
   in = fopen(assembler->file_path, "rb");
 
@@ -200,23 +200,25 @@ bool_t codegen(assembler_t *assembler) {
     return FALSE;
   }
 
+  assembler->line_number = 1;
+
   while (read_line(in, line) != SENTENCE_EOF) {
     statement_t statement;
     result_t result = parse_statement(line, &statement);
 
     if (result == SUCCESS) {
       /* If the line was successfully parsed, compile it. */
-      result = compile_statement(assembler, line_number, &statement);
+      result = compile_statement(assembler, &statement);
     }
 
     if (result != SUCCESS) {
       /* If the line has incorrect syntax or couldn't be compiled, print an error. */
-      print_error(assembler->file_path, line_number, result);
+      print_error(assembler->file_path, assembler->line_number, result);
       success = FALSE;
       total_errors++;
     }
 
-    line_number++;
+    assembler->line_number++;
   }
 
   printf("Total Errors: %d\n", total_errors);
