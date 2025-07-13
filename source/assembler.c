@@ -87,6 +87,8 @@ void add_data_word(assembler_t *assembler, machine_word_t data) {
 label_info_t *init_label_info(assembler_t *assembler, char *label) {
   label_info_t *info = table_add(assembler->label_table, label);
   info->found = FALSE;
+  info->is_data = FALSE;
+  info->is_external = FALSE;
   info->is_entry = FALSE;
   info->references = list_create(sizeof(label_reference_t));
   return info;
