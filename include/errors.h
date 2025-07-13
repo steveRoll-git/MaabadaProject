@@ -24,6 +24,7 @@ typedef char *result_t;
 #define ERR_EXTRANEOUS_TEXT_INSTRUCTION "Extraneous text after instruction."
 #define ERR_EXTRANEOUS_TEXT_DIRECTIVE "Extraneous text after directive."
 #define ERR_INVALID_ARGUMENT "Invalid argument syntax."
+#define ERR_DIRECTIVE_EXPECTED_LABEL "This directive expects a label as a parameter."
 
 /* Numbers */
 
@@ -38,6 +39,7 @@ typedef char *result_t;
 #define ERR_LABEL_ALREADY_DEFINED "This label has already been defined in this file."
 #define ERR_LABEL_NAME_IS_MACRO "The name of this label is already used as a macro."
 #define ERR_LABEL_NOT_DEFINED "This label was not defined."
+#define ERR_LABEL_ALREADY_ENTRY "This label was already defined as an entry."
 
 /* Matrix */
 

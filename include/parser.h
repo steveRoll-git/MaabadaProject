@@ -95,9 +95,11 @@ typedef struct directive_t {
     struct {
       /* The contents of the data. */
       machine_word_t array[MAX_LINE];
+
       /* The size of the data. */
       int size;
     } data;
+
     /* If this is a .entry or .extern directive, this stores the name of the label that was given. */
     char label[MAX_LINE];
   } info;

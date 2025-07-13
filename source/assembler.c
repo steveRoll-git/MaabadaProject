@@ -30,6 +30,12 @@ typedef struct label_info_t {
   /* Whether this label was defined with a `.extern` directive. */
   bool_t is_external;
 
+  /* Whether this label was specified as an entry using the `.entry` directive. */
+  bool_t is_entry;
+
+  /* If `is_entry` is true, this stores the line number at which the `.entry` directive appeared. */
+  int entry_line;
+
   /* List of `label_reference_t` values - references to this label. */
   list_t *references;
 } label_info_t;
@@ -81,29 +87,33 @@ void add_data_word(assembler_t *assembler, machine_word_t data) {
 label_info_t *init_label_info(assembler_t *assembler, char *label) {
   label_info_t *info = table_add(assembler->label_table, label);
   info->found = FALSE;
+  info->is_entry = FALSE;
   info->references = list_create(sizeof(label_reference_t));
   return info;
 }
 
-void add_label_reference(assembler_t *assembler, char *label, int line) {
+/* Returns a pointer to the `label_info_t` object for the specified label. */
+/* If an info object doesn't exist for this label yet, creates it. */
+label_info_t *get_label_info(assembler_t *assembler, char *label) {
   label_info_t *info = table_get(assembler->label_table, label);
   if (info == NULL) {
     info = init_label_info(assembler, label);
   }
-  LIST_ADD(info->references, ((label_reference_t) {assembler->ic, line}))
+  return info;
+}
+
+void add_label_reference(assembler_t *assembler, char *label, int line_number) {
+  label_info_t *info = get_label_info(assembler, label);
+  LIST_ADD(info->references, ((label_reference_t) {assembler->ic, line_number}))
   add_code_word(assembler, 0);
 }
 
 result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t is_external) {
-  label_info_t *info = table_get(assembler->label_table, label);
+  label_info_t *info = get_label_info(assembler, label);
 
-  if (info == NULL) {
-    info = init_label_info(assembler, label);
-  }
-  else {
-    /* Make sure that the label wasn't already defined. */
-    ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
-  }
+  /* Make sure that the label wasn't already defined. */
+  ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
+  /* Make sure that there is no macro with the same name. */
   ASSERT(table_get(assembler->macro_table, label) == NULL, ERR_LABEL_NAME_IS_MACRO)
 
   info->found = TRUE;
@@ -112,6 +122,16 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t i
   if (!is_external) {
     info->value = is_data ? assembler->dc : assembler->ic;
   }
+
+  return SUCCESS;
+}
+
+result_t add_entry(assembler_t *assembler, char *label, int line_number) {
+  label_info_t *info = get_label_info(assembler, label);
+  ASSERT(!info->is_entry, ERR_LABEL_ALREADY_ENTRY)
+
+  info->is_entry = TRUE;
+  info->entry_line = line_number;
 
   return SUCCESS;
 }
@@ -133,6 +153,7 @@ bool_t resolve_labels(assembler_t *assembler, char *file_path) {
 
   for (i = 0; i < table_count(assembler->label_table); i++) {
     label_info_t *info = table_value_at(assembler->label_table, i);
+
     int j;
     for (j = 0; j < list_count(info->references); j++) {
       label_reference_t *reference = list_at(info->references, j);
@@ -143,6 +164,10 @@ bool_t resolve_labels(assembler_t *assembler, char *file_path) {
         success = FALSE;
         print_error(file_path, reference->line, ERR_LABEL_NOT_DEFINED);
       }
+    }
+
+    if (!info->found && info->is_entry) {
+      print_error(file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
     }
   }
 
@@ -174,6 +199,7 @@ void print_data(assembler_t *assembler) {
   }
 }
 
+/* Frees the memory of a `label_info_t` object. */
 void label_info_free(label_info_t *info) {
   list_free(info->references);
 }
@@ -183,11 +209,13 @@ void assembler_free(assembler_t *assembler) {
     int i;
     list_free(assembler->code_array);
     list_free(assembler->data_array);
+
     for (i = 0; i < table_count(assembler->label_table); i++) {
       label_info_t *info = table_value_at(assembler->label_table, i);
       label_info_free(info);
     }
     table_free(assembler->label_table);
+
     free(assembler);
   }
 }

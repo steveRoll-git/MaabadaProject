@@ -108,7 +108,7 @@ void write_instruction(assembler_t *assembler, int line_number, instruction_t *i
 }
 
 /* Outputs the directive's binary code into the assembler's data image. */
-void write_directive(assembler_t *assembler, directive_t *directive) {
+result_t write_directive(assembler_t *assembler, int line_number, directive_t *directive) {
   int i;
   switch (directive->kind) {
     case DIRECTIVE_KIND_DATA:
@@ -119,7 +119,7 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
       }
       break;
     case DIRECTIVE_KIND_ENTRY:
-      /*TODO*/
+      TRY(add_entry(assembler, directive->info.label, line_number))
       break;
     case DIRECTIVE_KIND_EXTERN:
       /*TODO*/
@@ -127,6 +127,8 @@ void write_directive(assembler_t *assembler, directive_t *directive) {
     default:
       break;
   }
+
+  return SUCCESS;
 }
 
 /* Checks that a statement is well-formed, and generates its code. */
@@ -175,7 +177,7 @@ result_t compile_statement(assembler_t *assembler, int line_number, statement_t 
     write_instruction(assembler, line_number, instruction);
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
-    write_directive(assembler, &statement->data.directive);
+    TRY(write_directive(assembler, line_number, &statement->data.directive))
   }
 
   return SUCCESS;

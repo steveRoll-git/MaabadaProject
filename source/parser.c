@@ -329,6 +329,18 @@ result_t parse_matrix(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
+/* Parses a single label name - the parameter for the .entry and .extern directives. */
+result_t parse_label_param(char *s, directive_t *directive) {
+  word_t word;
+  read_word(&s, &word);
+  ASSERT(word.kind == WORD_IDENTIFIER, ERR_DIRECTIVE_EXPECTED_LABEL)
+  strcpy(directive->info.label, word.value);
+
+  ASSERT(is_end(s), ERR_EXTRANEOUS_TEXT_DIRECTIVE)
+
+  return SUCCESS;
+}
+
 /* Returns which directive the word under `s` represents, and moves `s` to point past that word. */
 directive_kind_t read_directive_kind(char **s) {
   /* This buffer is 2 characters longer than the directive to catch cases where the string differs by a single character
@@ -412,13 +424,12 @@ result_t parse_statement(char *line, statement_t *statement) {
       case DIRECTIVE_KIND_MAT:
         return parse_matrix(line, &statement->data.directive);
       case DIRECTIVE_KIND_ENTRY:
-        /* TODO */
       case DIRECTIVE_KIND_EXTERN:
-        /* TODO */
+        /* Both .entry and .extern just need one label as a parameter. */
+        return parse_label_param(line, &statement->data.directive);
       default:
         return ERR_UNKNOWN_DIRECTIVE;
     }
-    /*TODO: external, entry types??*/
   }
 
   if (word.kind == WORD_INSTRUCTION) {
