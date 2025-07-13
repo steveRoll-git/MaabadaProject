@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/utils.h"
+
 typedef struct table_t {
   /* List of `table_key_t` - stores the string keys. */
   list_t *key_list;
@@ -24,8 +26,7 @@ size_t table_count(table_t *table) {
 
 void *table_add(table_t *table, table_key_t key) {
   /* We make a copy of the parameter, and use that as the key. */
-  table_key_t new_key = malloc(sizeof(char) * strlen(key) + 1);
-  strcpy(new_key, key);
+  table_key_t new_key = clone_string(key);
   LIST_ADD(table->key_list, new_key)
 
   return list_add(table->value_list);

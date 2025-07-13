@@ -15,6 +15,7 @@ set(project_files
         include/parser.h
         include/preprocessor.h
         include/table.h
+        include/utils.h
         source/assembler.c
         source/codegen.c
         source/data.c
@@ -23,6 +24,7 @@ set(project_files
         source/parser.c
         source/preprocessor.c
         source/table.c
+        source/utils.c
 )
 
 enable_testing()

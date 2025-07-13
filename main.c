@@ -1,24 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "include/assembler.h"
 #include "include/codegen.h"
 #include "include/preprocessor.h"
+#include "include/utils.h"
 
 /* The file extension for input source files. */
 #define EXTENSION_AS ".as"
 /* The file extension for files after preprocessing. */
 #define EXTENSION_AM ".am"
-
-/* Creates a new string whose value is strings `a` and `b` joined together. */
-/* The returned pointer must be freed when it is no longer needed. */
-char *join_strings(char *a, char *b) {
-  char *result = malloc(strlen(a) + strlen(b) + 1);
-  strcpy(result, a);
-  strcat(result, b);
-  return result;
-}
 
 bool_t assemble_file(char *file_name) {
   bool_t success = TRUE;
