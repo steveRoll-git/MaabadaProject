@@ -37,6 +37,12 @@ typedef struct label_info_t {
   /* Whether this label was defined with a `.extern` directive. */
   bool_t is_external;
 
+  /* Whether this label was specified as an entry using the `.entry` directive. */
+  bool_t is_entry;
+
+  /* If `is_entry` is true, this stores the line number at which the `.entry` directive appeared. */
+  int entry_line;
+
   /* List of `label_reference_t` values - references to this label. */
   list_t *references;
 } label_info_t;
@@ -63,7 +69,6 @@ typedef struct assembler_t {
   table_t *label_table;
 } assembler_t;
 
-
 #define ASSERTM(a, message)                                                                                            \
   if (!(a)) {                                                                                                          \
     printf("%s:%d: %s\n", __FILE__, __LINE__, message);                                                                \
@@ -71,6 +76,5 @@ typedef struct assembler_t {
   }
 
 #define ASSERT(a) ASSERTM(a, "ASSERTION FAILED")
-
 
 #endif
