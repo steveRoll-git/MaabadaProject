@@ -26,6 +26,9 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t i
 /* Specifies that the given label is an entry. */
 result_t add_entry(assembler_t *assembler, char *label, int line_number);
 
+/* Specifies that the given label is external. */
+result_t add_extern(assembler_t *assembler, char *label);
+
 /* Called after the whole file's code has been generated. */
 /* Updates the location of all data labels, so that they will point to the correct region after the code image. */
 void merge_data(assembler_t *assembler);

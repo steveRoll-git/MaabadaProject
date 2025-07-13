@@ -48,6 +48,10 @@ int main(void) {
   ASSERT(statement.data.directive.kind == DIRECTIVE_KIND_ENTRY)
   ASSERT(strcmp(statement.data.directive.info.label, "someLabel") == 0)
 
+  ASSERT(parse_statement(".extern someLabel", &statement) == SUCCESS)
+  ASSERT(statement.data.directive.kind == DIRECTIVE_KIND_EXTERN)
+  ASSERT(strcmp(statement.data.directive.info.label, "someLabel") == 0)
+
   ASSERT(parse_statement(".data   a", &statement) != SUCCESS)
   ASSERT(parse_statement(".data   ", &statement) != SUCCESS)
   ASSERT(parse_statement(".data   1, 2, 3 asdf", &statement) != SUCCESS)
@@ -57,6 +61,7 @@ int main(void) {
   ASSERT(parse_statement("   .mat   [ 1   ] [ 1 ] 123 vjskdfo", &statement) != SUCCESS)
   ASSERT(parse_statement(".entry ", &statement) != SUCCESS)
   ASSERT(parse_statement(".entry someLabel asdf", &statement) != SUCCESS)
+  ASSERT(parse_statement(".extern someLabel asdf", &statement) != SUCCESS)
   ASSERT(parse_statement(".asdf", &statement) != SUCCESS)
   ASSERT(parse_statement(".dataa 1, 3", &statement) != SUCCESS)
   ASSERT(parse_statement(".stringa \"a\"", &statement) != SUCCESS)

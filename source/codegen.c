@@ -118,12 +118,15 @@ result_t write_directive(assembler_t *assembler, int line_number, directive_t *d
         add_data_word(assembler, directive->info.data.array[i]);
       }
       break;
+
     case DIRECTIVE_KIND_ENTRY:
       TRY(add_entry(assembler, directive->info.label, line_number))
       break;
+
     case DIRECTIVE_KIND_EXTERN:
-      /*TODO*/
+      TRY(add_extern(assembler, directive->info.label))
       break;
+
     default:
       break;
   }

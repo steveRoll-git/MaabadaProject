@@ -136,6 +136,17 @@ result_t add_entry(assembler_t *assembler, char *label, int line_number) {
   return SUCCESS;
 }
 
+result_t add_extern(assembler_t *assembler, char *label) {
+  label_info_t *info = get_label_info(assembler, label);
+  /* A label declared with `.extern` cannot be defined more than once in the same file. */
+  ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
+
+  info->found = TRUE;
+  info->is_external = TRUE;
+
+  return SUCCESS;
+}
+
 void merge_data(assembler_t *assembler) {
   int i;
 
