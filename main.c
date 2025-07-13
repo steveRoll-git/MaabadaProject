@@ -28,7 +28,7 @@ bool_t assemble_file(char *file_name) {
     goto end;
   }
 
-  assembler = assembler_create(macro_table);
+  assembler = assembler_create(processed_path, macro_table);
   printf("Generating code for file %s...\n", processed_path);
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
@@ -43,7 +43,7 @@ bool_t assemble_file(char *file_name) {
 
   /* After all the labels have the correct values, we insert their values into all words that reference them. */
   /* Labels whose definitions were not found are caught here. */
-  if (!resolve_labels(assembler, processed_path)) {
+  if (!resolve_labels(assembler)) {
     success = FALSE;
     goto end;
   }

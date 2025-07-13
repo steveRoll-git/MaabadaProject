@@ -75,6 +75,6 @@ typedef char *result_t;
   while (0);
 
 /* Prints an error message. */
-void print_error(char *file_name, int line_number, char *message);
+void print_error(char *file_path, int line_number, char *message);
 
 #endif

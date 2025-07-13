@@ -6,8 +6,8 @@
   ASSERT(((label_info_t *) table_get(assembler->label_table, label))->value == expected)
 
 int main(void) {
-  assembler_t *assembler = assembler_create(table_create(0));
   char *in = "../examples/wont_work/matricesTesting.am";
+  assembler_t *assembler = assembler_create(in, table_create(0));
   bool_t success = codegen(in, assembler);
   ASSERT(success);
   merge_data(assembler);

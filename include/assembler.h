@@ -13,7 +13,7 @@
 typedef struct assembler_t assembler_t;
 
 /* Creates a new assembler. Requires the macro table from the preprocessing stage. */
-assembler_t *assembler_create(table_t *macro_table);
+assembler_t *assembler_create(char *file_path, table_t *macro_table);
 
 /* Adds a single word to the assembler's code image. */
 void add_code_word(assembler_t *assembler, machine_word_t data);
@@ -40,7 +40,7 @@ void merge_data(assembler_t *assembler);
 /* Resolves all label references. All label operands in the code image will have the label's value, if it's defined. */
 /* If there are any references to labels that were not defined, prints error messages for them and returns FALSE,
  * otherwise returns TRUE. */
-bool_t resolve_labels(assembler_t *assembler, char *file_path);
+bool_t resolve_labels(assembler_t *assembler);
 
 /* Prints the assembler's state, for debugging purposes. */
 void print_data(assembler_t *assembler);

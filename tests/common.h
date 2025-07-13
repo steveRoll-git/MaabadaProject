@@ -18,8 +18,8 @@ typedef struct label_reference_t {
   /* The index in the code image where the label's address should be written to. */
   int location;
 
-  /* The line in the source code where this label was referenced, for use in error messages. */
-  int line;
+  /* The line number in the source code where this label was referenced, for use in error messages. */
+  int line_number;
 } label_reference_t;
 
 /* Information about a label. */
@@ -40,7 +40,7 @@ typedef struct label_info_t {
   /* Whether this label was specified as an entry using the `.entry` directive. */
   bool_t is_entry;
 
-  /* If `is_entry` is true, this stores the line number at which the `.entry` directive appeared. */
+  /* If `is_entry` is true, this stores the line_number number at which the `.entry` directive appeared. */
   int entry_line;
 
   /* List of `label_reference_t` values - references to this label. */
@@ -48,6 +48,9 @@ typedef struct label_info_t {
 } label_info_t;
 
 typedef struct assembler_t {
+  /* The path to the file being assembled. Used in error messages. */
+  char *file_path;
+
   /* The Instruction Counter: The address where the next instruction's first word will be. */
   int ic;
 

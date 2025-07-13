@@ -41,6 +41,9 @@ typedef struct label_info_t {
 } label_info_t;
 
 typedef struct assembler_t {
+  /* The path to the file being assembled. Used in error messages. */
+  char *file_path;
+
   /* The Instruction Counter: The address where the next instruction's first word will be. */
   int ic;
 
@@ -62,8 +65,9 @@ typedef struct assembler_t {
   table_t *label_table;
 } assembler_t;
 
-assembler_t *assembler_create(table_t *macro_table) {
+assembler_t *assembler_create(char *file_path, table_t *macro_table) {
   assembler_t *assembler = malloc(sizeof(assembler_t));
+  assembler->file_path = file_path;
   assembler->ic = CODE_IMAGE_START_ADDRESS;
   assembler->dc = 0;
   assembler->code_array = list_create(sizeof(machine_word_t));
@@ -163,7 +167,7 @@ void merge_data(assembler_t *assembler) {
   }
 }
 
-bool_t resolve_labels(assembler_t *assembler, char *file_path) {
+bool_t resolve_labels(assembler_t *assembler) {
   bool_t success = TRUE;
   int i;
 
@@ -178,12 +182,12 @@ bool_t resolve_labels(assembler_t *assembler, char *file_path) {
       }
       else {
         success = FALSE;
-        print_error(file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
+        print_error(assembler->file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
       }
     }
 
     if (!info->found && info->is_entry) {
-      print_error(file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
+      print_error(assembler->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
     }
   }
 
