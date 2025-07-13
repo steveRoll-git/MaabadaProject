@@ -143,7 +143,7 @@ result_t compile_statement(assembler_t *assembler, int line_number, statement_t 
 
   if (statement->has_label) {
     /* If the statement has a label, add it to the label table. */
-    TRY(add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE, FALSE))
+    TRY(add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE))
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {

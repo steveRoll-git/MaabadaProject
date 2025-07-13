@@ -11,8 +11,8 @@ typedef struct label_reference_t {
   /* The index in the code image where the label's address should be written to. */
   int location;
 
-  /* The line in the source code where this label was referenced, for use in error messages. */
-  int line;
+  /* The line number in the source code where this label was referenced, for use in error messages. */
+  int line_number;
 } label_reference_t;
 
 /* Information about a label. */
@@ -33,7 +33,7 @@ typedef struct label_info_t {
   /* Whether this label was specified as an entry using the `.entry` directive. */
   bool_t is_entry;
 
-  /* If `is_entry` is true, this stores the line number at which the `.entry` directive appeared. */
+  /* If `is_entry` is true, this stores the line_number number at which the `.entry` directive appeared. */
   int entry_line;
 
   /* List of `label_reference_t` values - references to this label. */
@@ -64,7 +64,7 @@ typedef struct assembler_t {
 
 assembler_t *assembler_create(table_t *macro_table) {
   assembler_t *assembler = malloc(sizeof(assembler_t));
-  assembler->ic = 100;
+  assembler->ic = CODE_IMAGE_START_ADDRESS;
   assembler->dc = 0;
   assembler->code_array = list_create(sizeof(machine_word_t));
   assembler->data_array = list_create(sizeof(machine_word_t));
@@ -106,11 +106,16 @@ label_info_t *get_label_info(assembler_t *assembler, char *label) {
 
 void add_label_reference(assembler_t *assembler, char *label, int line_number) {
   label_info_t *info = get_label_info(assembler, label);
-  LIST_ADD(info->references, ((label_reference_t) {assembler->ic, line_number}))
+  label_reference_t *reference = list_add(info->references);
+  /* The reference's location will later be used as an index to the code image, */
+  /* so we subtract the start address (100) from the IC. */
+  reference->location = assembler->ic - CODE_IMAGE_START_ADDRESS;
+  reference->line_number = line_number;
+
   add_code_word(assembler, 0);
 }
 
-result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t is_external) {
+result_t add_label(assembler_t *assembler, char *label, bool_t is_data) {
   label_info_t *info = get_label_info(assembler, label);
 
   /* Make sure that the label wasn't already defined. */
@@ -120,10 +125,8 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t i
 
   info->found = TRUE;
   info->is_data = is_data;
-  info->is_external = is_external;
-  if (!is_external) {
-    info->value = is_data ? assembler->dc : assembler->ic;
-  }
+  info->is_external = FALSE;
+  info->value = is_data ? assembler->dc : assembler->ic;
 
   return SUCCESS;
 }
@@ -175,7 +178,7 @@ bool_t resolve_labels(assembler_t *assembler, char *file_path) {
       }
       else {
         success = FALSE;
-        print_error(file_path, reference->line, ERR_LABEL_NOT_DEFINED);
+        print_error(file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
       }
     }
 
@@ -206,7 +209,7 @@ void print_data(assembler_t *assembler) {
     label_info_t *info = table_value_at(assembler->label_table, i);
     printf("%s = %d: ", table_key_at(assembler->label_table, i), info->value);
     for (j = 0; j < list_count(info->references); j++) {
-      printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line);
+      printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line_number);
     }
     printf("\n");
   }

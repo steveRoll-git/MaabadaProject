@@ -5,6 +5,10 @@
 #include "data.h"
 #include "table.h"
 
+/* The address where the code image starts in memory. */
+/* This is the initial value of the assembler's IC. */
+#define CODE_IMAGE_START_ADDRESS 100
+
 /* Represents an assembler as it's traversing a source file. */
 typedef struct assembler_t assembler_t;
 
@@ -21,7 +25,7 @@ void add_data_word(assembler_t *assembler, machine_word_t data);
 void add_label_reference(assembler_t *assembler, char *label, int line_number);
 
 /* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */
-result_t add_label(assembler_t *assembler, char *label, bool_t is_data, bool_t is_external);
+result_t add_label(assembler_t *assembler, char *label, bool_t is_data);
 
 /* Specifies that the given label is an entry. */
 result_t add_entry(assembler_t *assembler, char *label, int line_number);
