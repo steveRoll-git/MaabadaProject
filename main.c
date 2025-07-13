@@ -31,21 +31,27 @@ bool_t assemble_file(char *file_name) {
 
   printf("Preprocessing file %s...\n", input_file_path);
 
+  /* First, we run the file through the preprocessor which outputs a .am file. */
   if (!preprocess(input_file_path, processed_path, macro_table)) {
     success = FALSE;
     goto end;
   }
 
   assembler = assembler_create(macro_table);
-  printf("Assembling file %s...\n", processed_path);
+  printf("Generating code for file %s...\n", processed_path);
 
+  /* If preprocessing succeeded, we generate the code for all instructions and directives. */
   if (!codegen(processed_path, assembler)) {
     success = FALSE;
     goto end;
   }
 
+  /* After successful code generation, we correct all the data labels so that they will point to the correct address in
+   * the data image, after adding the value of IC to them. */
   merge_data(assembler);
 
+  /* After all the labels have the correct values, we insert their values into all words that reference them. */
+  /* Labels whose definitions were not found are caught here. */
   if (!resolve_labels(assembler, processed_path)) {
     success = FALSE;
     goto end;
