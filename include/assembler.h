@@ -3,6 +3,7 @@
 
 #include "../include/errors.h"
 #include "data.h"
+#include "list.h"
 #include "table.h"
 
 /* The address where the code image starts in memory. */
@@ -10,7 +11,30 @@
 #define CODE_IMAGE_START_ADDRESS 100
 
 /* Represents an assembler as it's traversing a source file. */
-typedef struct assembler_t assembler_t;
+typedef struct assembler_t {
+  /* The path to the file being assembled. Used in error messages. */
+  char *file_path;
+
+  /* The Instruction Counter: The address where the next instruction's first word will be. */
+  int ic;
+
+  /* The Data Counter: The relative address where the next data directive's first word will be. */
+  /* During the first pass, this counter is relative. In the second pass, references to it will be corrected based on
+   * `ic`. */
+  int dc;
+
+  /* List of `machine_word_t` - stores the code image. */
+  list_t *code_array;
+
+  /* List of `machine_word_t` - stores the data image. */
+  list_t *data_array;
+
+  /* Stores names of macros from the previous pass, to check that no labels have the same name. */
+  table_t *macro_table;
+
+  /* Associates label names with `label_info_t` values. */
+  table_t *label_table;
+} assembler_t;
 
 /* Creates a new assembler. Requires the macro table from the preprocessing stage. */
 assembler_t *assembler_create(char *file_path, table_t *macro_table);

@@ -32,7 +32,7 @@ bool_t assemble_file(char *file_name) {
   printf("Generating code for file %s...\n", processed_path);
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
-  if (!codegen(processed_path, assembler)) {
+  if (!codegen(assembler)) {
     success = FALSE;
     goto end;
   }

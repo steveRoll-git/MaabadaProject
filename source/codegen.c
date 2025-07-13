@@ -186,13 +186,13 @@ result_t compile_statement(assembler_t *assembler, int line_number, statement_t 
   return SUCCESS;
 }
 
-bool_t codegen(char *input_file_path, assembler_t *assembler) {
+bool_t codegen(assembler_t *assembler) {
   FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
   int line_number = 1, total_errors = 0;
 
-  in = fopen(input_file_path, "rb");
+  in = fopen(assembler->file_path, "rb");
 
   /* If the input file is unavailable, exit. */
   if (in == NULL) {
@@ -211,7 +211,7 @@ bool_t codegen(char *input_file_path, assembler_t *assembler) {
 
     if (result != SUCCESS) {
       /* If the line has incorrect syntax or couldn't be compiled, print an error. */
-      print_error(input_file_path, line_number, result);
+      print_error(assembler->file_path, line_number, result);
       success = FALSE;
       total_errors++;
     }

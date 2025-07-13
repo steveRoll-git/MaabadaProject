@@ -7,6 +7,6 @@
 /* Goes over the input file, and generates binary code for all the instructions and directives.
  * Binary code for label operands isn't generated yet.
  * The values of labels that were found, and references to them, are stored in the label table. */
-bool_t codegen(char *input_file_path, assembler_t *assembler);
+bool_t codegen(assembler_t *assembler);
 
 #endif
