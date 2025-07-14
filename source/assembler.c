@@ -5,6 +5,10 @@
 
 #include "../include/table.h"
 
+/* The two least significant bits in an instruction word are the "ARE" bits - so the address of the label must be
+ * shifted to the left by two bits. */
+#define LABEL_FIRST_BIT 2
+
 assembler_t *assembler_create(char *file_path, table_t *macro_table) {
   assembler_t *assembler = malloc(sizeof(assembler_t));
   assembler->file_path = file_path;
@@ -118,8 +122,14 @@ bool_t resolve_labels(assembler_t *assembler) {
     int j;
     for (j = 0; j < list_count(info->references); j++) {
       label_reference_t *reference = list_at(info->references, j);
-      if (info->found) {
-        *(machine_word_t *) list_at(assembler->code_array, reference->location) = info->value;
+      machine_word_t *word = list_at(assembler->code_array, reference->location);
+      if (info->is_external) {
+        /* External labels are all zeroes, with the "ARE" bits being "01", meaning external encoding. */
+        *word = ENCODING_EXTERNAL;
+      }
+      else if (info->found) {
+        /* Labels in this file start at bit 2, with the "ARE" bits being "10", meaning relocatable encoding. */
+        *word = (info->value << LABEL_FIRST_BIT) | ENCODING_RELOCATABLE;
       }
       else {
         success = FALSE;
