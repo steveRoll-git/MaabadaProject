@@ -79,3 +79,51 @@ void output_object(assembler_t *assembler, char *out_path) {
 
   fclose(out);
 }
+
+/* Outputs the name of a label along with its address (in base 4) to the given file. */
+void output_label_address(char *label, int address, FILE *out) {
+  fputs(label, out);
+  fputc(' ', out);
+  output_base4(address, ADDRESS_DIGITS, out);
+  fputc('\n', out);
+}
+
+void output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path) {
+  FILE *entries = NULL;
+  FILE *externals = NULL;
+  int i;
+
+  for (i = 0; i < table_count(assembler->label_table); i++) {
+    char *label = table_key_at(assembler->label_table, i);
+    label_info_t *info = table_value_at(assembler->label_table, i);
+
+    if (info->is_entry) {
+      if (!entries) {
+        entries = fopen(entries_path, "w");
+      }
+
+      output_label_address(label, info->value, entries);
+    }
+
+    if (info->is_external) {
+      int j;
+
+      for (j = 0; j < list_count(info->references); j++) {
+        label_reference_t *reference = list_at(info->references, j);
+
+        if (!externals) {
+          externals = fopen(externals_path, "w");
+        }
+
+        output_label_address(label, reference->location + CODE_IMAGE_START_ADDRESS, externals);
+      }
+    }
+  }
+
+  if (entries) {
+    fclose(entries);
+  }
+  if (externals) {
+    fclose(externals);
+  }
+}

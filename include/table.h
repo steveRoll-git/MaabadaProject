@@ -26,7 +26,7 @@ void *table_add(table_t *table, table_key_t key);
 /* Returns a pointer to that value if it exists, or NULL otherwise. */
 void *table_get(table_t *table, table_key_t key);
 
-/* Returns a pointer to the key at the given index. */
+/* Returns the key at the given index. */
 table_key_t table_key_at(table_t *table, int index);
 
 /* Returns a pointer to the value at the given index. */
