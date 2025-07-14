@@ -1,5 +1,4 @@
 ; this file is an example gotten from page 49 (pdf) inside The booklet.
-; some questions, can matrix have spaces?
 
 MAIN:  mov M1[r2][r7],LENGTH
 add r2, STR
@@ -15,4 +14,4 @@ STR:    .string "abcdef"
 LENGTH:     .data 6 ,-9,             15
 K:  .data 22
 
-M1: .mat [3]    [3]     1,2,    3, 4
+M1: .mat [2]    [2]     1,2,    3, 4

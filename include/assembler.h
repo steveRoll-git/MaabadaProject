@@ -12,7 +12,7 @@
 
 /* Represents an assembler as it's traversing a source file. */
 typedef struct assembler_t {
-  /* The path to the file being assembled. Used in error messages. */
+  /* The path to the ".am" file being assembled. Used in error messages. */
   char *file_path;
 
   /* The number of the line currently being processed. */

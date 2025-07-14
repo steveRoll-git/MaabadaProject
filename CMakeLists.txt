@@ -12,6 +12,7 @@ set(project_files
         include/data.h
         include/errors.h
         include/list.h
+        include/output.h
         include/parser.h
         include/preprocessor.h
         include/table.h
@@ -21,6 +22,7 @@ set(project_files
         source/data.c
         source/errors.c
         source/list.c
+        source/output.c
         source/parser.c
         source/preprocessor.c
         source/table.c
