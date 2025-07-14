@@ -48,22 +48,22 @@ typedef enum directive_kind_t {
 } directive_kind_t;
 
 typedef enum opcode_t {
-  OPCODE_MOV = 0,
-  OPCODE_CMP = 1,
-  OPCODE_ADD = 2,
-  OPCODE_SUB = 3,
-  OPCODE_NOT = 4,
-  OPCODE_CLR = 5,
-  OPCODE_LEA = 6,
-  OPCODE_INC = 7,
-  OPCODE_DEC = 8,
-  OPCODE_JMP = 9,
-  OPCODE_BNE = 10,
-  OPCODE_RED = 11,
-  OPCODE_PRN = 12,
-  OPCODE_JSR = 13,
-  OPCODE_RTS = 14,
-  OPCODE_STOP = 15
+  OPCODE_MOV,
+  OPCODE_CMP,
+  OPCODE_ADD,
+  OPCODE_SUB,
+  OPCODE_LEA,
+  OPCODE_CLR,
+  OPCODE_NOT,
+  OPCODE_INC,
+  OPCODE_DEC,
+  OPCODE_JMP,
+  OPCODE_BNE,
+  OPCODE_JSR,
+  OPCODE_RED,
+  OPCODE_PRN,
+  OPCODE_RTS,
+  OPCODE_STOP
 } opcode_t;
 
 typedef enum encoding_kind_t {
