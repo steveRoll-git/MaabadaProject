@@ -52,14 +52,13 @@ void output_word(machine_word_t address, machine_word_t word, FILE *out) {
 }
 
 /* Outputs the object file (".ob"), containing the assembler's code and data image in base 4 format. */
-void output_object(assembler_t *assembler, char *out_path) {
-  FILE *out = fopen(out_path, "w");
+result_t output_object(assembler_t *assembler, char *out_path) {
   machine_word_t address = CODE_IMAGE_START_ADDRESS;
   int i;
+  FILE *out = fopen(out_path, "w");
 
   if (out == NULL) {
-    printf("Could not open output file \"%s\".\n", out_path);
-    exit(EXIT_FAILURE);
+    return ERR_OUTPUT_FILE_FAIL;
   }
 
   output_base4(list_count(assembler->code_array), 0, out);
@@ -78,6 +77,8 @@ void output_object(assembler_t *assembler, char *out_path) {
   }
 
   fclose(out);
+
+  return SUCCESS;
 }
 
 /* Outputs the name of a label along with its address (in base 4) to the given file. */

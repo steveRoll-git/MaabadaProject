@@ -4,68 +4,77 @@
 #include <stdlib.h>
 
 #include "../include/table.h"
+#include "../include/utils.h"
 
 /* The two least significant bits in an instruction word are the "ARE" bits - so the address of the label must be
  * shifted to the left by two bits. */
 #define LABEL_FIRST_BIT 2
 
-assembler_t *assembler_create(char *file_path, table_t *macro_table) {
-  assembler_t *assembler = malloc(sizeof(assembler_t));
-  assembler->file_path = file_path;
-  assembler->line_number = 1;
-  assembler->ic = CODE_IMAGE_START_ADDRESS;
-  assembler->dc = 0;
-  assembler->code_array = list_create(sizeof(machine_word_t));
-  assembler->data_array = list_create(sizeof(machine_word_t));
-  assembler->macro_table = macro_table;
-  assembler->label_table = table_create(sizeof(label_info_t));
-  return assembler;
+result_t assembler_create(char *file_path, table_t *macro_table, assembler_t **assembler) {
+  TRY_MALLOC(assembler)
+  (*assembler)->file_path = file_path;
+  (*assembler)->line_number = 1;
+  (*assembler)->ic = CODE_IMAGE_START_ADDRESS;
+  (*assembler)->dc = 0;
+  TRY(list_create(sizeof(machine_word_t), &(*assembler)->code_array))
+  TRY(list_create(sizeof(machine_word_t), &(*assembler)->data_array))
+  (*assembler)->macro_table = macro_table;
+  TRY(table_create(sizeof(label_info_t), &(*assembler)->label_table))
+  return SUCCESS;
 }
 
-void add_code_word(assembler_t *assembler, machine_word_t data) {
+result_t add_code_word(assembler_t *assembler, machine_word_t data) {
   LIST_ADD(assembler->code_array, data);
   assembler->ic++;
+  return SUCCESS;
 }
 
-void add_data_word(assembler_t *assembler, machine_word_t data) {
+result_t add_data_word(assembler_t *assembler, machine_word_t data) {
   LIST_ADD(assembler->data_array, data);
   assembler->dc++;
+  return SUCCESS;
 }
 
 /* Initializes a new empty `label_info_t` value for the given label. */
-label_info_t *init_label_info(assembler_t *assembler, char *label) {
-  label_info_t *info = table_add(assembler->label_table, label);
-  info->found = FALSE;
-  info->is_data = FALSE;
-  info->is_external = FALSE;
-  info->is_entry = FALSE;
-  info->references = list_create(sizeof(label_reference_t));
-  return info;
+result_t init_label_info(assembler_t *assembler, char *label, label_info_t **info) {
+  TRY(table_add(assembler->label_table, label, (void **) info))
+  (*info)->found = FALSE;
+  (*info)->is_data = FALSE;
+  (*info)->is_external = FALSE;
+  (*info)->is_entry = FALSE;
+  TRY(list_create(sizeof(label_reference_t), &(*info)->references))
+  return SUCCESS;
 }
 
 /* Returns a pointer to the `label_info_t` object for the specified label. */
 /* If an info object doesn't exist for this label yet, creates it. */
-label_info_t *get_label_info(assembler_t *assembler, char *label) {
-  label_info_t *info = table_get(assembler->label_table, label);
-  if (info == NULL) {
-    info = init_label_info(assembler, label);
+result_t get_label_info(assembler_t *assembler, char *label, label_info_t **info) {
+  *info = table_get(assembler->label_table, label);
+  if (*info == NULL) {
+    TRY(init_label_info(assembler, label, info))
   }
-  return info;
+  return SUCCESS;
 }
 
-void add_label_reference(assembler_t *assembler, char *label) {
-  label_info_t *info = get_label_info(assembler, label);
-  label_reference_t *reference = list_add(info->references);
+result_t add_label_reference(assembler_t *assembler, char *label) {
+  label_info_t *info;
+  label_reference_t *reference;
+  TRY(get_label_info(assembler, label, &info))
+  TRY(list_add(info->references, (void **) &reference))
+
   /* The reference's location will later be used as an index to the code image, */
   /* so we subtract the start address (100) from the IC. */
   reference->location = assembler->ic - CODE_IMAGE_START_ADDRESS;
   reference->line_number = assembler->line_number;
 
-  add_code_word(assembler, 0);
+  TRY(add_code_word(assembler, 0))
+
+  return SUCCESS;
 }
 
 result_t add_label(assembler_t *assembler, char *label, bool_t is_data) {
-  label_info_t *info = get_label_info(assembler, label);
+  label_info_t *info;
+  TRY(get_label_info(assembler, label, &info))
 
   /* Make sure that the label wasn't already defined. */
   ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
@@ -81,7 +90,8 @@ result_t add_label(assembler_t *assembler, char *label, bool_t is_data) {
 }
 
 result_t add_entry(assembler_t *assembler, char *label) {
-  label_info_t *info = get_label_info(assembler, label);
+  label_info_t *info;
+  TRY(get_label_info(assembler, label, &info))
   ASSERT(!info->is_entry, ERR_LABEL_ALREADY_ENTRY)
 
   info->is_entry = TRUE;
@@ -91,7 +101,8 @@ result_t add_entry(assembler_t *assembler, char *label) {
 }
 
 result_t add_extern(assembler_t *assembler, char *label) {
-  label_info_t *info = get_label_info(assembler, label);
+  label_info_t *info;
+  TRY(get_label_info(assembler, label, &info))
   /* A label declared with `.extern` cannot be defined more than once in the same file. */
   ASSERT(!info->found, ERR_LABEL_ALREADY_DEFINED)
 
@@ -176,17 +187,21 @@ void label_info_free(label_info_t *info) {
 }
 
 void assembler_free(assembler_t *assembler) {
-  if (assembler) {
-    int i;
-    list_free(assembler->code_array);
-    list_free(assembler->data_array);
+  if (!assembler) {
+    return;
+  }
 
+  int i;
+  list_free(assembler->code_array);
+  list_free(assembler->data_array);
+
+  if (assembler->label_table) {
     for (i = 0; i < table_count(assembler->label_table); i++) {
       label_info_t *info = table_value_at(assembler->label_table, i);
       label_info_free(info);
     }
     table_free(assembler->label_table);
-
-    free(assembler);
   }
+
+  free(assembler);
 }

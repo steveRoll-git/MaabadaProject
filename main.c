@@ -18,17 +18,35 @@
 /* The file extension for "externals" files. */
 #define EXTENSION_EXT ".ext"
 
+/* A macro specifically for use in the `assemble_file` function. */
+/* Evaluates the given expression. If the result is not successful, prints an error message, and jumps to the `end`
+ * label to clean up memory. */
+#define ASSEMBLE_TRY(f)                                                                                                \
+  do {                                                                                                                 \
+    result_t _result = (f);                                                                                            \
+    if (_result != SUCCESS) {                                                                                          \
+      printf("Error: %s\n", _result);                                                                                  \
+      success = FALSE;                                                                                                 \
+      goto end;                                                                                                        \
+    }                                                                                                                  \
+  }                                                                                                                    \
+  while (0);
+
 bool_t assemble_file(char *file_name) {
   bool_t success = TRUE;
-  char *input_file_path = join_strings(file_name, EXTENSION_AS);
-  char *processed_path = join_strings(file_name, EXTENSION_AM);
+  char *input_file_path = NULL;
+  char *processed_path = NULL;
   char *object_path = NULL;
   char *entries_path = NULL;
   char *externals_path = NULL;
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
-  table_t *macro_table = table_create(sizeof(long));
+  table_t *macro_table = NULL;
   assembler_t *assembler = NULL;
   result_t result = SUCCESS;
+
+  ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
+  ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AM, &processed_path))
+  ASSEMBLE_TRY(table_create(sizeof(long), &macro_table))
 
   printf("Preprocessing file %s...\n", input_file_path);
 
@@ -40,7 +58,7 @@ bool_t assemble_file(char *file_name) {
     goto end;
   }
 
-  assembler = assembler_create(processed_path, macro_table);
+  ASSEMBLE_TRY(assembler_create(processed_path, macro_table, &assembler))
   printf("Generating code for file %s...\n", processed_path);
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
@@ -60,12 +78,16 @@ bool_t assemble_file(char *file_name) {
     goto end;
   }
 
-  object_path = join_strings(file_name, EXTENSION_OB);
+  printf("Outputting object file...\n");
+  ASSEMBLE_TRY(join_strings(file_name, EXTENSION_OB, &object_path))
   output_object(assembler, object_path);
 
-  entries_path = join_strings(file_name, EXTENSION_ENT);
-  externals_path = join_strings(file_name, EXTENSION_EXT);
+  printf("Outputting entries and externals files...\n");
+  ASSEMBLE_TRY(join_strings(file_name, EXTENSION_ENT, &entries_path))
+  ASSEMBLE_TRY(join_strings(file_name, EXTENSION_EXT, &externals_path))
   output_entries_externals(assembler, entries_path, externals_path);
+
+  printf("File assembled successfully.\n");
 
 end:
   free(input_file_path);

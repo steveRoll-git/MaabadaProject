@@ -7,7 +7,10 @@
 
 int main(void) {
   char *in = "../examples/wont_work/matricesTesting.am";
-  assembler_t *assembler = assembler_create(in, table_create(0));
+  table_t *macro_table;
+  table_create(0, &macro_table);
+  assembler_t *assembler;
+  assembler_create(in, macro_table, &assembler);
   bool_t success = codegen(assembler);
   ASSERT(success);
   merge_data(assembler);
