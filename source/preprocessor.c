@@ -5,53 +5,47 @@
 #include "../include/parser.h"
 #include "../include/table.h"
 
-/* The various kinds of lines that the preprocessor's `parse_line` can give. */
+/* The various kinds of lines that the preprocessor's `read_parse_line` can give. */
 typedef enum {
   LINE_NORMAL, /* A line with no special meaning to the preprocessor. */
   LINE_MCRO, /* A line that starts a macro definition with `mcro`. */
   LINE_MCROEND, /* A line that ends a macro definition with `mcroend`. */
   LINE_MACROCALL, /* A line that calls a macro by its name. */
-  LINE_ERROR /* Indicates that an error occurred while reading this line. */
 } parse_line_status_t;
 
-parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_errors) {
+result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, parse_line_status_t *status) {
   word_t word;
-  char *cur_line = line;
+  char *cur_line;
+  read_line_status_t read_status = read_line(file, line);
+
+  if (read_status == READ_LINE_TOO_LONG) {
+    return ERR_LINE_TOO_LONG;
+  }
+
+  cur_line = line;
 
   read_word(&cur_line, &word);
 
   if (word.kind == WORD_MCRO) {
     /* A line that starts with `mcro` begins a macro definition. */
     read_word(&cur_line, &word);
-    if (word.kind != WORD_IDENTIFIER) {
-      if (print_errors) {
-        printf("Macro initialization doesn't contain a valid name.\n");
-      }
-      return LINE_ERROR;
-    }
+    ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_MACRO_NAME)
 
     if (macro_name) {
       strcpy(macro_name, word.value);
     }
 
-    if (!is_end(cur_line)) {
-      if (print_errors) {
-        printf("Extraneous text after macro definition.\n");
-      }
-      return LINE_ERROR;
-    }
+    ASSERT(is_end(cur_line), ERR_EXTRANEOUS_TEXT_MACRO)
 
-    return LINE_MCRO;
+    *status = LINE_MCRO;
+    return SUCCESS;
   }
 
   if (word.kind == WORD_MCROEND) {
-    if (!is_end(cur_line)) {
-      if (print_errors) {
-        printf("Extraneous text after `mcroend`.\n");
-      }
-      return LINE_ERROR;
-    }
-    return LINE_MCROEND;
+    ASSERT(is_end(cur_line), ERR_EXTRANEOUS_TEXT_MCROEND)
+
+    *status = LINE_MCROEND;
+    return SUCCESS;
   }
 
   /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
@@ -59,81 +53,97 @@ parse_line_status_t parse_line(char line[MAX_LINE], char *macro_name, int print_
     if (macro_name) {
       strcpy(macro_name, word.value);
     }
-    return LINE_MACROCALL;
+    *status = LINE_MACROCALL;
+    return SUCCESS;
   }
 
-  return LINE_NORMAL;
+  *status = LINE_NORMAL;
+  return SUCCESS;
+}
+
+/* Prints the given line into the file. */
+/* The line may end with either a newline or a null terminator - the newline will be included. */
+void print_line(FILE *out, char *line) {
+  while (*line) {
+    fputc(*line, out);
+    if (*line == '\n') {
+      break;
+    }
+    line++;
+  }
 }
 
 /* Prints a macro from the `in` file to the `out` file. */
 /* The `in` file is assumed to be positioned at the line where the macro begins. */
 /* It prints each line from `in` to `out`, until it encounters an `mcroend` line. */
 void print_macro(FILE *out, FILE *in) {
-  char line[MAX_LINE] = "";
+  char line[MAX_LINE];
+  parse_line_status_t status;
 
-  while (fgets(line, MAX_LINE, in) && parse_line(line, NULL, 0) != LINE_MCROEND) {
-    fprintf(out, "%s", line);
+  while (read_parse_line(in, line, NULL, &status) == SUCCESS && status != LINE_MCROEND) {
+    print_line(out, line);
   }
 }
 
-/* Prints the given line into the file. */
-void print_line(FILE *out, char *line) {
-  fprintf(out, "%s\n", line);
-}
-
-bool_t preprocess(char *input_file_path, char *output_file_path, table_t *macro_table) {
+result_t preprocess(char *input_file_path, char *output_file_path, table_t *macro_table) {
   FILE *in_file;
   FILE *out_file;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
-  bool_t success = TRUE;
-  parse_line_status_t status = LINE_NORMAL;
+  result_t result = SUCCESS;
+  bool_t parse_success = TRUE;
+  int line_number = 0;
 
   in_file = fopen(input_file_path, "rb");
 
   /* If the input file is unavailable, exit. */
   if (in_file == NULL) {
-    printf("Couldn't open input file\n");
-    return FALSE;
+    return ERR_INPUT_FILE_FAIL;
   }
 
   out_file = fopen(output_file_path, "w");
-  /* TODO check if out is null */
+  if (out_file == NULL) {
+    fclose(in_file);
+    return ERR_OUTPUT_FILE_FAIL;
+  }
 
   while (!feof(in_file)) {
-    if (read_line(in_file, line) == 0) {
-      success = FALSE;
-      break;
+    parse_line_status_t parse_status;
+    result_t parse_result;
+
+    line_number++;
+
+    parse_result = read_parse_line(in_file, line, macro_name, &parse_status);
+    if (parse_result != SUCCESS) {
+      parse_success = FALSE;
+      print_error(input_file_path, line_number, parse_result);
+      continue;
     }
 
-    status = parse_line(line, macro_name, 1);
-
-    if (status == LINE_NORMAL) {
+    if (parse_status == LINE_NORMAL) {
       /* A line with no special meaning to the preprocessor. We output it as is. */
       print_line(out_file, line);
     }
-    else if (status == LINE_MCRO) {
-      /* A macro has been defined. We store its offset in the macro table, and skip past all lines until the next
-       * `mcroend`. */
+    else if (parse_status == LINE_MCRO) {
+      /* A macro has been defined. */
       long offset = ftell(in_file);
       TABLE_ADD(macro_table, macro_name, offset);
 
+      /* We skip over lines until we reach an `mcroend` line. */
+      /* According to the assignment, we do not need to check for nested macros, */
+      /* and we can assume that an `mcro` definition will always have a matching `mcroend`. */
       do {
-        if (read_line(in_file, line) != SENTENCE_NEW_LINE) {
-          success = FALSE;
-          break;
+        line_number++;
+        parse_result = read_parse_line(in_file, line, NULL, &parse_status);
+        if (parse_result != SUCCESS) {
+          parse_success = FALSE;
+          print_error(input_file_path, line_number, parse_result);
         }
-        status = parse_line(line, macro_name, 0);
       }
-      while (status != LINE_MCROEND);
-
-      if (!success) {
-        break;
-      }
+      while (parse_status != LINE_MCROEND);
     }
-    else if (status == LINE_MACROCALL) {
+    else if (parse_status == LINE_MACROCALL) {
       /* A line with a single word in it may be a macro call. */
-      /* We check if it exists in the macro table, and if it does, output its contents. */
       long *offset = table_get(macro_table, macro_name);
       if (offset == NULL) {
         /* If there's no macro by this name, we output the line as is. */
@@ -141,24 +151,28 @@ bool_t preprocess(char *input_file_path, char *output_file_path, table_t *macro_
         continue;
       }
 
+      /* We open the input file again - but this time we seek it so that it'll start reading at the offset where the
+       * macro's content begins. */
       FILE *temp = fopen(input_file_path, "r");
-      if (fseek(temp, *offset, SEEK_SET)) {
-        fprintf(stderr, "fseek didn't work while trying to read macro");
-        success = FALSE;
-        break;
+      if (fseek(temp, *offset, SEEK_SET) != 0) {
+        /* If `fseek` has failed, we cannot proceed. */
+        result = ERR_FSEEK_FAILED;
+        fclose(temp);
+        goto end;
       }
 
       print_macro(out_file, temp);
       fclose(temp);
     }
-    else if (status == LINE_ERROR) {
-      success = FALSE;
-      break;
-    }
   }
 
+  if (!parse_success) {
+    result = ERR_PREPROCESS_FAILED;
+  }
+
+end:
   fclose(in_file);
   fclose(out_file);
 
-  return success;
+  return result;
 }

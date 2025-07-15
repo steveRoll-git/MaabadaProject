@@ -28,11 +28,14 @@ bool_t assemble_file(char *file_name) {
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
   table_t *macro_table = table_create(sizeof(long));
   assembler_t *assembler = NULL;
+  result_t result = SUCCESS;
 
   printf("Preprocessing file %s...\n", input_file_path);
 
   /* First, we run the file through the preprocessor which outputs a .am file. */
-  if (!preprocess(input_file_path, processed_path, macro_table)) {
+  result = preprocess(input_file_path, processed_path, macro_table);
+  if (result != SUCCESS) {
+    printf("Preprocessing failed: %s\n", result);
     success = FALSE;
     goto end;
   }

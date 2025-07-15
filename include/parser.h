@@ -135,20 +135,20 @@ typedef struct statement_t {
   } data;
 } statement_t;
 
-typedef enum sentence_t {
-  SENTENCE_ERR_BUFF_OVERFLOW = 0,
-  SENTENCE_NEW_LINE = 1,
-  SENTENCE_EOF = 2,
-} sentence_t;
+typedef enum read_line_status_t {
+  READ_LINE_SUCCESS,
+  READ_LINE_TOO_LONG,
+  READ_LINE_EOF,
+} read_line_status_t;
 
 /* Returns whether there are no more non-space characters in `s`. */
 int is_end(char *s);
 
 /* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
- * stores it in `line`. */
-/* Returns `SENTENCE_NEW_LINE` if there are more lines to be read, `SENTENCE_ERR_BUFF_OVERFLOW` if the line was too
- * long, and `SENTENCE_EOF` if there are no more lines to read. */
-sentence_t read_line(FILE *file, char line[MAX_LINE]);
+ * stores it in `line`. The line may end with a newline or a null terminator. */
+/* Returns `READ_LINE_SUCCESS` if there are more lines to be read, `READ_LINE_TOO_LONG` if the line was too
+ * long, and `READ_LINE_EOF` if there are no more lines to read. */
+read_line_status_t read_line(FILE *file, char line[MAX_LINE]);
 
 /* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
  * `s` */

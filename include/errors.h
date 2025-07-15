@@ -56,6 +56,16 @@ typedef char *result_t;
 #define ERR_STRING_MISSING_QUOTE_START "String argument must start with quotation marks."
 #define ERR_STRING_MISSING_QUOTE_END "String argument must end with quotation marks."
 
+#define ERR_INVALID_MACRO_NAME "Macro definition doesn't contain a valid name."
+#define ERR_EXTRANEOUS_TEXT_MACRO "Extraneous text after macro definition."
+#define ERR_EXTRANEOUS_TEXT_MCROEND "Extraneous text after `mcroend`."
+#define ERR_LINE_TOO_LONG "Line is longer than 80 characters."
+#define ERR_FSEEK_FAILED "fseek failed to run."
+#define ERR_PREPROCESS_FAILED "One or more syntax errors were encountered during preprocessing."
+#define ERR_INPUT_FILE_FAIL "Couldn't open input file."
+#define ERR_OUTPUT_FILE_FAIL "Couldn't open output file."
+#define ERR_OUT_OF_MEMORY "Out of memory."
+
 /* Checks that the condition is true. If not, causes the running function to return the given error message as a
  * `result_t`. */
 #define ASSERT(a, s)                                                                                                   \

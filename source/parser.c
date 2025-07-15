@@ -9,15 +9,15 @@
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
-  while (*s != NULL && isspace(**s)) {
+  while (isspace(**s) && **s != '\n') {
     (*s)++;
   }
 }
 
-/* Returns whether there are no more non-space characters in `s`. */
+/* Returns whether there are no more non-space characters in the newline/null-terminated string `s`. */
 int is_end(char *s) {
   skip_spaces(&s);
-  return *s == 0;
+  return *s == 0 || *s == '\n';
 }
 
 /* Skips leading spaces, and checks the current character under `s`. */
@@ -29,6 +29,19 @@ bool_t accept(char **s, char c) {
     return TRUE;
   }
   return FALSE;
+}
+
+/* In the newline/null-terminated string `s`, returns the last pointer where quotation marks appear, or NULL if they do
+ * not appear in the line. */
+char *find_last_quotes(char *s) {
+  char *last = NULL;
+  while (*s && *s != '\n') {
+    if (*s == '"') {
+      last = s;
+    }
+    s++;
+  }
+  return last;
 }
 
 /* Given an instruction's name, returns information about that instruction. */
@@ -97,29 +110,27 @@ void read_word(char **s, word_t *word) {
   }
 }
 
-sentence_t read_line(FILE *file, char line[MAX_LINE]) {
+read_line_status_t read_line(FILE *file, char line[MAX_LINE]) {
   int count = 0;
   int c;
   if (feof(file)) {
-    return SENTENCE_EOF;
+    return READ_LINE_EOF;
   }
   while ((c = getc(file)) != EOF) {
+    line[count] = (char) c;
     if (c == '\n') {
-      line[count] = 0;
-      return SENTENCE_NEW_LINE;
+      return READ_LINE_SUCCESS;
     }
     if (count >= MAX_LINE) {
-      /* The line is longer than 80 characters - read everything until the next
-       * newline and return 0. */
+      /* The line is longer than 80 characters - read everything until the next newline and return 0. */
       while ((c = getc(file)) != EOF && c != '\n') {
       }
-      return SENTENCE_ERR_BUFF_OVERFLOW;
+      return READ_LINE_TOO_LONG;
     }
-    line[count] = (char) c;
     count++;
   }
   line[count] = 0;
-  return SENTENCE_NEW_LINE;
+  return READ_LINE_SUCCESS;
 }
 
 /* Skips leading spaces and parses an integer (with an optional + or -), and stores it in `result`. */
@@ -269,7 +280,7 @@ result_t parse_string(char *s, directive_t *directive) {
   /* .string directive must contain a string enclosed in quotes. */
   ASSERT(accept(&s, '"'), ERR_STRING_MISSING_QUOTE_START);
 
-  last_quotes = strrchr(s, '"');
+  last_quotes = find_last_quotes(s);
   /* The string must be enclosed by two quotes. */
   ASSERT(last_quotes, ERR_STRING_MISSING_QUOTE_END)
   /* Extraneous text after string. */
@@ -384,7 +395,7 @@ result_t parse_statement(char *line, statement_t *statement) {
 
   skip_spaces(&line);
 
-  if (*line == 0 || *line == ';') {
+  if (*line == 0 || *line == '\n' || *line == ';') {
     /* Entire line of whitespace, ignore. */
     statement->kind = STATEMENT_EMPTY;
     return SUCCESS;

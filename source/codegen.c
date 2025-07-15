@@ -202,7 +202,7 @@ bool_t codegen(assembler_t *assembler) {
 
   assembler->line_number = 1;
 
-  while (read_line(in, line) != SENTENCE_EOF) {
+  while (read_line(in, line) != READ_LINE_EOF) {
     statement_t statement;
     result_t result = parse_statement(line, &statement);
 
