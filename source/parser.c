@@ -205,6 +205,7 @@ result_t parse_operand(char **s, operand_t *operand) {
   /* If none of the above conditions passed, the operand may be a label or a matrix access. */
   /* Both of those must begin with an identifier. */
   ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUMENT);
+  ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
 
   skip_spaces(s);
 
