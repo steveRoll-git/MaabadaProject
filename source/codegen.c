@@ -59,43 +59,47 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
 
 /* Outputs the operand's binary code into the assembler's code image. */
 /* If the operand references a label, its location will be added to the label table, and resolved later. */
-void write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
+result_t write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
-      add_code_word(assembler, IMM_BITS(operand->data.immediate));
+      TRY(add_code_word(assembler, IMM_BITS(operand->data.immediate)))
       break;
 
     case OPERAND_KIND_LABEL:
-      add_label_reference(assembler, operand->data.label);
+      TRY(add_label_reference(assembler, operand->data.label))
       break;
 
     case OPERAND_KIND_MATRIX:
       /* The first word in matrix addressing is the address of the label. */
-      add_label_reference(assembler, operand->data.matrix.label);
-      add_code_word(assembler, make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg));
+      TRY(add_label_reference(assembler, operand->data.matrix.label))
+      TRY(add_code_word(assembler,
+                        make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg)))
       break;
 
     case OPERAND_KIND_REGISTER:
       if (is_second) {
-        add_code_word(assembler, REG2_BITS(operand->data.register_index));
+        TRY(add_code_word(assembler, REG2_BITS(operand->data.register_index)))
       }
       else {
-        add_code_word(assembler, REG1_BITS(operand->data.register_index));
+        TRY(add_code_word(assembler, REG1_BITS(operand->data.register_index)))
       }
       break;
   }
+
+  return SUCCESS;
 }
 
 /* Outputs the instruction's binary code into the assembler's code image. */
-void write_instruction(assembler_t *assembler, instruction_t *instruction) {
+result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
-  add_code_word(assembler, make_code_word(instruction));
+  TRY(add_code_word(assembler, make_code_word(instruction)))
 
   if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
     /* If both operands are registers, we write a single word that contains both of them. */
-    add_code_word(assembler, make_joined_register_word(operand_1->data.register_index, operand_2->data.register_index));
+    machine_word_t word = make_joined_register_word(operand_1->data.register_index, operand_2->data.register_index);
+    TRY(add_code_word(assembler, word))
   }
   else {
     if (instruction->num_args >= ONE_ARG) {
@@ -105,6 +109,8 @@ void write_instruction(assembler_t *assembler, instruction_t *instruction) {
       write_operand(assembler, &instruction->operand_2, TRUE);
     }
   }
+
+  return SUCCESS;
 }
 
 /* Outputs the directive's binary code into the assembler's data image. */
@@ -186,7 +192,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   return SUCCESS;
 }
 
-bool_t codegen(assembler_t *assembler) {
+result_t codegen(assembler_t *assembler) {
   FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
@@ -196,8 +202,7 @@ bool_t codegen(assembler_t *assembler) {
 
   /* If the input file is unavailable, exit. */
   if (in == NULL) {
-    printf("Couldn't open input file\n");
-    return FALSE;
+    return ERR_INPUT_FILE_FAIL;
   }
 
   assembler->line_number = 1;
@@ -221,6 +226,12 @@ bool_t codegen(assembler_t *assembler) {
     assembler->line_number++;
   }
 
+  fclose(in);
+
   printf("Total Errors: %d\n", total_errors);
-  return success;
+
+  if (!success) {
+    return ERR_CODEGEN_FAILED;
+  }
+  return SUCCESS;
 }

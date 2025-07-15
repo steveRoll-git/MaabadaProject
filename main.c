@@ -51,21 +51,13 @@ bool_t assemble_file(char *file_name) {
   printf("Preprocessing file %s...\n", input_file_path);
 
   /* First, we run the file through the preprocessor which outputs a .am file. */
-  result = preprocess(input_file_path, processed_path, macro_table);
-  if (result != SUCCESS) {
-    printf("Preprocessing failed: %s\n", result);
-    success = FALSE;
-    goto end;
-  }
+  ASSEMBLE_TRY(preprocess(input_file_path, processed_path, macro_table))
 
   ASSEMBLE_TRY(assembler_create(processed_path, macro_table, &assembler))
   printf("Generating code for file %s...\n", processed_path);
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
-  if (!codegen(assembler)) {
-    success = FALSE;
-    goto end;
-  }
+  ASSEMBLE_TRY(codegen(assembler))
 
   /* After successful code generation, we correct all the data labels so that they will point to the correct address in
    * the data image, after adding the value of IC to them. */
