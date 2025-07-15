@@ -32,21 +32,30 @@
 /* The longest directive is 6 characters long. */
 #define DIRECTIVE_MAX_LEN 6
 
+/* A boolean - represents true or false. */
 typedef enum { FALSE = 0, TRUE = 1 } bool_t;
 
 /* The type needed to represent a single machine word. */
 /* A word in the virtual machine is 10 bits; The closest type we have to this is `short int` which is 16 bits. */
 typedef short int machine_word_t;
 
+/* The different kinds of directives. */
 typedef enum directive_kind_t {
+  /* `.data` directive. */
   DIRECTIVE_KIND_DATA,
+  /* `.string` directive. */
   DIRECTIVE_KIND_STRING,
+  /* `.mat` directive. */
   DIRECTIVE_KIND_MAT,
+  /* `.entry` directive. */
   DIRECTIVE_KIND_ENTRY,
+  /* `.extern` directive. */
   DIRECTIVE_KIND_EXTERN,
+  /* Invalid directive. */
   DIRECTIVE_KIND_UNKNOWN
 } directive_kind_t;
 
+/* The opcodes of each instruction. */
 typedef enum opcode_t {
   OPCODE_MOV,
   OPCODE_CMP,
@@ -66,12 +75,14 @@ typedef enum opcode_t {
   OPCODE_STOP
 } opcode_t;
 
+/* The different kinds of encoding that can appear in a word's "ARE" bits. */
 typedef enum encoding_kind_t {
   ENCODING_ABSOLUTE,
   ENCODING_EXTERNAL,
   ENCODING_RELOCATABLE,
 } encoding_kind_t;
 
+/* The number of arguments that an instruction can have. */
 typedef enum num_args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } num_args_t;
 
 /* Stores information about an instruction. */
