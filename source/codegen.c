@@ -236,7 +236,9 @@ result_t codegen(assembler_t *assembler) {
 
   fclose(in);
 
-  printf("Total Errors: %d\n", total_errors);
+  if (total_errors > 0) {
+    printf("Total Errors: %d\n", total_errors);
+  }
 
   if (!success) {
     return ERR_CODEGEN_FAILED;
