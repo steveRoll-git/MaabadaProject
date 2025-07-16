@@ -63,6 +63,8 @@ bool_t assemble_file(char *file_name) {
    * the data image, after adding the value of IC to them. */
   merge_data(assembler);
 
+  printf("Resolving labels...\n");
+
   /* After all the labels have the correct values, we insert their values into all words that reference them. */
   /* Labels whose definitions were not found are caught here. */
   if (!resolve_labels(assembler)) {
