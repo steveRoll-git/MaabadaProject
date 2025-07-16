@@ -11,8 +11,8 @@ int main(void) {
   table_create(0, &macro_table);
   assembler_t *assembler;
   assembler_create(in, macro_table, &assembler);
-  bool_t success = codegen(assembler);
-  ASSERT(success);
+  result_t result = codegen(assembler);
+  ASSERT(result == SUCCESS);
   merge_data(assembler);
   print_data(assembler);
 
