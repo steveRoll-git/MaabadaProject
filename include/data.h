@@ -99,10 +99,8 @@ typedef struct instruction_info_t {
   bool_t src_immediate_register;
 } instruction_info_t;
 
-/* This array stores all needed information about all the instructions. */
-extern instruction_info_t instructions[];
-
-/* The total number of instructions in the language. */
-extern const int num_instructions;
+/* Given an instruction's name, returns information about that instruction. */
+/* If no instruction by that name exists, returns NULL. */
+instruction_info_t *get_instruction(char *token);
 
 #endif

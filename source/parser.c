@@ -44,23 +44,6 @@ char *find_last_quotes(char *s) {
   return last;
 }
 
-/* Given an instruction's name, returns information about that instruction. */
-/* If no instruction by that name exists, returns NULL. */
-instruction_info_t *get_instruction(char *token) {
-  int i;
-  if (token == NULL) {
-    return NULL;
-  }
-
-  for (i = 0; i < num_instructions; i++) {
-    if (strcmp(token, instructions[i].name) == 0) {
-      return &instructions[i];
-    }
-  }
-
-  return NULL;
-}
-
 /* Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character. */
 void add_char(char **dest, char **src) {
   **dest = **src;
