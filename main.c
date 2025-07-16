@@ -42,7 +42,6 @@ bool_t assemble_file(char *file_name) {
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
   table_t *macro_table = NULL;
   assembler_t *assembler = NULL;
-  result_t result = SUCCESS;
 
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AM, &processed_path))
@@ -81,7 +80,7 @@ bool_t assemble_file(char *file_name) {
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_EXT, &externals_path))
   ASSEMBLE_TRY(output_entries_externals(assembler, entries_path, externals_path))
 
-  printf("File assembled successfully.\n");
+  printf("File assembled successfully.\n\n");
 
 end:
   free(input_file_path);
@@ -96,15 +95,18 @@ end:
 }
 
 int main(int argc, char *argv[]) {
-  bool_t success;
+  int i;
+  bool_t success = TRUE;
   if (argc < 2) {
-    printf("Usage %s input_file [output_file]\n", argv[0]);
-    return EXIT_FAILURE;
+    printf("No input files given.\n");
+    return EXIT_SUCCESS;
   }
-  /* TODO accept multiple files */
-  char *file_name = argv[1];
 
-  success = assemble_file(file_name);
+  for (i = 1; i < argc; i++) {
+    char *file_name = argv[i];
+
+    success = success && assemble_file(file_name);
+  }
 
   if (!success) {
     return EXIT_FAILURE;
