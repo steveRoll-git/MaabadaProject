@@ -12,14 +12,21 @@
 
 result_t assembler_create(char *file_path, table_t *macro_table, assembler_t **assembler) {
   TRY_MALLOC(assembler)
+
   (*assembler)->file_path = file_path;
   (*assembler)->line_number = 1;
   (*assembler)->ic = CODE_IMAGE_START_ADDRESS;
   (*assembler)->dc = 0;
+  /* We initialize all the lists and tables to NULL so that if their creation fails, they won't have garbage values. */
+  (*assembler)->code_array = NULL;
+  (*assembler)->data_array = NULL;
+  (*assembler)->label_table = NULL;
+  (*assembler)->macro_table = macro_table;
+
   TRY(list_create(sizeof(machine_word_t), &(*assembler)->code_array))
   TRY(list_create(sizeof(machine_word_t), &(*assembler)->data_array))
-  (*assembler)->macro_table = macro_table;
   TRY(table_create(sizeof(label_info_t), &(*assembler)->label_table))
+
   return SUCCESS;
 }
 
