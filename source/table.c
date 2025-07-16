@@ -17,11 +17,15 @@ typedef struct table_t {
 
 result_t table_create(size_t value_size, table_t **table) {
   TRY_MALLOC(table)
+
   (*table)->count = 0;
+  /* We initialize all the lists and tables to NULL so that if their creation fails, they won't have garbage values. */
   (*table)->key_list = NULL;
   (*table)->value_list = NULL;
+
   TRY(list_create(sizeof(table_key_t), &(*table)->key_list))
   TRY(list_create(value_size, &(*table)->value_list))
+
   return SUCCESS;
 }
 

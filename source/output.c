@@ -51,7 +51,6 @@ void output_word(machine_word_t address, machine_word_t word, FILE *out) {
   fputc('\n', out);
 }
 
-/* Outputs the object file (".ob"), containing the assembler's code and data image in base 4 format. */
 result_t output_object(assembler_t *assembler, char *out_path) {
   machine_word_t address = CODE_IMAGE_START_ADDRESS;
   int i;

@@ -59,6 +59,7 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
 
 /* Outputs the operand's binary code into the assembler's code image. */
 /* If the operand references a label, its location will be added to the label table, and resolved later. */
+/* May fail if memory allocations did not succeed. */
 result_t write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
@@ -90,6 +91,7 @@ result_t write_operand(assembler_t *assembler, operand_t *operand, bool_t is_sec
 }
 
 /* Outputs the instruction's binary code into the assembler's code image. */
+/* May fail if memory allocations did not succeed. */
 result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
@@ -102,11 +104,12 @@ result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
     TRY(add_code_word(assembler, word))
   }
   else {
+    /* Write the operands one after another. */
     if (instruction->num_args >= ONE_ARG) {
-      write_operand(assembler, &instruction->operand_1, FALSE);
+      TRY(write_operand(assembler, &instruction->operand_1, FALSE))
     }
     if (instruction->num_args == TWO_ARGS) {
-      write_operand(assembler, &instruction->operand_2, TRUE);
+      TRY(write_operand(assembler, &instruction->operand_2, TRUE))
     }
   }
 
@@ -114,6 +117,7 @@ result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
 }
 
 /* Outputs the directive's binary code into the assembler's data image. */
+/* May fail if memory allocations did not succeed. */
 result_t write_directive(assembler_t *assembler, directive_t *directive) {
   int i;
   switch (directive->kind) {
@@ -121,7 +125,7 @@ result_t write_directive(assembler_t *assembler, directive_t *directive) {
     case DIRECTIVE_KIND_STRING:
     case DIRECTIVE_KIND_MAT:
       for (i = 0; i < directive->info.data.size; i++) {
-        add_data_word(assembler, directive->info.data.array[i]);
+        TRY(add_data_word(assembler, directive->info.data.array[i]))
       }
       break;
 
@@ -141,6 +145,10 @@ result_t write_directive(assembler_t *assembler, directive_t *directive) {
 }
 
 /* Checks that a statement is well-formed, and generates its code. */
+/* May fail if: */
+/* - The statement is semantically incorrect. (For example, if an instruction is called with unsupported operands.) */
+/* - The statement defines a label that was already defined. */
+/* - Memory allocations did not succeed. */
 result_t compile_statement(assembler_t *assembler, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
     /* Empty statements require no action. */

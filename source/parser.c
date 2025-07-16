@@ -134,7 +134,7 @@ read_line_status_t read_line(FILE *file, char line[MAX_LINE]) {
 }
 
 /* Skips leading spaces and parses an integer (with an optional + or -), and stores it in `result`. */
-/* Returns whether it was successful. */
+/* May fail if the syntax of the number is incorrect. */
 result_t parse_number(char **s, machine_word_t *out) {
   char *orig = *s;
   long result = strtol(*s, s, 10);
@@ -154,6 +154,7 @@ result_t parse_number(char **s, machine_word_t *out) {
 }
 
 /* Parses the index accessors of a matrix operand, right after the label name. */
+/* May fail if the syntax of the operand is incorrect. */
 result_t parse_matrix_operand(char **s, operand_t *operand) {
   word_t word;
 
@@ -182,6 +183,7 @@ result_t parse_matrix_operand(char **s, operand_t *operand) {
 }
 
 /* Parses an operand and stores it in the given pointer. */
+/* May fail if the syntax of the operand is incorrect. */
 result_t parse_operand(char **s, operand_t *operand) {
   word_t word;
 
@@ -234,6 +236,7 @@ result_t parse_operand(char **s, operand_t *operand) {
 }
 
 /* Parses between zero and two operands, right after an instruction. */
+/* May fail if the syntax of the operands is incorrect. */
 result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   instruction->num_args = NO_ARGS;
   if (!is_end(s)) {
@@ -254,6 +257,7 @@ result_t parse_instruction_operands(char *s, instruction_t *instruction) {
 }
 
 /* Parses a list of numbers separated by commas, and stores them in the directive's data array. */
+/* May fail if the syntax of the parameter is incorrect. */
 result_t parse_data(char *s, directive_t *directive) {
   int *size = &directive->info.data.size;
   *size = 0;
@@ -271,6 +275,7 @@ result_t parse_data(char *s, directive_t *directive) {
 }
 
 /* Parses a string delimited by quotation marks, and stores its contents in the directive's data array. */
+/* May fail if the syntax of the parameter is incorrect. */
 result_t parse_string(char *s, directive_t *directive) {
   char *last_quotes;
   int *size = &directive->info.data.size;
@@ -299,6 +304,7 @@ result_t parse_string(char *s, directive_t *directive) {
 }
 
 /* Parses the arguments of the .mat directive, and stores its contents in the directive's data array. */
+/* May fail if the syntax of the parameter is incorrect. */
 result_t parse_matrix(char *s, directive_t *directive) {
   machine_word_t rows, cols;
   int max_elements;
@@ -342,6 +348,7 @@ result_t parse_matrix(char *s, directive_t *directive) {
 }
 
 /* Parses a single label name - the parameter for the .entry and .extern directives. */
+/* May fail if the syntax of the parameter is incorrect. */
 result_t parse_label_param(char *s, directive_t *directive) {
   word_t word;
   read_word(&s, &word);
@@ -387,7 +394,6 @@ directive_kind_t read_directive_kind(char **s) {
   return DIRECTIVE_KIND_UNKNOWN;
 }
 
-/* Parses a statement, which may be a blank line, an instruction, or a directive. */
 result_t parse_statement(char *line, statement_t *statement) {
   word_t word;
 

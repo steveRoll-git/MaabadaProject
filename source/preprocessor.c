@@ -13,6 +13,10 @@ typedef enum {
   LINE_MACROCALL, /* A line that calls a macro by its name. */
 } parse_line_status_t;
 
+/* Reads a line from the input file, stores it, and parses it for any preprocessor-related actions. */
+/* May fail if: */
+/* - The line is longer than the 80-character limit. */
+/* - Syntax errors in preprocessor-related actions were detected. */
 result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, parse_line_status_t *status) {
   word_t word;
   char *cur_line;

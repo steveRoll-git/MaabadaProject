@@ -74,24 +74,37 @@ typedef struct assembler_t {
 } assembler_t;
 
 /* Creates a new assembler. Requires the macro table from the preprocessing stage. */
+/* May fail if memory allocations did not succeed. */
 result_t assembler_create(char *file_path, table_t *macro_table, assembler_t **assembler);
 
 /* Adds a single word to the assembler's code image. */
+/* May fail if memory allocations did not succeed. */
 result_t add_code_word(assembler_t *assembler, machine_word_t data);
 
 /* Adds a single word to the assembler's data image. */
+/* May fail if memory allocations did not succeed. */
 result_t add_data_word(assembler_t *assembler, machine_word_t data);
 
 /* Adds a single word to the code image, that will reference a label after it's resolved. */
+/* May fail if memory allocations did not succeed. */
 result_t add_label_reference(assembler_t *assembler, char *label);
 
 /* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */
+/* May fail if: */
+/* - A label with the same name already exists in the label table. */
+/* - Memory allocations did not succeed. */
 result_t add_label(assembler_t *assembler, char *label, bool_t is_data);
 
 /* Specifies that the given label is an entry. */
+/* May fail if: */
+/* - The label was already specified as an entry. */
+/* - Memory allocations did not succeed. */
 result_t add_entry(assembler_t *assembler, char *label);
 
 /* Specifies that the given label is external. */
+/* May fail if: */
+/* - The label was already defined somewhere else (either with label syntax or another `.extern` directive). */
+/* - Memory allocations did not succeed. */
 result_t add_extern(assembler_t *assembler, char *label);
 
 /* Called after the whole file's code has been generated. */

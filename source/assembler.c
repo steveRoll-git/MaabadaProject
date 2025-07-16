@@ -43,6 +43,7 @@ result_t add_data_word(assembler_t *assembler, machine_word_t data) {
 }
 
 /* Initializes a new empty `label_info_t` value for the given label. */
+/* May fail if memory allocations did not succeed. */
 result_t init_label_info(assembler_t *assembler, char *label, label_info_t **info) {
   TRY(table_add(assembler->label_table, label, (void **) info))
   (*info)->found = FALSE;
@@ -55,6 +56,7 @@ result_t init_label_info(assembler_t *assembler, char *label, label_info_t **inf
 
 /* Returns a pointer to the `label_info_t` object for the specified label. */
 /* If an info object doesn't exist for this label yet, creates it. */
+/* May fail if memory allocations did not succeed. */
 result_t get_label_info(assembler_t *assembler, char *label, label_info_t **info) {
   *info = table_get(assembler->label_table, label);
   if (*info == NULL) {

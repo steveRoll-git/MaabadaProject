@@ -11,13 +11,15 @@ typedef char *table_key_t;
 /* A table associates strings with values. It can store and retrieve values based on a string key. */
 typedef struct table_t table_t;
 
-/* Creates a new table where the size of values is the given parameter. */
+/* Creates a new table with the specified value size, and stores it in `table`. */
+/* May fail if memory allocations did not succeed. */
 result_t table_create(size_t value_size, table_t **table);
 
 /* Returns the number of values in the table. */
 size_t table_count(table_t *table);
 
 /* Adds a key to the table, and returns a pointer at which the value for this key should be stored. */
+/* May fail if memory allocations did not succeed. */
 result_t table_add(table_t *table, table_key_t key, void **out);
 
 /* Assumes that the table was created with the same value size as the given value's size. */

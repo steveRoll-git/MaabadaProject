@@ -22,6 +22,7 @@ typedef enum word_kind_t {
   WORD_IDENTIFIER
 } word_kind_t;
 
+/* A sequence of alphanumeric characters that may represent a keyword in the assembler. */
 typedef struct word_t {
   /* What kind of word this is. */
   word_kind_t kind;
@@ -155,6 +156,8 @@ read_line_status_t read_line(FILE *file, char line[MAX_LINE]);
 /* Updates `s` so that it will point to the next character after the word that was read. */
 void read_word(char **s, word_t *word);
 
+/* Parses an assembly statement and stores it in the given pointer. */
+/* May fail if the statement contains syntax errors. */
 result_t parse_statement(char *line, statement_t *statement);
 
 #endif
