@@ -40,6 +40,7 @@ typedef char *result_t;
 #define ERR_LABEL_NAME_IS_MACRO "The name of this label is already used as a macro."
 #define ERR_LABEL_NOT_DEFINED "This label was not defined."
 #define ERR_LABEL_ALREADY_ENTRY "This label was already defined as an entry."
+#define ERR_LABEL_MISSING_SPACE "There must be a space after the `:` of a label."
 
 /* Matrix */
 

@@ -429,6 +429,7 @@ result_t parse_statement(char *line, statement_t *statement) {
     strcpy(statement->label, word.value);
     /* Move past the `:`. */
     line++;
+    ASSERT(isspace(*line), ERR_LABEL_MISSING_SPACE)
     read_word(&line, &word);
   }
 

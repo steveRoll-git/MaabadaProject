@@ -24,6 +24,7 @@ int main() {
 
   ASSERT(parse_statement("lab_el: add #6, r2", &statement) != SUCCESS)
   ASSERT(parse_statement("label : mov r1, r2", &statement) != SUCCESS)
+  ASSERT(parse_statement("label:mov r1, r2", &statement) != SUCCESS)
   ASSERT(parse_statement("       ;some comment", &statement) != SUCCESS)
 
   return EXIT_SUCCESS;
