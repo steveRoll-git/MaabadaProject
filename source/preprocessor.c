@@ -127,7 +127,14 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
     else if (parse_status == LINE_MCRO) {
       /* A macro has been defined. */
       long offset = ftell(in_file);
-      TABLE_ADD(macro_table, macro_name, offset);
+
+      long *table_value;
+      result_t add_result = table_add(macro_table, macro_name, (void **) &table_value);
+      if (add_result != SUCCESS) {
+        result = add_result;
+        goto end;
+      }
+      *table_value = offset;
 
       /* We skip over lines until we reach an `mcroend` line. */
       /* According to the assignment, we do not need to check for nested macros, */
