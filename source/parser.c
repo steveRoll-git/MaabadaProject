@@ -399,10 +399,16 @@ result_t parse_statement(char *line, statement_t *statement) {
 
   statement->has_label = FALSE;
 
+  if (*line == ';') {
+    /* If the line starts with a `;`, it's a comment, and the rest of it is ignored. */
+    statement->kind = STATEMENT_EMPTY;
+    return SUCCESS;
+  }
+
   skip_spaces(&line);
 
-  if (*line == 0 || *line == '\n' || *line == ';') {
-    /* Entire line of whitespace, ignore. */
+  if (*line == 0 || *line == '\n') {
+    /* If, after skipping spaces, we reached the end of the line (null terminator or newline), it means it's empty. */
     statement->kind = STATEMENT_EMPTY;
     return SUCCESS;
   }
