@@ -89,9 +89,11 @@ void output_label_address(char *label, int address, FILE *out) {
   fputc('\n', out);
 }
 
-void output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path) {
+result_t output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path) {
+  /* The entries and externals files are only opened if there is data to be written into them. */
   FILE *entries = NULL;
   FILE *externals = NULL;
+  result_t result = SUCCESS;
   int i;
 
   for (i = 0; i < table_count(assembler->label_table); i++) {
@@ -100,7 +102,13 @@ void output_entries_externals(assembler_t *assembler, char *entries_path, char *
 
     if (info->is_entry) {
       if (!entries) {
+        /* Open the entries file only if we have an entry to write into it. */
+        /* Return an error if it fails. */
         entries = fopen(entries_path, "w");
+        if (!entries) {
+          result = ERR_OUTPUT_FILE_FAIL;
+          goto cleanup;
+        }
       }
 
       output_label_address(label, info->value, entries);
@@ -113,7 +121,13 @@ void output_entries_externals(assembler_t *assembler, char *entries_path, char *
         label_reference_t *reference = list_at(info->references, j);
 
         if (!externals) {
+          /* Open the externals file only if we have an external reference to write into it. */
+          /* Return an error if it fails. */
           externals = fopen(externals_path, "w");
+          if (!externals) {
+            result = ERR_OUTPUT_FILE_FAIL;
+            goto cleanup;
+          }
         }
 
         output_label_address(label, reference->address, externals);
@@ -121,10 +135,13 @@ void output_entries_externals(assembler_t *assembler, char *entries_path, char *
     }
   }
 
+cleanup:
   if (entries) {
     fclose(entries);
   }
   if (externals) {
     fclose(externals);
   }
+
+  return result;
 }

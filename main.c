@@ -72,12 +72,12 @@ bool_t assemble_file(char *file_name) {
 
   printf("Outputting object file...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_OB, &object_path))
-  output_object(assembler, object_path);
+  ASSEMBLE_TRY(output_object(assembler, object_path))
 
   printf("Outputting entries and externals files...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_ENT, &entries_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_EXT, &externals_path))
-  output_entries_externals(assembler, entries_path, externals_path);
+  ASSEMBLE_TRY(output_entries_externals(assembler, entries_path, externals_path))
 
   printf("File assembled successfully.\n");
 

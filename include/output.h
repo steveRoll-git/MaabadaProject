@@ -7,6 +7,6 @@
 result_t output_object(assembler_t *assembler, char *out_path);
 
 /* Outputs the entries (".ent") and externals (".ext") files for the assembler. */
-void output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path);
+result_t output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path);
 
 #endif
