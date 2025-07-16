@@ -12,8 +12,8 @@
 
 /* Represents a reference to a label. */
 typedef struct label_reference_t {
-  /* The index in the code image where the label's address should be written to. */
-  int location;
+  /* The address in the code image where the label's address should be written to. */
+  int address;
 
   /* The line number in the source code where this label was referenced, for use in error messages. */
   int line_number;

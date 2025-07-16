@@ -62,9 +62,7 @@ result_t add_label_reference(assembler_t *assembler, char *label) {
   TRY(get_label_info(assembler, label, &info))
   TRY(list_add(info->references, (void **) &reference))
 
-  /* The reference's location will later be used as an index to the code image, */
-  /* so we subtract the start address (100) from the IC. */
-  reference->location = assembler->ic - CODE_IMAGE_START_ADDRESS;
+  reference->address = assembler->ic;
   reference->line_number = assembler->line_number;
 
   TRY(add_code_word(assembler, 0))
@@ -133,7 +131,9 @@ bool_t resolve_labels(assembler_t *assembler) {
     int j;
     for (j = 0; j < list_count(info->references); j++) {
       label_reference_t *reference = list_at(info->references, j);
-      machine_word_t *word = list_at(assembler->code_array, reference->location);
+      /* The reference's address starts at 100, so we subtract that from it. */
+      machine_word_t *word = list_at(assembler->code_array, reference->address - CODE_IMAGE_START_ADDRESS);
+
       if (info->is_external) {
         /* External labels are all zeroes, with the "ARE" bits being "01", meaning external encoding. */
         *word = ENCODING_EXTERNAL;

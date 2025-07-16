@@ -116,7 +116,7 @@ void output_entries_externals(assembler_t *assembler, char *entries_path, char *
           externals = fopen(externals_path, "w");
         }
 
-        output_label_address(label, reference->location + CODE_IMAGE_START_ADDRESS, externals);
+        output_label_address(label, reference->address, externals);
       }
     }
   }
