@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/codegen.h"
-#include "include/context.h"
-#include "include/output.h"
-#include "include/preprocessor.h"
-#include "include/utils.h"
+#include "../include/codegen.h"
+#include "../include/context.h"
+#include "../include/output.h"
+#include "../include/preprocessor.h"
+#include "../include/utils.h"
 
 /* The file extension for input source files. */
 #define EXTENSION_AS ".as"

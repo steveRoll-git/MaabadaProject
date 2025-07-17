@@ -33,7 +33,7 @@ enable_testing()
 
 add_executable(MaabadaProject
         ${project_files}
-        main.c
+        source/assembler.c
 )
 
 function(new_test testFile)
