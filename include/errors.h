@@ -10,6 +10,7 @@ typedef const char *result_t;
 
 /* Generic assembler errors */
 
+extern result_t ERR_PROGRAM_TOO_LARGE;
 extern result_t ERR_PREPROCESS_FAILED;
 extern result_t ERR_CODEGEN_FAILED;
 extern result_t ERR_INPUT_FILE_FAIL;

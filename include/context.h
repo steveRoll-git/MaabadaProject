@@ -70,6 +70,9 @@ typedef struct context_t {
 
   /* Associates label names with `label_info_t` values. */
   table_t *label_table;
+
+  /* Whether we already warned the user about the program being too large. (That error is only shown once.) */
+  bool_t warned_too_large;
 } context_t;
 
 /* Creates a new assembler context. Requires the macro table from the preprocessing stage. */
@@ -77,15 +80,21 @@ typedef struct context_t {
 result_t context_create(char *file_path, table_t *macro_table, context_t **context);
 
 /* Adds a single word to the context's code image. */
-/* May fail if memory allocations did not succeed. */
+/* May fail if: */
+/* - The added word causes the program to be larger than can be addressed in code. */
+/* - Memory allocations did not succeed. */
 result_t add_code_word(context_t *context, machine_word_t data);
 
 /* Adds a single word to the context's data image. */
-/* May fail if memory allocations did not succeed. */
+/* May fail if: */
+/* - The added word causes the program to be larger than can be addressed in code. */
+/* - Memory allocations did not succeed. */
 result_t add_data_word(context_t *context, machine_word_t data);
 
 /* Adds a single word to the code image, that will reference a label after it's resolved. */
-/* May fail if memory allocations did not succeed. */
+/* May fail if: */
+/* - The added word causes the program to be larger than can be addressed in code. */
+/* - Memory allocations did not succeed. */
 result_t add_label_reference(context_t *context, char *label);
 
 /* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */

@@ -37,6 +37,9 @@
 /* The largest value an immediate operand can have. */
 #define IMMEDIATE_MAX 127
 
+/* The largest possible address in an assembly program. */
+#define ADDRESS_MAX 255
+
 /* A boolean - represents true or false. */
 typedef enum { FALSE = 0, TRUE = 1 } bool_t;
 

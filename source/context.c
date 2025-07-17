@@ -22,6 +22,7 @@ result_t context_create(char *file_path, table_t *macro_table, context_t **conte
   (*context)->data_array = NULL;
   (*context)->label_table = NULL;
   (*context)->macro_table = macro_table;
+  (*context)->warned_too_large = FALSE;
 
   TRY(list_create(sizeof(machine_word_t), &(*context)->code_array))
   TRY(list_create(sizeof(machine_word_t), &(*context)->data_array))
@@ -30,15 +31,29 @@ result_t context_create(char *file_path, table_t *macro_table, context_t **conte
   return SUCCESS;
 }
 
+/* Checks that the current size of the program (the data image together with the code image) doesn't exceed the highest
+ * address that can be accessed, which is 255. */
+/* If the program is too large, an error is returned, but this is only done once for the current file. */
+result_t check_max_address(context_t *context) {
+  if (!context->warned_too_large && context->ic + context->dc > ADDRESS_MAX) {
+    /* If the program is too large, we only show that error once for the current file. */
+    context->warned_too_large = TRUE;
+    return ERR_PROGRAM_TOO_LARGE;
+  }
+  return SUCCESS;
+}
+
 result_t add_code_word(context_t *context, machine_word_t data) {
   LIST_ADD(context->code_array, data);
   context->ic++;
+  TRY(check_max_address(context))
   return SUCCESS;
 }
 
 result_t add_data_word(context_t *context, machine_word_t data) {
   LIST_ADD(context->data_array, data);
   context->dc++;
+  TRY(check_max_address(context))
   return SUCCESS;
 }
 

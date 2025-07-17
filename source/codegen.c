@@ -190,7 +190,7 @@ result_t compile_statement(context_t *context, statement_t *statement) {
       }
     }
 
-    write_instruction(context, instruction);
+    TRY(write_instruction(context, instruction))
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
     TRY(write_directive(context, &statement->data.directive))
@@ -202,7 +202,6 @@ result_t compile_statement(context_t *context, statement_t *statement) {
 result_t codegen(context_t *context) {
   FILE *in;
   char line[MAX_LINE];
-  bool_t success = TRUE;
   result_t codegen_result = SUCCESS;
   int total_errors = 0;
 
