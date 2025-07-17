@@ -50,6 +50,7 @@ result_t init_label_info(assembler_t *assembler, char *label, label_info_t **inf
   (*info)->is_data = FALSE;
   (*info)->is_external = FALSE;
   (*info)->is_entry = FALSE;
+  (*info)->references = NULL;
   TRY(list_create(sizeof(label_reference_t), &(*info)->references))
   return SUCCESS;
 }
