@@ -231,6 +231,12 @@ result_t codegen(assembler_t *assembler) {
       total_errors++;
     }
 
+    if (result == ERR_OUT_OF_MEMORY) {
+      /* If we ran out of memory, data could be in an invalid state (because memory was not allocated), */
+      /* so we stop processing any more lines. */
+      break;
+    }
+
     assembler->line_number++;
   }
 
