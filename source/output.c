@@ -51,7 +51,7 @@ void output_word(machine_word_t address, machine_word_t word, FILE *out) {
   fputc('\n', out);
 }
 
-result_t output_object(assembler_t *assembler, char *out_path) {
+result_t output_object(context_t *context, char *out_path) {
   machine_word_t address = CODE_IMAGE_START_ADDRESS;
   int i;
   FILE *out = fopen(out_path, "w");
@@ -60,18 +60,18 @@ result_t output_object(assembler_t *assembler, char *out_path) {
     return ERR_OUTPUT_FILE_FAIL;
   }
 
-  output_base4(list_count(assembler->code_array), 0, out);
+  output_base4(list_count(context->code_array), 0, out);
   fputc(' ', out);
-  output_base4(list_count(assembler->data_array), 0, out);
+  output_base4(list_count(context->data_array), 0, out);
   fputc('\n', out);
 
-  for (i = 0; i < list_count(assembler->code_array); i++) {
-    output_word(address, *(machine_word_t *) list_at(assembler->code_array, i), out);
+  for (i = 0; i < list_count(context->code_array); i++) {
+    output_word(address, *(machine_word_t *) list_at(context->code_array, i), out);
     address++;
   }
 
-  for (i = 0; i < list_count(assembler->data_array); i++) {
-    output_word(address, *(machine_word_t *) list_at(assembler->data_array, i), out);
+  for (i = 0; i < list_count(context->data_array); i++) {
+    output_word(address, *(machine_word_t *) list_at(context->data_array, i), out);
     address++;
   }
 
@@ -88,16 +88,16 @@ void output_label_address(char *label, int address, FILE *out) {
   fputc('\n', out);
 }
 
-result_t output_entries_externals(assembler_t *assembler, char *entries_path, char *externals_path) {
+result_t output_entries_externals(context_t *context, char *entries_path, char *externals_path) {
   /* The entries and externals files are only opened if there is data to be written into them. */
   FILE *entries = NULL;
   FILE *externals = NULL;
   result_t result = SUCCESS;
   int i;
 
-  for (i = 0; i < table_count(assembler->label_table); i++) {
-    char *label = table_key_at(assembler->label_table, i);
-    label_info_t *info = table_value_at(assembler->label_table, i);
+  for (i = 0; i < table_count(context->label_table); i++) {
+    char *label = table_key_at(context->label_table, i);
+    label_info_t *info = table_value_at(context->label_table, i);
 
     if (info->is_entry) {
       if (!entries) {

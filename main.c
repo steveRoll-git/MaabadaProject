@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "include/assembler.h"
 #include "include/codegen.h"
+#include "include/context.h"
 #include "include/output.h"
 #include "include/preprocessor.h"
 #include "include/utils.h"
@@ -41,7 +41,7 @@ bool_t assemble_file(char *file_name) {
   char *externals_path = NULL;
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
   table_t *macro_table = NULL;
-  assembler_t *assembler = NULL;
+  context_t *context = NULL;
 
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AM, &processed_path))
@@ -52,33 +52,33 @@ bool_t assemble_file(char *file_name) {
   /* First, we run the file through the preprocessor which outputs a .am file. */
   ASSEMBLE_TRY(preprocess(input_file_path, processed_path, macro_table))
 
-  ASSEMBLE_TRY(assembler_create(processed_path, macro_table, &assembler))
+  ASSEMBLE_TRY(context_create(processed_path, macro_table, &context))
   printf("Generating code for file %s...\n", processed_path);
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
-  ASSEMBLE_TRY(codegen(assembler))
+  ASSEMBLE_TRY(codegen(context))
 
   /* After successful code generation, we correct all the data labels so that they will point to the correct address in
    * the data image, after adding the value of IC to them. */
-  merge_data(assembler);
+  merge_data(context);
 
   printf("Resolving labels...\n");
 
   /* After all the labels have the correct values, we insert their values into all words that reference them. */
   /* Labels whose definitions were not found are caught here. */
-  if (!resolve_labels(assembler)) {
+  if (!resolve_labels(context)) {
     success = FALSE;
     goto end;
   }
 
   printf("Outputting object file...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_OB, &object_path))
-  ASSEMBLE_TRY(output_object(assembler, object_path))
+  ASSEMBLE_TRY(output_object(context, object_path))
 
   printf("Outputting entries and externals files...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_ENT, &entries_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_EXT, &externals_path))
-  ASSEMBLE_TRY(output_entries_externals(assembler, entries_path, externals_path))
+  ASSEMBLE_TRY(output_entries_externals(context, entries_path, externals_path))
 
   printf("File assembled successfully.\n\n");
 
@@ -89,7 +89,7 @@ end:
   free(entries_path);
   free(externals_path);
   table_free(macro_table);
-  assembler_free(assembler);
+  context_free(context);
 
   return success;
 }

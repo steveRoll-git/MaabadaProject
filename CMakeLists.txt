@@ -7,8 +7,8 @@ include_directories(preprocess/libs)
 include(CTest)
 
 set(project_files
-        include/assembler.h
         include/codegen.h
+        include/context.h
         include/data.h
         include/errors.h
         include/list.h
@@ -17,8 +17,8 @@ set(project_files
         include/preprocessor.h
         include/table.h
         include/utils.h
-        source/assembler.c
         source/codegen.c
+        source/context.c
         source/data.c
         source/errors.c
         source/list.c

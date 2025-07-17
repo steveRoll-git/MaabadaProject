@@ -44,8 +44,8 @@ typedef struct label_info_t {
   list_t *references;
 } label_info_t;
 
-/* Represents an assembler as it's traversing a source file. */
-typedef struct assembler_t {
+/* Represents the assembler's context - the state of the assembler as it's traversing a source file. */
+typedef struct context_t {
   /* The path to the ".am" file being assembled. Used in error messages. */
   char *file_path;
 
@@ -56,8 +56,7 @@ typedef struct assembler_t {
   int ic;
 
   /* The Data Counter: The relative address where the next data directive's first word will be. */
-  /* During the first pass, this counter is relative. In the second pass, references to it will be corrected based on
-   * `ic`. */
+  /* This index is relative to the beginning of the data image, not a machine address. */
   int dc;
 
   /* List of `machine_word_t` - stores the code image. */
@@ -71,55 +70,55 @@ typedef struct assembler_t {
 
   /* Associates label names with `label_info_t` values. */
   table_t *label_table;
-} assembler_t;
+} context_t;
 
-/* Creates a new assembler. Requires the macro table from the preprocessing stage. */
+/* Creates a new assembler context. Requires the macro table from the preprocessing stage. */
 /* May fail if memory allocations did not succeed. */
-result_t assembler_create(char *file_path, table_t *macro_table, assembler_t **assembler);
+result_t context_create(char *file_path, table_t *macro_table, context_t **context);
 
-/* Adds a single word to the assembler's code image. */
+/* Adds a single word to the context's code image. */
 /* May fail if memory allocations did not succeed. */
-result_t add_code_word(assembler_t *assembler, machine_word_t data);
+result_t add_code_word(context_t *context, machine_word_t data);
 
-/* Adds a single word to the assembler's data image. */
+/* Adds a single word to the context's data image. */
 /* May fail if memory allocations did not succeed. */
-result_t add_data_word(assembler_t *assembler, machine_word_t data);
+result_t add_data_word(context_t *context, machine_word_t data);
 
 /* Adds a single word to the code image, that will reference a label after it's resolved. */
 /* May fail if memory allocations did not succeed. */
-result_t add_label_reference(assembler_t *assembler, char *label);
+result_t add_label_reference(context_t *context, char *label);
 
 /* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */
 /* May fail if: */
 /* - A label with the same name already exists in the label table. */
 /* - Memory allocations did not succeed. */
-result_t add_label(assembler_t *assembler, char *label, bool_t is_data);
+result_t add_label(context_t *context, char *label, bool_t is_data);
 
 /* Specifies that the given label is an entry. */
 /* May fail if: */
 /* - The label was already specified as an entry. */
 /* - Memory allocations did not succeed. */
-result_t add_entry(assembler_t *assembler, char *label);
+result_t add_entry(context_t *context, char *label);
 
 /* Specifies that the given label is external. */
 /* May fail if: */
 /* - The label was already defined somewhere else (either with label syntax or another `.extern` directive). */
 /* - Memory allocations did not succeed. */
-result_t add_extern(assembler_t *assembler, char *label);
+result_t add_extern(context_t *context, char *label);
 
 /* Called after the whole file's code has been generated. */
 /* Updates the location of all data labels, so that they will point to the correct region after the code image. */
-void merge_data(assembler_t *assembler);
+void merge_data(context_t *context);
 
 /* Resolves all label references. All label operands in the code image will have the label's value, if it's defined. */
 /* If there are any references to labels that were not defined, prints error messages for them and returns FALSE,
  * otherwise returns TRUE. */
-bool_t resolve_labels(assembler_t *assembler);
+bool_t resolve_labels(context_t *context);
 
-/* Prints the assembler's state, for debugging purposes. */
-void print_data(assembler_t *assembler);
+/* Prints the context's state, for debugging purposes. */
+void print_data(context_t *context);
 
-/* Frees all the data used by the assembler, including the pointer to it. */
+/* Frees all the data used by the context, including the pointer to it. */
 /* If the given pointer is NULL, nothing is performed. */
-void assembler_free(assembler_t *assembler);
+void context_free(context_t *context);
 #endif

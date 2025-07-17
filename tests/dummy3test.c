@@ -9,8 +9,8 @@ int main(void) {
   char *in = "../examples/wont_work/matricesTesting.am";
   table_t *macro_table;
   table_create(0, &macro_table);
-  assembler_t *assembler;
-  assembler_create(in, macro_table, &assembler);
+  context_t *assembler;
+  context_create(in, macro_table, &assembler);
   result_t result = codegen(assembler);
   ASSERT(result == SUCCESS);
   merge_data(assembler);

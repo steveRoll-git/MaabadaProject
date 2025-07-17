@@ -1,7 +1,7 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
-#include "assembler.h"
+#include "context.h"
 #include "data.h"
 
 /* Goes over the input file, and generates binary code for all the instructions and directives.
@@ -11,6 +11,6 @@
 /* - The input or output files failed to open. */
 /* - Syntax errors or semantical errors were detected in the source file. */
 /* - Memory allocations did not succeed. */
-result_t codegen(assembler_t *assembler);
+result_t codegen(context_t *context);
 
 #endif

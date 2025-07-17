@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "../include/assembler.h"
+#include "../include/context.h"
 #include "../include/data.h"
 #include "../include/parser.h"
 
@@ -60,29 +60,28 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
 /* Outputs the operand's binary code into the assembler's code image. */
 /* If the operand references a label, its location will be added to the label table, and resolved later. */
 /* May fail if memory allocations did not succeed. */
-result_t write_operand(assembler_t *assembler, operand_t *operand, bool_t is_second) {
+result_t write_operand(context_t *context, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
-      TRY(add_code_word(assembler, IMM_BITS(operand->data.immediate)))
+      TRY(add_code_word(context, IMM_BITS(operand->data.immediate)))
       break;
 
     case OPERAND_KIND_LABEL:
-      TRY(add_label_reference(assembler, operand->data.label))
+      TRY(add_label_reference(context, operand->data.label))
       break;
 
     case OPERAND_KIND_MATRIX:
       /* The first word in matrix addressing is the address of the label. */
-      TRY(add_label_reference(assembler, operand->data.matrix.label))
-      TRY(add_code_word(assembler,
-                        make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg)))
+      TRY(add_label_reference(context, operand->data.matrix.label))
+      TRY(add_code_word(context, make_joined_register_word(operand->data.matrix.row_reg, operand->data.matrix.col_reg)))
       break;
 
     case OPERAND_KIND_REGISTER:
       if (is_second) {
-        TRY(add_code_word(assembler, REG2_BITS(operand->data.register_index)))
+        TRY(add_code_word(context, REG2_BITS(operand->data.register_index)))
       }
       else {
-        TRY(add_code_word(assembler, REG1_BITS(operand->data.register_index)))
+        TRY(add_code_word(context, REG1_BITS(operand->data.register_index)))
       }
       break;
   }
@@ -92,24 +91,24 @@ result_t write_operand(assembler_t *assembler, operand_t *operand, bool_t is_sec
 
 /* Outputs the instruction's binary code into the assembler's code image. */
 /* May fail if memory allocations did not succeed. */
-result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
+result_t write_instruction(context_t *context, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
-  TRY(add_code_word(assembler, make_code_word(instruction)))
+  TRY(add_code_word(context, make_code_word(instruction)))
 
   if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
     /* If both operands are registers, we write a single word that contains both of them. */
     machine_word_t word = make_joined_register_word(operand_1->data.register_index, operand_2->data.register_index);
-    TRY(add_code_word(assembler, word))
+    TRY(add_code_word(context, word))
   }
   else {
     /* Write the operands one after another. */
     if (instruction->num_args >= ONE_ARG) {
-      TRY(write_operand(assembler, &instruction->operand_1, FALSE))
+      TRY(write_operand(context, &instruction->operand_1, FALSE))
     }
     if (instruction->num_args == TWO_ARGS) {
-      TRY(write_operand(assembler, &instruction->operand_2, TRUE))
+      TRY(write_operand(context, &instruction->operand_2, TRUE))
     }
   }
 
@@ -118,23 +117,23 @@ result_t write_instruction(assembler_t *assembler, instruction_t *instruction) {
 
 /* Outputs the directive's binary code into the assembler's data image. */
 /* May fail if memory allocations did not succeed. */
-result_t write_directive(assembler_t *assembler, directive_t *directive) {
+result_t write_directive(context_t *context, directive_t *directive) {
   int i;
   switch (directive->kind) {
     case DIRECTIVE_KIND_DATA:
     case DIRECTIVE_KIND_STRING:
     case DIRECTIVE_KIND_MAT:
       for (i = 0; i < directive->info.data.size; i++) {
-        TRY(add_data_word(assembler, directive->info.data.array[i]))
+        TRY(add_data_word(context, directive->info.data.array[i]))
       }
       break;
 
     case DIRECTIVE_KIND_ENTRY:
-      TRY(add_entry(assembler, directive->info.label))
+      TRY(add_entry(context, directive->info.label))
       break;
 
     case DIRECTIVE_KIND_EXTERN:
-      TRY(add_extern(assembler, directive->info.label))
+      TRY(add_extern(context, directive->info.label))
       break;
 
     default:
@@ -149,7 +148,7 @@ result_t write_directive(assembler_t *assembler, directive_t *directive) {
 /* - The statement is semantically incorrect. (For example, if an instruction is called with unsupported operands.) */
 /* - The statement defines a label that was already defined. */
 /* - Memory allocations did not succeed. */
-result_t compile_statement(assembler_t *assembler, statement_t *statement) {
+result_t compile_statement(context_t *context, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
     /* Empty statements require no action. */
     return SUCCESS;
@@ -157,7 +156,7 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
 
   if (statement->has_label) {
     /* If the statement has a label, add it to the label table. */
-    TRY(add_label(assembler, statement->label, statement->kind == STATEMENT_DIRECTIVE))
+    TRY(add_label(context, statement->label, statement->kind == STATEMENT_DIRECTIVE))
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {
@@ -191,30 +190,30 @@ result_t compile_statement(assembler_t *assembler, statement_t *statement) {
       }
     }
 
-    write_instruction(assembler, instruction);
+    write_instruction(context, instruction);
   }
   else if (statement->kind == STATEMENT_DIRECTIVE) {
-    TRY(write_directive(assembler, &statement->data.directive))
+    TRY(write_directive(context, &statement->data.directive))
   }
 
   return SUCCESS;
 }
 
-result_t codegen(assembler_t *assembler) {
+result_t codegen(context_t *context) {
   FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
   result_t codegen_result = SUCCESS;
   int total_errors = 0;
 
-  in = fopen(assembler->file_path, "rb");
+  in = fopen(context->file_path, "rb");
 
   /* If the input file is unavailable, exit. */
   if (in == NULL) {
     return ERR_INPUT_FILE_FAIL;
   }
 
-  assembler->line_number = 1;
+  context->line_number = 1;
 
   while (read_line(in, line) != READ_LINE_EOF) {
     statement_t statement;
@@ -222,7 +221,7 @@ result_t codegen(assembler_t *assembler) {
 
     if (result == SUCCESS) {
       /* If the line was successfully parsed, compile it. */
-      result = compile_statement(assembler, &statement);
+      result = compile_statement(context, &statement);
     }
 
     if (result == ERR_OUT_OF_MEMORY) {
@@ -234,12 +233,12 @@ result_t codegen(assembler_t *assembler) {
 
     if (result != SUCCESS) {
       /* If the line has incorrect syntax or couldn't be compiled, print an error. */
-      print_error(assembler->file_path, assembler->line_number, result);
+      print_error(context->file_path, context->line_number, result);
       codegen_result = ERR_CODEGEN_FAILED;
       total_errors++;
     }
 
-    assembler->line_number++;
+    context->line_number++;
   }
 
   fclose(in);
