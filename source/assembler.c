@@ -25,7 +25,7 @@
   do {                                                                                                                 \
     result_t _result = (f);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
-      printf("Error: %s\n", _result);                                                                                  \
+      printf("Error: %s\n\n", _result);                                                                                \
       success = FALSE;                                                                                                 \
       goto end;                                                                                                        \
     }                                                                                                                  \
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
   for (i = 1; i < argc; i++) {
     char *file_name = argv[i];
 
-    success = success && assemble_file(file_name);
+    success = assemble_file(file_name) && success;
   }
 
   if (!success) {
