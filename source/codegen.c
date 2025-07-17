@@ -204,6 +204,7 @@ result_t codegen(assembler_t *assembler) {
   FILE *in;
   char line[MAX_LINE];
   bool_t success = TRUE;
+  result_t codegen_result = SUCCESS;
   int total_errors = 0;
 
   in = fopen(assembler->file_path, "rb");
@@ -224,17 +225,18 @@ result_t codegen(assembler_t *assembler) {
       result = compile_statement(assembler, &statement);
     }
 
-    if (result != SUCCESS) {
-      /* If the line has incorrect syntax or couldn't be compiled, print an error. */
-      print_error(assembler->file_path, assembler->line_number, result);
-      success = FALSE;
-      total_errors++;
-    }
-
     if (result == ERR_OUT_OF_MEMORY) {
       /* If we ran out of memory, data could be in an invalid state (because memory was not allocated), */
       /* so we stop processing any more lines. */
+      codegen_result = ERR_OUT_OF_MEMORY;
       break;
+    }
+
+    if (result != SUCCESS) {
+      /* If the line has incorrect syntax or couldn't be compiled, print an error. */
+      print_error(assembler->file_path, assembler->line_number, result);
+      codegen_result = ERR_CODEGEN_FAILED;
+      total_errors++;
     }
 
     assembler->line_number++;
@@ -246,8 +248,5 @@ result_t codegen(assembler_t *assembler) {
     printf("Total Errors: %d\n", total_errors);
   }
 
-  if (!success) {
-    return ERR_CODEGEN_FAILED;
-  }
-  return SUCCESS;
+  return codegen_result;
 }
