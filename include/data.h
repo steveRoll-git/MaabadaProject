@@ -46,7 +46,10 @@
 #define ADDRESS_MAX 255
 
 /* A boolean - represents true or false. */
-typedef enum { FALSE = 0, TRUE = 1 } bool_t;
+typedef enum {
+  FALSE = 0,
+  TRUE = 1
+} bool_t;
 
 /* The type needed to represent a single machine word. */
 /* A word in the virtual machine is 10 bits; The closest type we have to this is `short int` which is 16 bits. */
@@ -92,11 +95,15 @@ typedef enum opcode_t {
 typedef enum encoding_kind_t {
   ENCODING_ABSOLUTE,
   ENCODING_EXTERNAL,
-  ENCODING_RELOCATABLE,
+  ENCODING_RELOCATABLE
 } encoding_kind_t;
 
 /* The number of arguments that an instruction can have. */
-typedef enum num_args_t { NO_ARGS = 0, ONE_ARG = 1, TWO_ARGS = 2 } num_args_t;
+typedef enum num_args_t {
+  NO_ARGS = 0,
+  ONE_ARG = 1,
+  TWO_ARGS = 2
+} num_args_t;
 
 /* Stores information about an instruction. */
 typedef struct instruction_info_t {

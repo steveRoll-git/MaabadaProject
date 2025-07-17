@@ -39,7 +39,7 @@ typedef enum operand_kind_t {
   OPERAND_KIND_IMMEDIATE,
   OPERAND_KIND_LABEL,
   OPERAND_KIND_MATRIX,
-  OPERAND_KIND_REGISTER,
+  OPERAND_KIND_REGISTER
 } operand_kind_t;
 
 /* Information about an operand in an instruction. */
@@ -139,7 +139,7 @@ typedef struct statement_t {
 typedef enum read_line_status_t {
   READ_LINE_SUCCESS,
   READ_LINE_TOO_LONG,
-  READ_LINE_EOF,
+  READ_LINE_EOF
 } read_line_status_t;
 
 /* Returns whether there are no more non-space characters in `s`. */

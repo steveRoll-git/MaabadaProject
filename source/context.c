@@ -44,14 +44,14 @@ result_t check_max_address(context_t *context) {
 }
 
 result_t add_code_word(context_t *context, machine_word_t data) {
-  LIST_ADD(context->code_array, data);
+  LIST_ADD(context->code_array, machine_word_t, data)
   context->ic++;
   TRY(check_max_address(context))
   return SUCCESS;
 }
 
 result_t add_data_word(context_t *context, machine_word_t data) {
-  LIST_ADD(context->data_array, data);
+  LIST_ADD(context->data_array, machine_word_t, data)
   context->dc++;
   TRY(check_max_address(context))
   return SUCCESS;

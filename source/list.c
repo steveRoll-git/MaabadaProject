@@ -5,17 +5,6 @@
 
 #include "../include/utils.h"
 
-typedef struct list_t {
-  /* The pointer to the data. It may change after the array grows. */
-  void *ptr;
-  /* The size of the element type that this array stores. */
-  size_t element_size;
-  /* The current number of elements in the array. */
-  size_t count;
-  /* The current maximum number of elements this array can hold. */
-  size_t capacity;
-} list_t;
-
 result_t list_create(size_t element_size, list_t **list) {
   TRY_MALLOC(list)
   (*list)->ptr = NULL;

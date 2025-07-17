@@ -4,12 +4,20 @@
 #include <stddef.h>
 
 #include "errors.h"
+#include "list.h"
 
 /* The type of the table's keys. */
 typedef char *table_key_t;
 
 /* A table associates strings with values. It can store and retrieve values based on a string key. */
-typedef struct table_t table_t;
+typedef struct table_t {
+  /* The number of items currently in the table. */
+  int count;
+  /* List of `table_key_t` - stores the string keys. */
+  list_t *key_list;
+  /* For each index in the key array, its value is at the same index in this array. */
+  list_t *value_list;
+} table_t;
 
 /* Creates a new table with the specified value size, and stores it in `table`. */
 /* May fail if memory allocations did not succeed. */
@@ -21,17 +29,6 @@ size_t table_count(table_t *table);
 /* Adds a key to the table, and returns a pointer at which the value for this key should be stored. */
 /* May fail if memory allocations did not succeed. */
 result_t table_add(table_t *table, table_key_t key, void **out);
-
-/* Assumes that the table was created with the same value size as the given value's size. */
-/* Uses table_add to add the given key to the table, and stores the given value there. */
-/* table_add may fail, so this must be called in a function that returns a `result_t`. */
-#define TABLE_ADD(table, key, value)                                                                                   \
-  do {                                                                                                                 \
-    void *_ptr;                                                                                                        \
-    TRY(table_add(table, key, &_ptr))                                                                                  \
-    *((typeof(value) *) _ptr) = (value);                                                                               \
-  }                                                                                                                    \
-  while (0);
 
 /* Finds the value that's associated with the given string. */
 /* Returns a pointer to that value if it exists, or NULL otherwise. */

@@ -10,6 +10,7 @@ AlignOperands: true
 AlignTrailingComments: false
 AlwaysBreakTemplateDeclarations: Yes
 AllowShortFunctionsOnASingleLine: None
+AllowShortEnumsOnASingleLine: false
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false

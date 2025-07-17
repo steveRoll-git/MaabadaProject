@@ -9,7 +9,7 @@ CC=gcc
 # Include Headers while compiling (whenever we change code)
 DEPFLAGS=-MP -MD
 # Flags for files
-CFLAGS=-Wall -Wextra -pedantic -g $(foreach D, $(INCDIRS), -I $(D)) $(OPT) $(DEPFLAGS)
+CFLAGS=-Wall -ansi -Wextra -pedantic -g $(foreach D, $(INCDIRS), -I $(D)) $(OPT) $(DEPFLAGS)
 # All the C Files
 CFILES= $(foreach D, $(CODEDIRS), $(wildcard $(D)/*.c))
 # Converts *.c to *.o, name, for later use so we can have easier time remembeing object names.

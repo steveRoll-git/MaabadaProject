@@ -10,7 +10,7 @@ typedef enum {
   LINE_NORMAL, /* A line with no special meaning to the preprocessor. */
   LINE_MCRO, /* A line that starts a macro definition with `mcro`. */
   LINE_MCROEND, /* A line that ends a macro definition with `mcroend`. */
-  LINE_MACROCALL, /* A line that calls a macro by its name. */
+  LINE_MACROCALL /* A line that calls a macro by its name. */
 } parse_line_status_t;
 
 /* Reads a line from the input file, stores it, and parses it for any preprocessor-related actions. */
@@ -155,6 +155,8 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
     }
     else if (parse_status == LINE_MACROCALL) {
       /* A line with a single word in it may be a macro call. */
+
+      FILE *temp;
       long *offset = table_get(macro_table, macro_name);
       if (offset == NULL) {
         /* If there's no macro by this name, we output the line as is. */
@@ -164,7 +166,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
 
       /* We open the input file again - but this time we seek it so that it'll start reading at the offset where the
        * macro's content begins. */
-      FILE *temp = fopen(input_file_path, "r");
+      temp = fopen(input_file_path, "r");
       if (fseek(temp, *offset, SEEK_SET) != 0) {
         /* If `fseek` has failed, we cannot proceed. */
         result = ERR_FSEEK_FAILED;
