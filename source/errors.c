@@ -43,6 +43,8 @@ result_t ERR_NUMBER_NOT_VALID = "Invalid number.";
 result_t ERR_NUMBER_AFTER_HASH = "A hash must immediately be followed by a number.";
 result_t ERR_IMMEDIATE_TOO_SMALL = "The immediate operand is smaller than the minimum possible value (-128).";
 result_t ERR_IMMEDIATE_TOO_LARGE = "The immediate operand is larger than the maximum possible value (127).";
+result_t ERR_WORD_TOO_SMALL = "The number is smaller than the minimum possible word (-512).";
+result_t ERR_WORD_TOO_LARGE = "The number is larger than the maximum possible word (511).";
 
 /* Label syntax errors */
 

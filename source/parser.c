@@ -242,14 +242,21 @@ result_t parse_instruction_operands(char *s, instruction_t *instruction) {
 }
 
 /* Parses a list of numbers separated by commas, and stores them in the directive's data array. */
-/* May fail if the syntax of the parameter is incorrect. */
+/* May fail if: */
+/* - The syntax of the parameter is incorrect. */
+/* - The given numbers are smaller or larger than can be represented by 10-bit words. */
 result_t parse_data(char *s, directive_t *directive) {
   int *size = &directive->info.data.size;
   *size = 0;
 
   /* At least one number must appear in `.data`, so this loop runs at least once. */
   do {
-    TRY(parse_number(&s, &directive->info.data.array[*size]));
+    machine_word_t word;
+    TRY(parse_number(&s, &word))
+    ASSERT(word >= WORD_MIN, ERR_WORD_TOO_SMALL)
+    ASSERT(word <= WORD_MAX, ERR_WORD_TOO_LARGE)
+
+    directive->info.data.array[*size] = word;
     (*size)++;
   }
   while (accept(&s, ','));

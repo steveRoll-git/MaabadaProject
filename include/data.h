@@ -37,6 +37,11 @@
 /* The largest value an immediate operand can have. */
 #define IMMEDIATE_MAX 127
 
+/* The smallest value a signed 10-bit word can have. */
+#define WORD_MIN -512
+/* The largest value a signed 10-bit word can have. */
+#define WORD_MAX 511
+
 /* The largest possible address in an assembly program. */
 #define ADDRESS_MAX 255
 

@@ -49,6 +49,8 @@ extern result_t ERR_NUMBER_NOT_VALID;
 extern result_t ERR_NUMBER_AFTER_HASH;
 extern result_t ERR_IMMEDIATE_TOO_SMALL;
 extern result_t ERR_IMMEDIATE_TOO_LARGE;
+extern result_t ERR_WORD_TOO_SMALL;
+extern result_t ERR_WORD_TOO_LARGE;
 
 /* Label syntax errors */
 
