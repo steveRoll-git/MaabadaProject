@@ -44,7 +44,7 @@ result_t table_add(table_t *table, table_key_t key, void **out) {
 }
 
 void *table_get(table_t *table, table_key_t key) {
-  int i;
+  size_t i;
   for (i = 0; i < list_count(table->key_list); i++) {
     table_key_t current_key = table_key_at(table, i);
     if (strcmp(key, current_key) == 0) {

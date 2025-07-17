@@ -136,7 +136,7 @@ result_t add_extern(context_t *context, char *label) {
 }
 
 void merge_data(context_t *context) {
-  int i;
+  size_t i;
 
   for (i = 0; i < table_count(context->label_table); i++) {
     label_info_t *info = table_value_at(context->label_table, i);
@@ -148,12 +148,12 @@ void merge_data(context_t *context) {
 
 bool_t resolve_labels(context_t *context) {
   bool_t success = TRUE;
-  int i;
+  size_t i;
 
   for (i = 0; i < table_count(context->label_table); i++) {
     label_info_t *info = table_value_at(context->label_table, i);
 
-    int j;
+    size_t j;
     for (j = 0; j < list_count(info->references); j++) {
       label_reference_t *reference = list_at(info->references, j);
       /* The reference's address starts at 100, so we subtract that from it. */
@@ -182,7 +182,7 @@ bool_t resolve_labels(context_t *context) {
 }
 
 void print_data(context_t *context) {
-  int i = 0;
+  size_t i;
   printf("IC: %d \n", context->ic);
   printf("DC: %d \n", context->dc);
 
@@ -196,7 +196,7 @@ void print_data(context_t *context) {
   printf("Labels:\n");
 
   for (i = 0; i < table_count(context->label_table); i++) {
-    int j;
+    size_t j;
     label_info_t *info = table_value_at(context->label_table, i);
     printf("%s = %d: ", table_key_at(context->label_table, i), info->value);
     for (j = 0; j < list_count(info->references); j++) {
@@ -216,11 +216,11 @@ void context_free(context_t *context) {
     return;
   }
 
-  int i;
   list_free(context->code_array);
   list_free(context->data_array);
 
   if (context->label_table) {
+    size_t i;
     for (i = 0; i < table_count(context->label_table); i++) {
       label_info_t *info = table_value_at(context->label_table, i);
       label_info_free(info);

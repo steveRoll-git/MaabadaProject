@@ -30,7 +30,7 @@ size_t list_count(list_t *list) {
 }
 
 void *list_at(list_t *list, int index) {
-  return list->ptr + index * list->element_size;
+  return (void *) ((size_t) list->ptr + index * list->element_size);
 }
 
 result_t list_add(list_t *list, void **out) {
@@ -50,7 +50,9 @@ result_t list_add(list_t *list, void **out) {
     list->ptr = new_ptr;
   }
 
-  *out = list->ptr + (list->count++ * list->element_size);
+  *out = (void *) ((size_t) list->ptr + (list->count * list->element_size));
+  list->count++;
+
   return SUCCESS;
 }
 

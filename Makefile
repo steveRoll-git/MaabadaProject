@@ -1,9 +1,9 @@
 # Binary Name
-BINARY=main
+BINARY=assembler
 # C Code
-CODEDIRS=. datatypes/ common/ firstpass/ preprocess/
+CODEDIRS=. source
 # Headers
-INCDIRS=. datatypes/ common/ firstpass/ preprocess/
+INCDIRS=. include
 # Compiler
 CC=gcc
 # Include Headers while compiling (whenever we change code)
@@ -17,17 +17,8 @@ OBJECTS=$(patsubst %.c, %.o, $(CFILES))
 # Dependancy files
 DEPFILES=$(patsubst %.c,%.d,$(CFILES))
 
-### Tests
-TEST_BINARY=tests/tester
-TEST_LIB=tests/lib tests/
-TEST_CDIRS=tests/ tests/init
-
-TEST_FILES_C=$(foreach D, $(TEST_CDIRS), $(wildcard $(D)/*.c))
-TEST_FILES_DEP=$(patsubst %.c, %.d, $(TEST_FILES_C))
-TEST_OBJECTS=$(patsubst %.c, %.o, $(TEST_FILES_C))
-TEST_FLAGS=$(foreach D, $(TEST_LIB), -L $(D)) -lunity
-
 all: $(BINARY)
+	echo $(CFLAGS)
 
 $(BINARY): $(OBJECTS)
 	$(CC) -o $@ $^
@@ -37,19 +28,4 @@ $(BINARY): $(OBJECTS)
 
 
 clean:
-	rm -f $(BINARY) $(OBJECTS) $(DEPFILES) $(TEST_BINARY) $(TEST_OBJECTS) $(TEST_FILES_DEP)
-
-test: $(TEST_BINARY)
-
-$(TEST_BINARY): $(TEST_OBJECTS) $(filter-out ./main.o , $(OBJECTS))
-	$(CC) $(CFLAGS) -o $@ $^ $(TEST_FLAGS)
-	./$@
-	sleep 3
-	make clean
-	clear
-
-
-
-
-
-
+	rm -f $(BINARY) $(OBJECTS) $(DEPFILES)

@@ -53,7 +53,7 @@ void output_word(machine_word_t address, machine_word_t word, FILE *out) {
 
 result_t output_object(context_t *context, char *out_path) {
   machine_word_t address = CODE_IMAGE_START_ADDRESS;
-  int i;
+  size_t i;
   FILE *out = fopen(out_path, "w");
 
   if (out == NULL) {
@@ -93,7 +93,7 @@ result_t output_entries_externals(context_t *context, char *entries_path, char *
   FILE *entries = NULL;
   FILE *externals = NULL;
   result_t result = SUCCESS;
-  int i;
+  size_t i;
 
   for (i = 0; i < table_count(context->label_table); i++) {
     char *label = table_key_at(context->label_table, i);
@@ -114,7 +114,7 @@ result_t output_entries_externals(context_t *context, char *entries_path, char *
     }
 
     if (info->is_external) {
-      int j;
+      size_t j;
 
       for (j = 0; j < list_count(info->references); j++) {
         label_reference_t *reference = list_at(info->references, j);
