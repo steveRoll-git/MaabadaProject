@@ -40,6 +40,8 @@ result_t ERR_DIRECTIVE_EXPECTED_LABEL = "This directive expects a label as a par
 
 result_t ERR_NUMBER_NOT_VALID = "Invalid number.";
 result_t ERR_NUMBER_AFTER_HASH = "A hash must immediately be followed by a number.";
+result_t ERR_IMMEDIATE_TOO_SMALL = "The immediate operand is smaller than the minimum possible value (-128).";
+result_t ERR_IMMEDIATE_TOO_LARGE = "The immediate operand is larger than the maximum possible value (127).";
 
 /* Label syntax errors */
 

@@ -32,6 +32,11 @@
 /* The longest directive is 6 characters long. */
 #define DIRECTIVE_MAX_LEN 6
 
+/* The smallest value an immediate operand can have. */
+#define IMMEDIATE_MIN -128
+/* The largest value an immediate operand can have. */
+#define IMMEDIATE_MAX 127
+
 /* A boolean - represents true or false. */
 typedef enum { FALSE = 0, TRUE = 1 } bool_t;
 

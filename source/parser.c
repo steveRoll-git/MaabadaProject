@@ -182,6 +182,8 @@ result_t parse_operand(char **s, operand_t *operand) {
     /* `parse_number` skips leading spaces, so we must verify that the text right after the `#` starts a number. */
     ASSERT(isdigit(**s) || **s == '-' || **s == '+', ERR_NUMBER_AFTER_HASH);
     TRY(parse_number(s, &value))
+    ASSERT(value >= IMMEDIATE_MIN, ERR_IMMEDIATE_TOO_SMALL)
+    ASSERT(value <= IMMEDIATE_MAX, ERR_IMMEDIATE_TOO_LARGE)
 
     operand->kind = OPERAND_KIND_IMMEDIATE;
     operand->data.immediate = value;
