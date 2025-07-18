@@ -1,9 +1,9 @@
-#include "../include/list.h"
+#include "../headers/list.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/utils.h"
+#include "../headers/utils.h"
 
 result_t list_create(size_t element_size, list_t **list) {
   TRY_MALLOC(list)

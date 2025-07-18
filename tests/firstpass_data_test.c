@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include "../include/parser.h"
+#include "../headers/parser.h"
 
 static directive_t directive;
 

@@ -1,10 +1,10 @@
-#include "../include/codegen.h"
+#include "../headers/codegen.h"
 
 #include <stdio.h>
 
-#include "../include/context.h"
-#include "../include/data.h"
-#include "../include/parser.h"
+#include "../headers/context.h"
+#include "../headers/data.h"
+#include "../headers/parser.h"
 
 #define OPCODE_FIRST_BIT 6
 #define OPCODE_MASK 0xf

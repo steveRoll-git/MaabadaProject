@@ -1,4 +1,4 @@
-#include "../include/output.h"
+#include "../headers/output.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,10 +1,10 @@
-#include "../include/context.h"
+#include "../headers/context.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/table.h"
-#include "../include/utils.h"
+#include "../headers/table.h"
+#include "../headers/utils.h"
 
 /* The two least significant bits in an instruction word are the "ARE" bits - so the address of the label must be
  * shifted to the left by two bits. */

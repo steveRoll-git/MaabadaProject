@@ -1,9 +1,9 @@
-#include "../include/preprocessor.h"
+#include "../headers/preprocessor.h"
 
 #include <stdio.h>
 #include <string.h>
-#include "../include/parser.h"
-#include "../include/table.h"
+#include "../headers/parser.h"
+#include "../headers/table.h"
 
 /* The various kinds of lines that the preprocessor's `read_parse_line` can give. */
 typedef enum {

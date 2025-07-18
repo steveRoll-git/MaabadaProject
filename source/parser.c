@@ -1,11 +1,11 @@
-#include "../include/parser.h"
+#include "../headers/parser.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/data.h"
-#include "../include/errors.h"
+#include "../headers/data.h"
+#include "../headers/errors.h"
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {

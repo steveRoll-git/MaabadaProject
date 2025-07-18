@@ -3,13 +3,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/context.h"
-#include "../include/codegen.h"
-#include "../include/data.h"
-#include "../include/list.h"
-#include "../include/parser.h"
-#include "../include/preprocessor.h"
-#include "../include/table.h"
+#include "../headers/codegen.h"
+#include "../headers/context.h"
+#include "../headers/data.h"
+#include "../headers/list.h"
+#include "../headers/parser.h"
+#include "../headers/preprocessor.h"
+#include "../headers/table.h"
 
 #define ASSERTM(a, message)                                                                                            \
   if (!(a)) {                                                                                                          \

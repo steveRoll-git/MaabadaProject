@@ -7,16 +7,16 @@ include_directories(preprocess/libs)
 include(CTest)
 
 set(project_files
-        include/codegen.h
-        include/context.h
-        include/data.h
-        include/errors.h
-        include/list.h
-        include/output.h
-        include/parser.h
-        include/preprocessor.h
-        include/table.h
-        include/utils.h
+        headers/codegen.h
+        headers/context.h
+        headers/data.h
+        headers/errors.h
+        headers/list.h
+        headers/output.h
+        headers/parser.h
+        headers/preprocessor.h
+        headers/table.h
+        headers/utils.h
         source/codegen.c
         source/context.c
         source/data.c

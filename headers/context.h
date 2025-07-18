@@ -1,7 +1,7 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
-#include "../include/errors.h"
+#include "../headers/errors.h"
 #include "data.h"
 #include "list.h"
 #include "table.h"

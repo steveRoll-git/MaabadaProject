@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/data.h"
-#include "../include/parser.h"
+#include "../headers/data.h"
+#include "../headers/parser.h"
 #include "common.h"
 
 static instruction_t instruction;

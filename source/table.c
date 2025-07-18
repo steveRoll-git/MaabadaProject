@@ -1,9 +1,9 @@
-#include "../include/table.h"
+#include "../headers/table.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/utils.h"
+#include "../headers/utils.h"
 
 result_t table_create(size_t value_size, table_t **table) {
   TRY_MALLOC(table)
