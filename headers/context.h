@@ -1,8 +1,8 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
-#include "../headers/errors.h"
 #include "data.h"
+#include "errors.h"
 #include "list.h"
 #include "table.h"
 
@@ -120,9 +120,8 @@ result_t add_extern(context_t *context, char *label);
 void merge_data(context_t *context);
 
 /* Resolves all label references. All label operands in the code image will have the label's value, if it's defined. */
-/* If there are any references to labels that were not defined, prints error messages for them and returns FALSE,
- * otherwise returns TRUE. */
-bool_t resolve_labels(context_t *context);
+/* May fail if there are references to labels that weren't defined. */
+result_t resolve_labels(context_t *context);
 
 /* Prints the context's state, for debugging purposes. */
 void print_data(context_t *context);

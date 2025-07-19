@@ -7,6 +7,7 @@
 result_t ERR_PROGRAM_TOO_LARGE = "The program is too large after this point (address exceeds 255).";
 result_t ERR_PREPROCESS_FAILED = "One or more errors were encountered during preprocessing.";
 result_t ERR_CODEGEN_FAILED = "One or more errors were encountered during code generation.";
+result_t ERR_UNDEFINED_LABELS = "One or more labels were not defined.";
 result_t ERR_INPUT_FILE_FAIL = "Couldn't open input file.";
 result_t ERR_OUTPUT_FILE_FAIL = "Couldn't open output file.";
 result_t ERR_OUT_OF_MEMORY = "Out of memory.";

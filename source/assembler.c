@@ -66,10 +66,7 @@ bool_t assemble_file(char *file_name) {
 
   /* After all the labels have the correct values, we insert their values into all words that reference them. */
   /* Labels whose definitions were not found are caught here. */
-  if (!resolve_labels(context)) {
-    success = FALSE;
-    goto cleanup;
-  }
+  ASSEMBLE_TRY(resolve_labels(context))
 
   printf("Outputting object file...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_OB, &object_path))

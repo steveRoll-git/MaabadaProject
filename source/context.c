@@ -146,8 +146,8 @@ void merge_data(context_t *context) {
   }
 }
 
-bool_t resolve_labels(context_t *context) {
-  bool_t success = TRUE;
+result_t resolve_labels(context_t *context) {
+  result_t result = SUCCESS;
   size_t i;
 
   for (i = 0; i < table_count(context->label_table); i++) {
@@ -168,7 +168,7 @@ bool_t resolve_labels(context_t *context) {
         *word = (info->value << LABEL_FIRST_BIT) | ENCODING_RELOCATABLE;
       }
       else {
-        success = FALSE;
+        result = ERR_UNDEFINED_LABELS;
         print_error(context->file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
       }
     }
@@ -178,7 +178,7 @@ bool_t resolve_labels(context_t *context) {
     }
   }
 
-  return success;
+  return result;
 }
 
 void print_data(context_t *context) {
