@@ -13,8 +13,10 @@ typedef char *table_key_t;
 typedef struct table_t {
   /* The number of items currently in the table. */
   int count;
+
   /* List of `table_key_t` - stores the string keys. */
   list_t *key_list;
+
   /* For each index in the key array, its value is at the same index in this array. */
   list_t *value_list;
 } table_t;

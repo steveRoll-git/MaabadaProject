@@ -9,7 +9,7 @@ result_t table_create(size_t value_size, table_t **table) {
   TRY_MALLOC(table)
 
   (*table)->count = 0;
-  /* We initialize all the lists and tables to NULL so that if their creation fails, they won't have garbage values. */
+  /* We initialize all the lists to NULL so that if their creation fails, they won't have garbage values. */
   (*table)->key_list = NULL;
   (*table)->value_list = NULL;
 
@@ -27,20 +27,24 @@ result_t table_add(table_t *table, table_key_t key, void **out) {
   /* We make a copy of the parameter, and use that as the key. */
   table_key_t new_key;
   TRY(clone_string(key, &new_key))
+
   LIST_ADD(table->key_list, table_key_t, new_key)
   TRY(list_add(table->value_list, out))
   table->count++;
+
   return SUCCESS;
 }
 
 void *table_get(table_t *table, table_key_t key) {
   size_t i;
+
   for (i = 0; i < list_count(table->key_list); i++) {
     table_key_t current_key = table_key_at(table, i);
     if (strcmp(key, current_key) == 0) {
       return list_at(table->value_list, i);
     }
   }
+
   return NULL;
 }
 
@@ -54,6 +58,7 @@ void *table_value_at(table_t *table, int index) {
 
 void table_free(table_t *table) {
   int i;
+
   if (!table) {
     return;
   }
