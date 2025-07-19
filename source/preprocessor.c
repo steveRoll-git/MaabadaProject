@@ -95,7 +95,6 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
   result_t result = SUCCESS;
-  bool_t parse_success = TRUE;
   int line_number = 0;
 
   in_file = fopen(input_file_path, "rb");
@@ -119,7 +118,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
 
     parse_result = read_parse_line(in_file, line, macro_name, &parse_status);
     if (parse_result != SUCCESS) {
-      parse_success = FALSE;
+      result = ERR_PREPROCESS_FAILED;
       print_error(input_file_path, line_number, parse_result);
       continue;
     }
@@ -147,7 +146,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
         line_number++;
         parse_result = read_parse_line(in_file, line, NULL, &parse_status);
         if (parse_result != SUCCESS) {
-          parse_success = FALSE;
+          result = ERR_PREPROCESS_FAILED;
           print_error(input_file_path, line_number, parse_result);
         }
       }
@@ -177,10 +176,6 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
       print_macro(out_file, temp);
       fclose(temp);
     }
-  }
-
-  if (!parse_success) {
-    result = ERR_PREPROCESS_FAILED;
   }
 
 cleanup:
