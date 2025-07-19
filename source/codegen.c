@@ -203,7 +203,6 @@ result_t codegen(context_t *context) {
   FILE *in;
   char line[MAX_LINE];
   result_t codegen_result = SUCCESS;
-  int total_errors = 0;
 
   in = fopen(context->file_path, "rb");
 
@@ -234,17 +233,12 @@ result_t codegen(context_t *context) {
       /* If the line has incorrect syntax or couldn't be compiled, print an error. */
       print_error(context->file_path, context->line_number, result);
       codegen_result = ERR_CODEGEN_FAILED;
-      total_errors++;
     }
 
     context->line_number++;
   }
 
   fclose(in);
-
-  if (total_errors > 0) {
-    printf("Total Errors: %d\n", total_errors);
-  }
 
   return codegen_result;
 }
