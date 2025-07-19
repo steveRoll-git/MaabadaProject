@@ -26,14 +26,14 @@
     result_t _result = (f);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
       printf("Error: %s\n\n", _result);                                                                                \
-      success = FALSE;                                                                                                 \
+      result = _result;                                                                                                \
       goto cleanup;                                                                                                    \
     }                                                                                                                  \
   }                                                                                                                    \
   while (0);
 
-bool_t assemble_file(char *file_name) {
-  bool_t success = TRUE;
+result_t assemble_file(char *file_name) {
+  result_t result = SUCCESS;
   char *input_file_path = NULL;
   char *processed_path = NULL;
   char *object_path = NULL;
@@ -88,7 +88,7 @@ cleanup:
   table_free(macro_table);
   context_free(context);
 
-  return success;
+  return result;
 }
 
 int main(int argc, char *argv[]) {
@@ -101,8 +101,16 @@ int main(int argc, char *argv[]) {
 
   for (i = 1; i < argc; i++) {
     char *file_name = argv[i];
+    result_t result = assemble_file(file_name);
 
-    success = assemble_file(file_name) && success;
+    if (result == ERR_OUT_OF_MEMORY) {
+      /* If we ran out of memory, we won't be able to process any more files. */
+      return EXIT_FAILURE;
+    }
+
+    if (result != SUCCESS) {
+      success = FALSE;
+    }
   }
 
   if (!success) {
