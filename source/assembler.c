@@ -22,15 +22,14 @@
 /* Evaluates the given expression. If the result is not successful, prints an error message, and jumps to the `cleanup`
  * label to clean up memory. */
 #define ASSEMBLE_TRY(f)                                                                                                \
-  do {                                                                                                                 \
+  {                                                                                                                    \
     result_t _result = (f);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
       printf("Error: %s\n\n", _result);                                                                                \
       result = _result;                                                                                                \
       goto cleanup;                                                                                                    \
     }                                                                                                                  \
-  }                                                                                                                    \
-  while (0);
+  }
 
 /* Performs all stages of the assembler on the file at the given path: */
 /* Preprocessing, code generation, resolving labels, and outputting files (object, entries, externals). */

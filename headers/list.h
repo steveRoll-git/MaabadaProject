@@ -37,12 +37,11 @@ result_t list_add(list_t *list, void **out);
  * given value's type are the same. */
 /* list_add may fail, so this must be called in a function that returns a `result_t`. */
 #define LIST_ADD(list, element_type, element)                                                                          \
-  do {                                                                                                                 \
+  {                                                                                                                    \
     void *_ptr;                                                                                                        \
     TRY(list_add(list, &_ptr))                                                                                         \
     *((element_type *) _ptr) = (element);                                                                              \
-  }                                                                                                                    \
-  while (0);
+  }
 
 /* Frees the memory used by this list, and the list itself. */
 /* (This does not free any pointers that the list elements may have.) */

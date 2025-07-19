@@ -91,13 +91,12 @@ extern result_t ERR_STRING_MISSING_QUOTE_END;
 /* The given expression should be one of `result_t` type. If it returns an error string, causes the running function to
  * return that same error string. */
 #define TRY(a)                                                                                                         \
-  do {                                                                                                                 \
+  {                                                                                                                    \
     result_t _result = (a);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
       return _result;                                                                                                  \
     }                                                                                                                  \
-  }                                                                                                                    \
-  while (0);
+  }
 
 /* Prints an error message. */
 void print_error(char *file_path, int line_number, const char *message);

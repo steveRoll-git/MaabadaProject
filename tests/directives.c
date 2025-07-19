@@ -22,11 +22,10 @@ int check_data_equals(const machine_word_t *expected_data, int size) {
 }
 
 #define ASSERT_DATA_EQUALS(expected_arr)                                                                               \
-  do {                                                                                                                 \
+  {                                                                                                                    \
     machine_word_t expected_data[] = expected_arr;                                                                     \
     ASSERT(check_data_equals(expected_data, ARRAY_SIZE(expected_data, machine_word_t)))                                \
-  }                                                                                                                    \
-  while (0);
+  }
 
 int main(void) {
   ASSERT(parse_statement(".data 1, 2, 9, 4", &statement) == SUCCESS)
