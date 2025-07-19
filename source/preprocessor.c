@@ -6,18 +6,18 @@
 #include "../headers/table.h"
 
 /* The various kinds of lines that the preprocessor's `read_parse_line` can give. */
-typedef enum {
+typedef enum line_kind_t {
   LINE_NORMAL, /* A line with no special meaning to the preprocessor. */
   LINE_MCRO, /* A line that starts a macro definition with `mcro`. */
   LINE_MCROEND, /* A line that ends a macro definition with `mcroend`. */
   LINE_MACROCALL /* A line that calls a macro by its name. */
-} parse_line_status_t;
+} line_kind_t;
 
 /* Reads a line from the input file, stores it, and parses it for any preprocessor-related actions. */
 /* May fail if: */
 /* - The line is longer than the 80-character limit. */
 /* - Syntax errors in preprocessor-related actions were detected. */
-result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, parse_line_status_t *status) {
+result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, line_kind_t *line_kind) {
   word_t word;
   char *cur_line;
   read_line_status_t read_status = read_line(file, line);
@@ -41,14 +41,14 @@ result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, pars
 
     ASSERT(is_end(cur_line), ERR_EXTRANEOUS_TEXT_MACRO)
 
-    *status = LINE_MCRO;
+    *line_kind = LINE_MCRO;
     return SUCCESS;
   }
 
   if (word.kind == WORD_MCROEND) {
     ASSERT(is_end(cur_line), ERR_EXTRANEOUS_TEXT_MCROEND)
 
-    *status = LINE_MCROEND;
+    *line_kind = LINE_MCROEND;
     return SUCCESS;
   }
 
@@ -57,11 +57,11 @@ result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, pars
     if (macro_name) {
       strcpy(macro_name, word.value);
     }
-    *status = LINE_MACROCALL;
+    *line_kind = LINE_MACROCALL;
     return SUCCESS;
   }
 
-  *status = LINE_NORMAL;
+  *line_kind = LINE_NORMAL;
   return SUCCESS;
 }
 
@@ -82,9 +82,9 @@ void print_line(FILE *out, char *line) {
 /* It prints each line from `in` to `out`, until it encounters an `mcroend` line. */
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE];
-  parse_line_status_t status;
+  line_kind_t line_kind;
 
-  while (read_parse_line(in, line, NULL, &status) == SUCCESS && status != LINE_MCROEND) {
+  while (read_parse_line(in, line, NULL, &line_kind) == SUCCESS && line_kind != LINE_MCROEND) {
     print_line(out, line);
   }
 }
@@ -112,7 +112,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
   }
 
   while (!feof(in_file)) {
-    parse_line_status_t parse_status;
+    line_kind_t parse_status;
     result_t parse_result;
 
     line_number++;
