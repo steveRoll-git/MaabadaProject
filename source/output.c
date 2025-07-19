@@ -89,10 +89,10 @@ void output_label_address(char *label, int address, FILE *out) {
 }
 
 result_t output_entries_externals(context_t *context, char *entries_path, char *externals_path) {
+  result_t result = SUCCESS;
   /* The entries and externals files are only opened if there is data to be written into them. */
   FILE *entries = NULL;
   FILE *externals = NULL;
-  result_t result = SUCCESS;
   size_t i;
 
   for (i = 0; i < table_count(context->label_table); i++) {

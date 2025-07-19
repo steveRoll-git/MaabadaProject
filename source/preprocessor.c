@@ -90,11 +90,11 @@ void print_macro(FILE *out, FILE *in) {
 }
 
 result_t preprocess(char *input_file_path, char *output_file_path, table_t *macro_table) {
+  result_t result = SUCCESS;
   FILE *in_file;
   FILE *out_file;
   char line[MAX_LINE];
   char macro_name[MAX_LINE];
-  result_t result = SUCCESS;
   int line_number = 0;
 
   in_file = fopen(input_file_path, "rb");
