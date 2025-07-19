@@ -136,7 +136,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
       result_t add_result = table_add(macro_table, macro_name, (void **) &table_value);
       if (add_result != SUCCESS) {
         result = add_result;
-        goto end;
+        goto cleanup;
       }
       *table_value = offset;
 
@@ -171,7 +171,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
         /* If `fseek` has failed, we cannot proceed. */
         result = ERR_FSEEK_FAILED;
         fclose(temp);
-        goto end;
+        goto cleanup;
       }
 
       print_macro(out_file, temp);
@@ -183,7 +183,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
     result = ERR_PREPROCESS_FAILED;
   }
 
-end:
+cleanup:
   fclose(in_file);
   fclose(out_file);
 

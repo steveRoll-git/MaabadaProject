@@ -19,7 +19,7 @@
 #define EXTENSION_EXT ".ext"
 
 /* A macro specifically for use in the `assemble_file` function. */
-/* Evaluates the given expression. If the result is not successful, prints an error message, and jumps to the `end`
+/* Evaluates the given expression. If the result is not successful, prints an error message, and jumps to the `cleanup`
  * label to clean up memory. */
 #define ASSEMBLE_TRY(f)                                                                                                \
   do {                                                                                                                 \
@@ -27,7 +27,7 @@
     if (_result != SUCCESS) {                                                                                          \
       printf("Error: %s\n\n", _result);                                                                                \
       success = FALSE;                                                                                                 \
-      goto end;                                                                                                        \
+      goto cleanup;                                                                                                    \
     }                                                                                                                  \
   }                                                                                                                    \
   while (0);
@@ -68,7 +68,7 @@ bool_t assemble_file(char *file_name) {
   /* Labels whose definitions were not found are caught here. */
   if (!resolve_labels(context)) {
     success = FALSE;
-    goto end;
+    goto cleanup;
   }
 
   printf("Outputting object file...\n");
@@ -82,7 +82,7 @@ bool_t assemble_file(char *file_name) {
 
   printf("File assembled successfully.\n\n");
 
-end:
+cleanup:
   free(input_file_path);
   free(processed_path);
   free(object_path);
