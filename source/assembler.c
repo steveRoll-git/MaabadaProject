@@ -32,6 +32,10 @@
   }                                                                                                                    \
   while (0);
 
+/* Performs all stages of the assembler on the file at the given path: */
+/* Preprocessing, code generation, resolving labels, and outputting files (object, entries, externals). */
+/* The given file name must be the name of an existing assembly file, without the ".as" extension. */
+/* If any of the stages fail, or if memory allocation failed at any point, returns the relevant error. */
 result_t assemble_file(char *file_name) {
   result_t result = SUCCESS;
   char *input_file_path = NULL;
@@ -91,9 +95,12 @@ cleanup:
   return result;
 }
 
+/* The assembler's main function iterates over all given file paths and calls `assemble_file` on them. */
+/* If an "out of memory" was encountered at any point, the program will stop and no more files will be assembled. */
 int main(int argc, char *argv[]) {
   int i;
   bool_t success = TRUE;
+
   if (argc < 2) {
     printf("No input files given.\n");
     return EXIT_SUCCESS;
