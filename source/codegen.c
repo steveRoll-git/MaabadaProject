@@ -33,6 +33,11 @@
 
 #define DATA_MASK 0x3ff
 
+bool_t is_data_directive(directive_t *directive) {
+  return directive->kind == DIRECTIVE_KIND_DATA || directive->kind == DIRECTIVE_KIND_STRING ||
+         directive->kind == DIRECTIVE_KIND_MAT;
+}
+
 /* Returns the first word of an instruction based on the opcode and the source/destination operands. */
 machine_word_t make_code_word(instruction_t *instruction) {
   machine_word_t word = 0;
@@ -156,7 +161,10 @@ result_t compile_statement(context_t *context, statement_t *statement) {
 
   if (statement->has_label) {
     /* If the statement has a label, add it to the label table. */
-    TRY(add_label(context, statement->label, statement->kind == STATEMENT_DIRECTIVE))
+    if (statement->kind != STATEMENT_DIRECTIVE || is_data_directive(&statement->data.directive)) {
+      /* Labels are added only for instructions and the [.data, .string, .mat] directives. */
+      TRY(add_label(context, statement->label, statement->kind == STATEMENT_DIRECTIVE))
+    }
   }
 
   if (statement->kind == STATEMENT_INSTRUCTION) {

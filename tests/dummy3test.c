@@ -25,6 +25,9 @@ int main(void) {
   ASSERT_LABEL("K", 132)
   ASSERT_LABEL("M1", 133)
 
+  ASSERT(table_get(assembler->label_table, "nonExistent1") == NULL)
+  ASSERT(table_get(assembler->label_table, "nonExistent2") == NULL)
+
   int expected_args[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0', 6, -9, 1, 5, 22, 1, 2, 3, 4};
   ASSERT(memcmp(expected_args, list_at(assembler->data_array, 0), sizeof(expected_args)));
 

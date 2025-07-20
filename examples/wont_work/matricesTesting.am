@@ -12,4 +12,7 @@ bne LOOP
 LENGTH:     .data 6 ,-9,             15
 K:  .data 22
 
+nonExistent1: .extern abc
+nonExistent2: .entry abc
+
 M1: .mat [2]    [2]     1,2,    3,4
