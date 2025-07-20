@@ -129,7 +129,12 @@ result_t write_directive(context_t *context, directive_t *directive) {
     case DIRECTIVE_KIND_STRING:
     case DIRECTIVE_KIND_MAT:
       for (i = 0; i < directive->info.data.size; i++) {
-        TRY(add_data_word(context, directive->info.data.array[i]))
+        if (i < MAX_LINE) {
+          TRY(add_data_word(context, directive->info.data.array[i]))
+        }
+        else {
+          TRY(add_data_word(context, 0))
+        }
       }
       break;
 

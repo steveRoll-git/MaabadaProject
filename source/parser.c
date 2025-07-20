@@ -6,6 +6,7 @@
 
 #include "../headers/data.h"
 #include "../headers/errors.h"
+#include "../headers/utils.h"
 
 /* Moves `*s` to point at the next non-space character. */
 void skip_spaces(char **s) {
@@ -302,6 +303,7 @@ result_t parse_matrix(char *s, directive_t *directive) {
   int max_elements;
   int *size = &directive->info.data.size;
   int i = 0;
+  int limit;
 
   *size = 0;
 
@@ -330,11 +332,16 @@ result_t parse_matrix(char *s, directive_t *directive) {
     ASSERT(*size <= max_elements, ERR_MATRIX_OVERFLOW)
   }
 
+  /* If the specified matrix size is larger than 81 bytes, we limit it, since a directive can only contain up to 81. */
+  limit = min(max_elements, DIRECTIVE_MAX_DATA);
+
   /* Add zeroes for any elements that weren't given. */
-  for (i = *size; i < max_elements; i++) {
-    directive->info.data.array[*size] = 0;
-    (*size)++;
+  for (i = *size; i < limit; i++) {
+    directive->info.data.array[i] = 0;
   }
+
+  /* The actual size of the data is the size specified by the user, even if less numbers were given. */
+  *size = max_elements;
 
   return SUCCESS;
 }

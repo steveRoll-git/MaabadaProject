@@ -32,6 +32,9 @@
 /* The longest directive is 6 characters long. */
 #define DIRECTIVE_MAX_LEN 6
 
+/* Any directive that adds data (.data, .string, .mat) can only contain up to 81 words of data. */
+#define DIRECTIVE_MAX_DATA 81
+
 /* The smallest value an immediate operand can have. */
 #define IMMEDIATE_MIN -128
 /* The largest value an immediate operand can have. */

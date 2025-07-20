@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+int min(int a, int b) {
+  return a < b ? a : b;
+}
+
 result_t check_malloc(size_t size, void **ptr) {
   *ptr = malloc(size);
   ASSERT(*ptr, ERR_OUT_OF_MEMORY)

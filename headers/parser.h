@@ -95,7 +95,7 @@ typedef struct directive_t {
     /* If this is a .data, .string or .mat directive, this stores the data that was given. */
     struct {
       /* The contents of the data. */
-      machine_word_t array[MAX_LINE];
+      machine_word_t array[DIRECTIVE_MAX_DATA];
 
       /* The size of the data. */
       int size;

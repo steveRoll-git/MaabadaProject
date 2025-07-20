@@ -5,6 +5,9 @@
 
 #include "errors.h"
 
+/* Given two integers, returns the smaller of the two. */
+int min(int a, int b);
+
 /* Runs `malloc` with the given size, and checks that it ran successfully (returned a non-null pointer). */
 /* May fail if allocating memory did not succeed. */
 result_t check_malloc(size_t size, void **ptr);
