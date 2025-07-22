@@ -3,6 +3,7 @@
 #include <string.h>
 
 instruction_info_t *get_instruction(char *token) {
+  /* This array contains all needed information about every kind of instruction. */
   static instruction_info_t instructions[] = {
           {INSTRUCTION_MOV,  OPCODE_MOV,  TWO_ARGS, FALSE, TRUE },
           {INSTRUCTION_CMP,  OPCODE_CMP,  TWO_ARGS, TRUE,  TRUE },
@@ -22,6 +23,7 @@ instruction_info_t *get_instruction(char *token) {
           {INSTRUCTION_STOP, OPCODE_STOP, NO_ARGS,  FALSE, FALSE}
   };
 
+  /* The total number of instructions. */
   static const int num_instructions = sizeof(instructions) / sizeof(instruction_info_t);
 
   int i;

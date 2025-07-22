@@ -103,9 +103,9 @@ typedef enum encoding_kind_t {
 
 /* The number of arguments that an instruction can have. */
 typedef enum num_args_t {
-  NO_ARGS = 0,
-  ONE_ARG = 1,
-  TWO_ARGS = 2
+  NO_ARGS,
+  ONE_ARG,
+  TWO_ARGS
 } num_args_t;
 
 /* Stores information about an instruction. */
