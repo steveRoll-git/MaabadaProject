@@ -68,6 +68,7 @@ void read_word(char **s, word_t *word) {
   skip_spaces(s);
 
   if (!isalpha(**s)) {
+    /* If the current character is not an alphabetic character, it's not a word. */
     word->kind = WORD_NONE;
     return;
   }
@@ -86,18 +87,23 @@ void read_word(char **s, word_t *word) {
     word->register_index = word->value[1] - '0';
   }
   else if (strcmp(word->value, "mcro") == 0) {
+    /* The `mcro` preprocessor keyword. */
     word->kind = WORD_MCRO;
   }
   else if (strcmp(word->value, "mcroend") == 0) {
+    /* The `mcroend` preprocessor keyword. */
     word->kind = WORD_MCROEND;
   }
   else {
+    /* Check if the word is the name of an instruction. */
     instruction_info_t *instruction = get_instruction(word->value);
     if (instruction) {
       word->kind = WORD_INSTRUCTION;
       word->instruction_info = instruction;
     }
   }
+
+  /* If none of the above conditions were true, the word's kind will simply remain an identifier. */
 }
 
 read_line_status_t read_line(FILE *file, char line[MAX_LINE]) {
