@@ -34,7 +34,7 @@ int main(void) {
   ASSERT(parse_statement("somelabel: .mat[2][3] 5, 2, 2  , 6, 23, 5    ", &statement) == SUCCESS)
   ASSERT_DATA_EQUALS(ARR({5, 2, 2, 6, 23, 5}))
 
-  ASSERT(parse_statement("   .mat   [ 1   ] [ 1 ] -65", &statement) == SUCCESS)
+  ASSERT(parse_statement("   .mat   [ 1   ][ 1 ] -65", &statement) == SUCCESS)
   ASSERT_DATA_EQUALS(ARR({-65}))
 
   ASSERT(parse_statement("somelabel: .mat[2][3] 4, 3, 2", &statement) == SUCCESS)
@@ -56,6 +56,7 @@ int main(void) {
   ASSERT(parse_statement(".data   1, 2, 3 asdf", &statement) != SUCCESS)
   ASSERT(parse_statement(".string \"abc", &statement) != SUCCESS)
   ASSERT(parse_statement(".string \"abc\" extra text", &statement) != SUCCESS)
+  ASSERT(parse_statement("   .mat   [ 1   ] [ 1 ] -65", &statement) != SUCCESS)
   ASSERT(parse_statement("   .mat   [ 0   ] [ 1 ] -65", &statement) != SUCCESS)
   ASSERT(parse_statement("   .mat   [ 1   ] [ 1 ] 123 vjskdfo", &statement) != SUCCESS)
   ASSERT(parse_statement(".entry ", &statement) != SUCCESS)

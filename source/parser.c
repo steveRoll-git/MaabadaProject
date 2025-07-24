@@ -21,15 +21,21 @@ int is_end(char *s) {
   return *s == 0 || *s == '\n';
 }
 
-/* Skips leading spaces, and checks the current character under `s`. */
+/* Checks the current character under `s`. */
 /* If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE. */
-bool_t accept(char **s, char c) {
-  skip_spaces(s);
+bool_t accept_nospace(char **s, char c) {
   if (**s == c) {
     (*s)++;
     return TRUE;
   }
   return FALSE;
+}
+
+/* Skips leading spaces, and checks the current character under `s`. */
+/* If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE. */
+bool_t accept(char **s, char c) {
+  skip_spaces(s);
+  return accept_nospace(s, c);
 }
 
 /* In the newline/null-terminated string `s`, returns the last pointer where quotation marks appear, or NULL if they do
@@ -142,7 +148,7 @@ result_t parse_number(char **s, machine_word_t *out) {
 result_t parse_matrix_operand(char **s, operand_t *operand) {
   word_t word;
 
-  ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_ROW)
+  ASSERT(accept_nospace(s, '['), ERR_MATRIX_START_BRACKET_ROW)
 
   {
     /* The word in between the first '[]' is the row, and must be a register. */
@@ -152,7 +158,7 @@ result_t parse_matrix_operand(char **s, operand_t *operand) {
   }
 
   ASSERT(accept(s, ']'), ERR_MATRIX_END_BRACKET_ROW);
-  ASSERT(accept(s, '['), ERR_MATRIX_START_BRACKET_COL);
+  ASSERT(accept_nospace(s, '['), ERR_MATRIX_START_BRACKET_COL);
 
   {
     /* The word in between the second '[]' is the column, and must be a register. */
@@ -205,8 +211,6 @@ result_t parse_operand(char **s, operand_t *operand) {
   /* Both of those must begin with an identifier. */
   ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_ARGUMENT);
   ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
-
-  skip_spaces(s);
 
   /* If there is a '[' right after the label, then it's a matrix operand. */
   if (**s == '[') {
@@ -284,7 +288,6 @@ result_t parse_string(char *s, directive_t *directive) {
   /* Extraneous text after string. */
   ASSERT(is_end(last_quotes + 1), ERR_EXTRANEOUS_TEXT_DIRECTIVE);
 
-  /*TODO: Do we need to check if all characters are valid ASCII?*/
   while (s < last_quotes) {
     directive->info.data.array[*size] = *s;
     (*size)++;
@@ -314,7 +317,7 @@ result_t parse_matrix(char *s, directive_t *directive) {
   /* Expected ']'. */
   ASSERT(accept(&s, ']'), ERR_MATRIX_END_BRACKET_ROW)
   /* Expected '['. */
-  ASSERT(accept(&s, '['), ERR_MATRIX_START_BRACKET_COL)
+  ASSERT(accept_nospace(&s, '['), ERR_MATRIX_START_BRACKET_COL)
   /* Expected a number. */
   TRY(parse_number(&s, &cols))
   /* Expected ']'. */
@@ -414,7 +417,7 @@ result_t parse_statement(char *line, statement_t *statement) {
 
   read_word(&line, &word);
 
-  if (word.kind != WORD_NONE && *line == ':') {
+  if (word.kind != WORD_NONE && accept_nospace(&line, ':')) {
     /* If there is a word in the beginning that's immediately followed by a ':', it's a label. */
 
     /* Labels may only be identifiers. */
@@ -426,9 +429,10 @@ result_t parse_statement(char *line, statement_t *statement) {
 
     statement->has_label = TRUE;
     strcpy(statement->label, word.value);
-    /* Move past the `:`. */
-    line++;
+
+    /* There must be a space after the `:`. */
     ASSERT(isspace(*line), ERR_LABEL_MISSING_SPACE)
+
     read_word(&line, &word);
   }
 
