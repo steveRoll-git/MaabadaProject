@@ -42,6 +42,7 @@ extern result_t ERR_NO_ARG;
 extern result_t ERR_EXTRANEOUS_TEXT_INSTRUCTION;
 extern result_t ERR_EXTRANEOUS_TEXT_DIRECTIVE;
 extern result_t ERR_INVALID_ARGUMENT;
+extern result_t ERR_INVALID_DIRECTIVE_SYNTAX;
 extern result_t ERR_DIRECTIVE_EXPECTED_LABEL;
 
 /* Number syntax errors */

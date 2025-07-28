@@ -101,6 +101,27 @@ void read_word(char **s, word_t *word) {
       word->kind = WORD_INSTRUCTION;
       word->instruction_info = instruction;
     }
+    /* Check if the word is a directive. */
+    else if (strcmp(word->value, DIRECTIVE_DATA) == 0) {
+      word->kind = WORD_DIRECTIVE;
+      word->directive_kind = DIRECTIVE_KIND_DATA;
+    }
+    else if (strcmp(word->value, DIRECTIVE_STRING) == 0) {
+      word->kind = WORD_DIRECTIVE;
+      word->directive_kind = DIRECTIVE_KIND_STRING;
+    }
+    else if (strcmp(word->value, DIRECTIVE_MAT) == 0) {
+      word->kind = WORD_DIRECTIVE;
+      word->directive_kind = DIRECTIVE_KIND_MAT;
+    }
+    else if (strcmp(word->value, DIRECTIVE_ENTRY) == 0) {
+      word->kind = WORD_DIRECTIVE;
+      word->directive_kind = DIRECTIVE_KIND_ENTRY;
+    }
+    else if (strcmp(word->value, DIRECTIVE_EXTERN) == 0) {
+      word->kind = WORD_DIRECTIVE;
+      word->directive_kind = DIRECTIVE_KIND_EXTERN;
+    }
   }
 
   /* If none of the above conditions were true, the word's kind will simply remain an identifier. */
@@ -368,40 +389,6 @@ result_t parse_label_param(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Returns which directive the word under `s` represents, and moves `s` to point past that word. */
-directive_kind_t read_directive_kind(char **s) {
-  /* This buffer is 2 characters longer than the directive to catch cases where the string differs by a single character
-   * at the end. */
-  char token[DIRECTIVE_MAX_LEN + 2];
-  char *last = token;
-  int len = 0;
-
-  /* Copy the next word in `s` into `token`. */
-  while (isalpha(**s) && len < DIRECTIVE_MAX_LEN + 1) {
-    add_char(&last, s);
-    len++;
-  }
-  *last = 0;
-
-  if (strcmp(token, DIRECTIVE_DATA) == 0) {
-    return DIRECTIVE_KIND_DATA;
-  }
-  if (strcmp(token, DIRECTIVE_STRING) == 0) {
-    return DIRECTIVE_KIND_STRING;
-  }
-  if (strcmp(token, DIRECTIVE_MAT) == 0) {
-    return DIRECTIVE_KIND_MAT;
-  }
-  if (strcmp(token, DIRECTIVE_ENTRY) == 0) {
-    return DIRECTIVE_KIND_ENTRY;
-  }
-  if (strcmp(token, DIRECTIVE_EXTERN) == 0) {
-    return DIRECTIVE_KIND_EXTERN;
-  }
-
-  return DIRECTIVE_KIND_UNKNOWN;
-}
-
 result_t parse_statement(char *line, statement_t *statement) {
   word_t word;
 
@@ -445,12 +432,16 @@ result_t parse_statement(char *line, statement_t *statement) {
   if (word.kind == WORD_NONE && accept(&line, '.')) {
     /* If the line starts with a `.`, it's a directive. */
 
-    directive_kind_t kind = read_directive_kind(&line);
+    ASSERT(isalpha(*line), ERR_INVALID_DIRECTIVE_SYNTAX)
+
+    read_word(&line, &word);
+
+    ASSERT(word.kind == WORD_DIRECTIVE, ERR_INVALID_DIRECTIVE_SYNTAX)
 
     statement->kind = STATEMENT_DIRECTIVE;
-    statement->data.directive.kind = kind;
+    statement->data.directive.kind = word.directive_kind;
 
-    switch (kind) {
+    switch (word.directive_kind) {
       case DIRECTIVE_KIND_DATA:
         return parse_data(line, &statement->data.directive);
       case DIRECTIVE_KIND_STRING:

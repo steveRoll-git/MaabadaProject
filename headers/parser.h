@@ -14,6 +14,8 @@ typedef enum word_kind_t {
   WORD_MCRO,
   /* The 'mcroend' preprocessor keyword. */
   WORD_MCROEND,
+  /* The name of a directive. */
+  WORD_DIRECTIVE,
   /* The name of an instruction. */
   WORD_INSTRUCTION,
   /* A name of a register: 'r0' through 'r7'. */
@@ -26,10 +28,16 @@ typedef enum word_kind_t {
 typedef struct word_t {
   /* What kind of word this is. */
   word_kind_t kind;
+
   /* This word's contents. */
   char value[MAX_LINE];
+
   /* If `kind` is `WORD_REGISTER`, this stores the register's index, from 0 to 7. */
   char register_index;
+
+  /* If `kind` is `WORD_DIRECTIVE`, this stores what directive this word is. */
+  directive_kind_t directive_kind;
+
   /* If `kind` is `WORD_INSTRUCTION`, this stores a pointer to the instruction. */
   instruction_info_t *instruction_info;
 } word_t;

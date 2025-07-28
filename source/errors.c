@@ -36,6 +36,7 @@ result_t ERR_NO_ARG = "Expected an argument.";
 result_t ERR_EXTRANEOUS_TEXT_INSTRUCTION = "Extraneous text after instruction.";
 result_t ERR_EXTRANEOUS_TEXT_DIRECTIVE = "Extraneous text after directive.";
 result_t ERR_INVALID_ARGUMENT = "Invalid argument syntax.";
+result_t ERR_INVALID_DIRECTIVE_SYNTAX = "Invalid directive syntax.";
 result_t ERR_DIRECTIVE_EXPECTED_LABEL = "This directive expects a label as a parameter.";
 
 /* Number syntax errors */

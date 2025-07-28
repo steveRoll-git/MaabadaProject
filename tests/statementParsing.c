@@ -33,12 +33,15 @@ int main() {
   ASSERT(statement.data.instruction.operand_2.kind == OPERAND_KIND_LABEL)
   ASSERT(strcmp(statement.data.instruction.operand_2.data.label, "YYY") == 0)
 
-  ASSERT(parse_statement("lab_el: add #6, r2", &statement) != SUCCESS)
-  ASSERT(parse_statement("label : mov r1, r2", &statement) != SUCCESS)
-  ASSERT(parse_statement("label:mov r1, r2", &statement) != SUCCESS)
-  ASSERT(parse_statement("       ;some comment", &statement) != SUCCESS)
-  ASSERT(parse_statement("mov M1 [r3][r6], YYY", &statement) != SUCCESS)
-  ASSERT(parse_statement("mov M1[r3] [r6], YYY", &statement) != SUCCESS)
+  ASSERT(parse_statement(". data 1, 2, 3", &statement) == ERR_INVALID_DIRECTIVE_SYNTAX)
+  ASSERT(parse_statement(".cool 1, 2, 3", &statement) == ERR_INVALID_DIRECTIVE_SYNTAX)
+  ASSERT(parse_statement("data: add #6, r2", &statement) == ERR_INVALID_LABEL)
+  ASSERT(parse_statement("lab_el: add #6, r2", &statement) == ERR_LABEL_UNDERSCORES)
+  ASSERT(parse_statement("label : mov r1, r2", &statement) == ERR_UNKNOWN_INSTRUCTION)
+  ASSERT(parse_statement("label:mov r1, r2", &statement) == ERR_LABEL_MISSING_SPACE)
+  ASSERT(parse_statement("       ;some comment", &statement) == ERR_UNKNOWN_INSTRUCTION)
+  ASSERT(parse_statement("mov M1 [r3][r6], YYY", &statement) == ERR_EXTRANEOUS_TEXT_INSTRUCTION)
+  ASSERT(parse_statement("mov M1[r3] [r6], YYY", &statement) == ERR_MATRIX_START_BRACKET_COL)
 
   return EXIT_SUCCESS;
 }
