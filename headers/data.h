@@ -122,8 +122,13 @@ typedef struct instruction_info_t {
   bool_t src_immediate_register;
 } instruction_info_t;
 
-/* Given an instruction's name, returns information about that instruction. */
-/* If no instruction by that name exists, returns NULL. */
-instruction_info_t *get_instruction(char *token);
+/**
+ * Given an instruction's name, returns information about that instruction.
+ * If no instruction by that name exists, returns NULL.
+ *
+ * @param name The name of the instruction to look for.
+ * @return A pointer to the information about the instruction, or NULL if there is no such instruction.
+ */
+instruction_info_t *get_instruction(char *name);
 
 #endif

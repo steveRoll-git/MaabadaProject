@@ -139,33 +139,57 @@ typedef struct statement_t {
   union {
     /* If `kind` is `STATEMENT_INSTRUCTION`, stores information about the instruction. */
     instruction_t instruction;
+
     /* If `kind` is `STATEMENT_DIRECTIVE`, stores information about the directive. */
     directive_t directive;
   } data;
 } statement_t;
 
+/* The possible results that `read_line` can return. */
 typedef enum read_line_status_t {
   READ_LINE_SUCCESS,
   READ_LINE_TOO_LONG,
   READ_LINE_EOF
 } read_line_status_t;
 
-/* Returns whether there are no more non-space characters in `s`. */
-int is_end(char *s);
+/**
+ * Returns whether there are no more non-space characters in `s`.
+ *
+ * @param s The string to check.
+ * @return Whether the rest of `s` is only whitespace characters.
+ */
+bool_t is_end(char *s);
 
-/* Reads a single line from the file that is at most `MAX_LINE` bytes long, and
- * stores it in `line`. The line may end with a newline or a null terminator. */
-/* Returns `READ_LINE_SUCCESS` if there are more lines to be read, `READ_LINE_TOO_LONG` if the line was too
- * long, and `READ_LINE_EOF` if there are no more lines to read. */
+/**
+ * Reads a single line from the file that is at most `MAX_LINE` bytes long, and stores it in `line`. The line may end
+ * with a newline or a null terminator.
+ *
+ * @param file The file to read a line from.
+ * @param line The array to store the line into. The array must be at least 81 bytes long.
+ * @return `READ_LINE_SUCCESS` if a line was read successfully, `READ_LINE_TOO_LONG` if the line was too long, and
+ * `READ_LINE_EOF` if there are no more lines to read.
+ */
 read_line_status_t read_line(FILE *file, char line[MAX_LINE]);
 
-/* Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
- * `s` */
-/* Updates `s` so that it will point to the next character after the word that was read. */
+/**
+ * Reads the next word (a sequence of alphanumeric characters that starts with a letter) at the string pointed to by
+ * `s`.
+ * Updates `s` so that it will point to the next character after the word that was read.
+ *
+ * @param s A pointer to the string to read the next word from. Will be updated to point to the next character, if a
+ * word was read.
+ * @param word A pointer to the word object where info about it will be stored.
+ */
 void read_word(char **s, word_t *word);
 
-/* Parses an assembly statement and stores it in the given pointer. */
-/* May fail if the statement contains syntax errors. */
+/**
+ * Parses an assembly statement and stores it in the given pointer.
+ * May fail if the statement contains syntax errors.
+ *
+ * @param line The string containing the statement to parse.
+ * @param statement A pointer to the statement object where info about it will be stored.
+ * @return The operation's result.
+ */
 result_t parse_statement(char *line, statement_t *statement);
 
 #endif

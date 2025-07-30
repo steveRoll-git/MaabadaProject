@@ -18,9 +18,13 @@
 /* The file extension for "externals" files. */
 #define EXTENSION_EXT ".ext"
 
-/* A macro specifically for use in the `assemble_file` function. */
-/* Evaluates the given expression. If the result is not successful, prints an error message, and jumps to the `cleanup`
- * label to clean up memory. */
+/**
+ * A macro specifically for use in the `assemble_file` function.
+ * Evaluates the given expression, which must return a `result_t`. If the result is not successful, prints an error
+ * message, and jumps to the `cleanup` label to clean up memory.
+ *
+ * @param f The expression to evaluate. Must be of a `result_t` type.
+ */
 #define ASSEMBLE_TRY(f)                                                                                                \
   {                                                                                                                    \
     result_t _result = (f);                                                                                            \
@@ -31,19 +35,31 @@
     }                                                                                                                  \
   }
 
-/* Performs all stages of the assembler on the file at the given path: */
-/* Preprocessing, code generation, resolving labels, and outputting files (object, entries, externals). */
-/* The given file name must be the name of an existing assembly file, without the ".as" extension. */
-/* If any of the stages fail, or if memory allocation failed at any point, returns the relevant error. */
+/**
+ * Performs all stages of the assembler on the file at the given path:
+ * Preprocessing, code generation, resolving labels, and outputting files (object, entries, externals).
+ * The given file name must be the name of an existing assembly file, without the ".as" extension.
+ * If any of the stages fail, or if memory allocation failed at any point, returns the relevant error.
+ *
+ * @param file_name The name of the input file - the path to the .as file, but without the ".as" extension.
+ * @return The operation's result.
+ */
 result_t assemble_file(char *file_name) {
+  /* The result that this function will return when it finishes. */
   result_t result = SUCCESS;
+  /* The path to the .as file. */
   char *input_file_path = NULL;
+  /* The path to the .am file. */
   char *processed_path = NULL;
+  /* The path to the .ob file. */
   char *object_path = NULL;
+  /* The path to the .ent file. */
   char *entries_path = NULL;
+  /* The path to the .ext file. */
   char *externals_path = NULL;
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
   table_t *macro_table = NULL;
+  /* The assembler context, created after preprocessing. */
   context_t *context = NULL;
 
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
@@ -70,6 +86,8 @@ result_t assemble_file(char *file_name) {
   /* After all the labels have the correct values, we insert their values into all words that reference them. */
   /* Labels whose definitions were not found are caught here. */
   ASSEMBLE_TRY(resolve_labels(context))
+
+  /* If all the steps above succeeded, we finally output the object, entries and externals files. */
 
   printf("Outputting object file...\n");
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_OB, &object_path))

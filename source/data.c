@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-instruction_info_t *get_instruction(char *token) {
+instruction_info_t *get_instruction(char *name) {
   /* This array contains all needed information about every kind of instruction. */
   static instruction_info_t instructions[] = {
           {INSTRUCTION_MOV,  OPCODE_MOV,  TWO_ARGS, FALSE, TRUE },
@@ -28,12 +28,12 @@ instruction_info_t *get_instruction(char *token) {
 
   int i;
 
-  if (token == NULL) {
+  if (name == NULL) {
     return NULL;
   }
 
   for (i = 0; i < num_instructions; i++) {
-    if (strcmp(token, instructions[i].name) == 0) {
+    if (strcmp(name, instructions[i].name) == 0) {
       return &instructions[i];
     }
   }

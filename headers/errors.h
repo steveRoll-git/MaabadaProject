@@ -80,26 +80,41 @@ extern result_t ERR_WRONG_MATRIX_ACCESS;
 extern result_t ERR_STRING_MISSING_QUOTE_START;
 extern result_t ERR_STRING_MISSING_QUOTE_END;
 
-/* This macro receives an expression and an error message */
-/* It may only be called in functions that return a `result_t`. */
-/* Checks that the condition is true. If not, causes the running function to return the given error message as a
- * `result_t`. */
-#define ASSERT(a, s)                                                                                                   \
-  if (!(a)) {                                                                                                          \
-    return s;                                                                                                          \
+/**
+ * This macro can only be called in a function that returns a `result_t`.
+ * Checks that the condition is true. If not, causes the running function to return the given error message as a
+ * `result_t`.
+ *
+ * @param cond The condition to check.
+ * @param error The error to return if the condition is false.
+ */
+#define ASSERT(cond, error)                                                                                            \
+  if (!(cond)) {                                                                                                       \
+    return error;                                                                                                      \
   }
 
-/* The given expression should be one of `result_t` type. If it returns an error string, causes the running function to
- * return that same error string. */
-#define TRY(a)                                                                                                         \
+/**
+ * This macro can only be called in a function that returns a `result_t`.
+ * Evaluates the given expression, which must also return a `result_t`. If the returned result is not `SUCCESS`, causes
+ * the running function to return that same error. Otherwise, continues normally.
+ *
+ * @param exp The expression to try. Must return a `result_t`.
+ */
+#define TRY(exp)                                                                                                       \
   {                                                                                                                    \
-    result_t _result = (a);                                                                                            \
+    result_t _result = (exp);                                                                                          \
     if (_result != SUCCESS) {                                                                                          \
       return _result;                                                                                                  \
     }                                                                                                                  \
   }
 
-/* Prints an error message. */
+/**
+ * Prints an error message, with a file path and line number.
+ *
+ * @param file_path The path of the file where the error was found.
+ * @param line_number The number of the line where the error was found.
+ * @param message A message describing the error.
+ */
 void print_error(char *file_path, int line_number, const char *message);
 
 #endif

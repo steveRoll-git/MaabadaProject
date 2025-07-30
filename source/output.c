@@ -18,10 +18,18 @@
 /* Machine words are 10 bits wide, which is 5 digits in base 4. */
 #define WORD_DIGITS 5
 
-/* Outputs a number in base 4, with `num_digits` digits, into `file`. */
-/* If `num_digits` is 0, the number of digits will be as many as needed to represent the number. */
+/**
+ * Outputs a number in base 4, with `num_digits` digits, into `file`.
+ * If `num_digits` is 0, the number of digits will be as many as needed to represent the number without leading 'a's.
+ *
+ * @param number The number to write.
+ * @param num_digits The number of digits to write (with leading 'a's), or 0 to decide automatically.
+ * @param file The file to write into.
+ */
 void output_base4(machine_word_t number, int num_digits, FILE *file) {
+  /* The number of bits to shift the number to the left, to get the current base 4 digit. */
   int shift;
+  /* Whether we encountered a non-zero ('a') digit. */
   bool_t had_nonzero = FALSE;
 
   if (num_digits == 0) {
@@ -35,7 +43,7 @@ void output_base4(machine_word_t number, int num_digits, FILE *file) {
     int digit = 'a' + ((number >> shift) & DIGIT_MASK);
     had_nonzero = had_nonzero || digit != 'a';
     /* If the number of digits was given explicitly, we will always print the digit. */
-    /* If `num_digits` is 0, we print the digit only if it's not a leading 'a' (zero)/ */
+    /* If `num_digits` is 0, we print the digit only if it's not a leading 'a' (zero). */
     if (num_digits != 0 || (had_nonzero || shift == 0)) {
       fputc(digit, file);
     }
@@ -43,7 +51,13 @@ void output_base4(machine_word_t number, int num_digits, FILE *file) {
   }
 }
 
-/* Outputs a base 4 address and a base 4 word into the given file. */
+/**
+ * Outputs a base 4 address and a base 4 word into the given file.
+ *
+ * @param address The address of the word.
+ * @param word The word's value.
+ * @param out The file to write into.
+ */
 void output_word(machine_word_t address, machine_word_t word, FILE *out) {
   output_base4(address, ADDRESS_DIGITS, out);
   fputc(' ', out);
@@ -80,7 +94,13 @@ result_t output_object(context_t *context, char *out_path) {
   return SUCCESS;
 }
 
-/* Outputs the name of a label along with its address (in base 4) to the given file. */
+/**
+ * Outputs the name of a label along with its address (in base 4) to the given file.
+ *
+ * @param label The name of the label.
+ * @param address The label's address.
+ * @param out The file to write to.
+ */
 void output_label_address(char *label, int address, FILE *out) {
   fputs(label, out);
   fputc(' ', out);

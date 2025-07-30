@@ -75,58 +75,119 @@ typedef struct context_t {
   bool_t warned_too_large;
 } context_t;
 
-/* Creates a new assembler context. Requires the macro table from the preprocessing stage. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Creates a new assembler context. Requires the macro table from the preprocessing stage.
+ * May fail if memory allocations did not succeed.
+ *
+ * @param file_path The file path to the .am file that will be assembled.
+ * @param macro_table The macro table from the preprocess stage.
+ * @param context A pointer to the pointer where the context will be stored.
+ * @return The operation's result.
+ */
 result_t context_create(char *file_path, table_t *macro_table, context_t **context);
 
-/* Adds a single word to the context's code image. */
-/* May fail if: */
-/* - The added word causes the program to be larger than can be addressed in code. */
-/* - Memory allocations did not succeed. */
-result_t add_code_word(context_t *context, machine_word_t data);
+/**
+ * Adds a single word to the context's code image.
+ * May fail if:
+ * - The added word causes the program to be larger than can be addressed in code.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param word The code word to add.
+ * @return The operation's result.
+ */
+result_t add_code_word(context_t *context, machine_word_t word);
 
-/* Adds a single word to the context's data image. */
-/* May fail if: */
-/* - The added word causes the program to be larger than can be addressed in code. */
-/* - Memory allocations did not succeed. */
-result_t add_data_word(context_t *context, machine_word_t data);
+/**
+ * Adds a single word to the context's data image.
+ * May fail if:
+ * - The added word causes the program to be larger than can be addressed in code.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param word The word of data to add.
+ * @return The operation's result.
+ */
+result_t add_data_word(context_t *context, machine_word_t word);
 
-/* Adds a single word to the code image, that will reference a label after it's resolved. */
-/* May fail if: */
-/* - The added word causes the program to be larger than can be addressed in code. */
-/* - Memory allocations did not succeed. */
+/**
+ * Adds a single word to the code image, that will reference a label after it's resolved.
+ * May fail if:
+ * - The added word causes the program to be larger than can be addressed in code.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param label The name of the label being referenced.
+ * @return The operation's result.
+ */
 result_t add_label_reference(context_t *context, char *label);
 
-/* Adds a label to the label table, and sets its definition based on the current values of IC/DC. */
-/* May fail if: */
-/* - A label with the same name already exists in the label table. */
-/* - Memory allocations did not succeed. */
+/**
+ * Adds a label to the label table, and sets its definition based on the current values of IC/DC.
+ * May fail if:
+ * - A label with the same name already exists in the label table.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param label The label's name.
+ * @param is_data True if the label points to the data image, false if it points to the code image.
+ * @return The operation's result.
+ */
 result_t add_label(context_t *context, char *label, bool_t is_data);
 
-/* Specifies that the given label is an entry. */
-/* May fail if: */
-/* - The label was already specified as an entry. */
-/* - Memory allocations did not succeed. */
+/**
+ * Specifies that the given label is an entry.
+ * May fail if:
+ * - The label was already specified as an entry.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param label The label's name.
+ * @return The operation's result.
+ */
 result_t add_entry(context_t *context, char *label);
 
-/* Specifies that the given label is external. */
-/* May fail if: */
-/* - The label was already defined somewhere else (either with label syntax or another `.extern` directive). */
-/* - Memory allocations did not succeed. */
+/**
+ * Specifies that the given label is external.
+ * May fail if:
+ * - The label was already defined somewhere else (either with label syntax or another `.extern` directive).
+ * - Memory allocations did not succeed.
+ *
+ * @param context The context to operate on.
+ * @param label The label's name.
+ * @return The operation's result.
+ */
 result_t add_extern(context_t *context, char *label);
 
-/* Called after the whole file's code has been generated. */
-/* Updates the location of all data labels, so that they will point to the correct region after the code image. */
+/**
+ * Called after the whole file's code has been generated.
+ * Updates the location of all data labels, so that they will point to the correct region after the code image.
+ *
+ * @param context The assembler context to operate on.
+ */
 void merge_data(context_t *context);
 
-/* Resolves all label references. All label operands in the code image will have the label's value, if it's defined. */
-/* May fail if there are references to labels that weren't defined. */
+/**
+ * Resolves all label references. All label operands in the code image will have the label's value, if it's defined.
+ * May fail if there are references to labels that weren't defined.
+ *
+ * @param context The assembler context to operate on.
+ * @return The operation's result.
+ */
 result_t resolve_labels(context_t *context);
 
-/* Prints the context's state, for debugging purposes. */
+/**
+ * Prints the context's state, for debugging purposes.
+ *
+ * @param context The assembler context to operate on.
+ */
 void print_data(context_t *context);
 
-/* Frees all the data used by the context, including the pointer to it. */
-/* If the given pointer is NULL, nothing is performed. */
+/**
+ * Frees all the data used by the context, including the pointer to it.
+ * If the given pointer is NULL, nothing is performed.
+ *
+ * @param context The assembler context to operate on.
+ */
 void context_free(context_t *context);
 #endif

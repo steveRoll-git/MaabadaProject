@@ -16,7 +16,7 @@ void skip_spaces(char **s) {
 }
 
 /* Returns whether there are no more non-space characters in the newline/null-terminated string `s`. */
-int is_end(char *s) {
+bool_t is_end(char *s) {
   skip_spaces(&s);
   return *s == 0 || *s == '\n';
 }

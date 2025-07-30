@@ -13,10 +13,18 @@ typedef enum line_kind_t {
   LINE_MACROCALL /* A line that calls a macro by its name. */
 } line_kind_t;
 
-/* Reads a line from the input file, stores it, and parses it for any preprocessor-related actions. */
-/* May fail if: */
-/* - The line is longer than the 80-character limit. */
-/* - Syntax errors in preprocessor-related actions were detected. */
+/**
+ * Reads a line from the input file, stores it, and parses it for any preprocessor-related actions.
+ * May fail if:
+ * - The line is longer than the 80-character limit.
+ * - Syntax errors in preprocessor-related actions were detected.
+ *
+ * @param file The file to read a line from.
+ * @param line An array to store the line's contents in.
+ * @param macro_name A pointer to store the macro's name at, if the line is an `mcro` line or a possible macro call.
+ * @param line_kind A pointer to store the line's kind at.
+ * @return The operation's result.
+ */
 result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, line_kind_t *line_kind) {
   word_t word;
   char *cur_line;
@@ -65,8 +73,13 @@ result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, line
   return SUCCESS;
 }
 
-/* Prints the given line into the file. */
-/* The line may end with either a newline or a null terminator - the newline will be included. */
+/**
+ * Prints the given line into the file.
+ * The line may end with either a newline or a null terminator - the newline will be included.
+ *
+ * @param out The file to write the line into.
+ * @param line The string of the line to write. May end with a newline or a null terminator.
+ */
 void print_line(FILE *out, char *line) {
   while (*line) {
     fputc(*line, out);
@@ -77,9 +90,14 @@ void print_line(FILE *out, char *line) {
   }
 }
 
-/* Prints a macro from the `in` file to the `out` file. */
-/* The `in` file is assumed to be positioned at the line where the macro begins. */
-/* It prints each line from `in` to `out`, until it encounters an `mcroend` line. */
+/**
+ * Prints a macro from the `in` file to the `out` file.
+ * The `in` file is assumed to be positioned at the line where the macro begins.
+ * It prints each line from `in` to `out`, until it encounters an `mcroend` line.
+ *
+ * @param out The file to write the macro's contents into.
+ * @param in The input file, which must be seeked to the beginning of the macro's contents.
+ */
 void print_macro(FILE *out, FILE *in) {
   char line[MAX_LINE];
   line_kind_t line_kind;

@@ -8,38 +8,75 @@
 
 #define OPCODE_FIRST_BIT 6
 #define OPCODE_MASK 0xf
+/**
+ * Encodes the given opcode into bits 6-9 of a code word.
+ * @param n The opcode to encode.
+ */
 #define OPCODE_BITS(n) ((n & OPCODE_MASK) << OPCODE_FIRST_BIT)
 
 #define SRC_FIRST_BIT 4
 #define SRC_MASK 0x3
+/**
+ * Encodes the given operand kind into the source (bits 4-5) of a code word.
+ * @param n The operand kind to encode.
+ */
 #define SRC_BITS(n) ((n & SRC_MASK) << SRC_FIRST_BIT)
 
 #define DST_FIRST_BIT 2
 #define DST_MASK 0x3
+/**
+ * Encodes the given operand kind into the destination (bits 2-3) of a code word.
+ * @param n The operand kind to encode.
+ */
 #define DST_BITS(n) ((n & DST_MASK) << DST_FIRST_BIT)
 
 #define ERA_MASK 0x3
+/**
+ * Encodes the given encoding kind (external, relocatable, or absolute) into the ERA bits (bits 0-1) of a code word.
+ * @param n The encoding kind to encode.
+ */
 #define ERA_BITS(n) (n & ERA_MASK)
 
 #define REG1_FIRST_BIT 6
 #define REG2_FIRST_BIT 2
 #define REG_MASK 0xf
+/**
+ * Encodes the given register index into bits 6-9 of a code word.
+ * @param n The register index to encode.
+ */
 #define REG1_BITS(n) ((n & REG_MASK) << REG1_FIRST_BIT)
+/**
+ * Encodes the given register index into bits 2-5 of a code word.
+ * @param n The register index to encode.
+ */
 #define REG2_BITS(n) ((n & REG_MASK) << REG2_FIRST_BIT)
 
 #define IMM_FIRST_BIT 2
 #define IMM_MASK 0xff
+/**
+ * Encodes the given immediate value into bits 2-9 of a code word.
+ * @param n The immediate value to encode.
+ */
 #define IMM_BITS(n) ((n & IMM_MASK) << IMM_FIRST_BIT)
 
-#define DATA_MASK 0x3ff
-
+/**
+ * Returns whether a directive is a data directive (.data, .string or .mat).
+ *
+ * @param directive The directive to check.
+ * @return Whether it's a data directive.
+ */
 bool_t is_data_directive(directive_t *directive) {
   return directive->kind == DIRECTIVE_KIND_DATA || directive->kind == DIRECTIVE_KIND_STRING ||
          directive->kind == DIRECTIVE_KIND_MAT;
 }
 
-/* Returns the first word of an instruction based on the opcode and the source/destination operands. */
-machine_word_t make_code_word(instruction_t *instruction) {
+/**
+ * Encodes the given instruction into the first binary machine word that represents it, and returns it.
+ *
+ * @param instruction The instruction to encode.
+ * @return An encoded machine word of the instruction.
+ */
+machine_word_t encode_instruction_word(instruction_t *instruction) {
   machine_word_t word = 0;
 
   word |= OPCODE_BITS(instruction->info->opcode);
@@ -57,14 +94,28 @@ machine_word_t make_code_word(instruction_t *instruction) {
   return word;
 }
 
-/* Creates a word where one register occupies bits 6-9 and the other occupies bits 2-5. */
+/**
+ * Encodes a word where one register index occupies bits 6-9 and the other occupies bits 2-5.
+ * This is used in matrix operands, and for instructions where both operands are registers.
+ *
+ * @param reg_1 The first register index.
+ * @param reg_2 The second register index.
+ * @return An encoded machine word that contains the two register indices.
+ */
 machine_word_t make_joined_register_word(char reg_1, char reg_2) {
   return REG1_BITS(reg_1) | REG2_BITS(reg_2);
 }
 
-/* Outputs the operand's binary code into the assembler's code image. */
-/* If the operand references a label, its location will be added to the label table, and resolved later. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Encodes and outputs the operand's binary code into the assembler's code image.
+ * If the operand references a label, its location will be added to the label table, and resolved later.
+ * May fail if memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param operand The operand to encode and output.
+ * @param is_second True if this operand is the second operand, or false if it's the first operand.
+ * @return The operation's result.
+ */
 result_t write_operand(context_t *context, operand_t *operand, bool_t is_second) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
@@ -94,13 +145,19 @@ result_t write_operand(context_t *context, operand_t *operand, bool_t is_second)
   return SUCCESS;
 }
 
-/* Outputs the instruction's binary code into the assembler's code image. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Encodes and outputs the instruction's binary code into the assembler's code image.
+ * May fail if memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param instruction The instruction to encode and output.
+ * @return The operation's result.
+ */
 result_t write_instruction(context_t *context, instruction_t *instruction) {
   operand_t *operand_1 = &instruction->operand_1;
   operand_t *operand_2 = &instruction->operand_2;
 
-  TRY(add_code_word(context, make_code_word(instruction)))
+  TRY(add_code_word(context, encode_instruction_word(instruction)))
 
   if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
     /* If both operands are registers, we write a single word that contains both of them. */
@@ -120,8 +177,17 @@ result_t write_instruction(context_t *context, instruction_t *instruction) {
   return SUCCESS;
 }
 
-/* Outputs the directive's binary code into the assembler's data image. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Encodes and outputs the directive's binary code into the assembler's data image.
+ * May fail if:
+ * - The newly added code/data words cause the program to be larger than can be addressed in code.
+ * - A label defined with `.extern` was already defined.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param directive The directive to encode and output.
+ * @return The operation's result.
+ */
 result_t write_directive(context_t *context, directive_t *directive) {
   int i;
   switch (directive->kind) {
@@ -153,11 +219,18 @@ result_t write_directive(context_t *context, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Checks that a statement is well-formed, and generates its code. */
-/* May fail if: */
-/* - The statement is semantically incorrect. (For example, if an instruction is called with unsupported operands.) */
-/* - The statement defines a label that was already defined. */
-/* - Memory allocations did not succeed. */
+/**
+ * Checks that a statement is well-formed, encodes into binary, and writes it into the context's code or data images.
+ * May fail if:
+ * - The statement is semantically incorrect. (For example, if an instruction is called with unsupported operands.)
+ * - The statement defines a label that was already defined.
+ * - The newly added code/data words cause the program to be larger than can be addressed in code.
+ * - Memory allocations did not succeed.
+ *
+ * @param context The assembler context to operate on.
+ * @param statement The statement to encode and output.
+ * @return The operation's result.
+ */
 result_t compile_statement(context_t *context, statement_t *statement) {
   if (statement->kind == STATEMENT_EMPTY) {
     /* Empty statements require no action. */
