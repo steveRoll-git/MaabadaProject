@@ -74,6 +74,7 @@ extern result_t ERR_MATRIX_START_BRACKET_COL;
 extern result_t ERR_MATRIX_END_BRACKET_COL;
 extern result_t ERR_MATRIX_NEGATIVE_STORAGE;
 extern result_t ERR_WRONG_MATRIX_ACCESS;
+extern result_t ERR_MISSING_SPACE_AFTER_BRACKET;
 
 /* String syntax errors */
 

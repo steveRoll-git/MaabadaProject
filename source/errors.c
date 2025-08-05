@@ -68,6 +68,7 @@ result_t ERR_MATRIX_START_BRACKET_COL = "Missing '[' for column index.";
 result_t ERR_MATRIX_END_BRACKET_COL = "Missing ']' for column index.";
 result_t ERR_MATRIX_NEGATIVE_STORAGE = "Matrix rows and columns must be positive integers.";
 result_t ERR_WRONG_MATRIX_ACCESS = "Matrix rows and columns can only be accessed with registers.";
+result_t ERR_MISSING_SPACE_AFTER_BRACKET = "Missing space after last `]`.";
 
 /* String syntax errors */
 

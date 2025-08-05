@@ -350,6 +350,9 @@ result_t parse_matrix(char *s, directive_t *directive) {
   /* Expected ']'. */
   ASSERT(accept(&s, ']'), ERR_MATRIX_END_BRACKET_COL)
 
+  /* There must be a space after the last `]`. */
+  ASSERT(isspace(*s), ERR_MISSING_SPACE_AFTER_BRACKET)
+
   /* The number of rows and columns must be positive. */
   ASSERT(rows > 0 && cols > 0, ERR_MATRIX_NEGATIVE_STORAGE);
   max_elements = rows * cols;

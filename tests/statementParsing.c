@@ -33,8 +33,11 @@ int main() {
   ASSERT(statement.data.instruction.operand_2.kind == OPERAND_KIND_LABEL)
   ASSERT(strcmp(statement.data.instruction.operand_2.data.label, "YYY") == 0)
 
+  ASSERT(parse_statement(".mat [2][3] 4, -5, 7, 9", &statement) == SUCCESS)
+
   ASSERT(parse_statement(". data 1, 2, 3", &statement) == ERR_INVALID_DIRECTIVE_SYNTAX)
   ASSERT(parse_statement(".cool 1, 2, 3", &statement) == ERR_INVALID_DIRECTIVE_SYNTAX)
+  ASSERT(parse_statement(".mat [2][3]4, -5, 7, 9", &statement) == ERR_MISSING_SPACE_AFTER_BRACKET)
   ASSERT(parse_statement("data: add #6, r2", &statement) == ERR_INVALID_LABEL)
   ASSERT(parse_statement("lab_el: add #6, r2", &statement) == ERR_LABEL_UNDERSCORES)
   ASSERT(parse_statement("label : mov r1, r2", &statement) == ERR_UNKNOWN_INSTRUCTION)
