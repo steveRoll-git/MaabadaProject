@@ -20,8 +20,8 @@
 
 /**
  * A macro specifically for use in the `assemble_file` function.
- * Evaluates the given expression, which must return a `result_t`. If the result is not successful, prints an error
- * message, and jumps to the `cleanup` label to clean up memory.
+ * Evaluates the given expression, which must return a `result_t`. If the result is not successful, sets the `result`
+ * variable to the returned error code, and jumps to the `cleanup` label to clean up memory.
  *
  * @param f The expression to evaluate. Must be of a `result_t` type.
  */
@@ -29,7 +29,6 @@
   {                                                                                                                    \
     result_t _result = (f);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
-      printf("Could not assemble file: %s\n\n", _result);                                                              \
       result = _result;                                                                                                \
       goto cleanup;                                                                                                    \
     }                                                                                                                  \
@@ -109,6 +108,12 @@ cleanup:
   free(externals_path);
   table_free(macro_table);
   context_free(context);
+
+  if (result != SUCCESS) {
+    printf("Could not assemble file: ");
+    print_error(result);
+    printf("\n\n");
+  }
 
   return result;
 }
