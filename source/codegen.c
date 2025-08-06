@@ -251,10 +251,10 @@ result_t compile_statement(context_t *context, statement_t *statement) {
       /* If a label wasn't added, it must be because this is a `.entry` or `.extern` directive. */
       /* A warning will be printed. */
       if (statement->data.directive.kind == DIRECTIVE_KIND_ENTRY) {
-        print_warning(context->file_path, context->line_number, WARNING_ENTRY_LABEL);
+        print_warning_in_file(context->file_path, context->line_number, WARNING_ENTRY_LABEL);
       }
       else if (statement->data.directive.kind == DIRECTIVE_KIND_EXTERN) {
-        print_warning(context->file_path, context->line_number, WARNING_EXTERN_LABEL);
+        print_warning_in_file(context->file_path, context->line_number, WARNING_EXTERN_LABEL);
       }
     }
   }
@@ -331,7 +331,7 @@ result_t codegen(context_t *context) {
 
     if (result != SUCCESS) {
       /* If the line has incorrect syntax or couldn't be compiled, print an error. */
-      print_error(context->file_path, context->line_number, result);
+      print_error_in_file(context->file_path, context->line_number, result);
       codegen_result = ERR_CODEGEN_FAILED;
     }
 

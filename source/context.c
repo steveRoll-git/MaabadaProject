@@ -188,13 +188,13 @@ result_t resolve_labels(context_t *context) {
       }
       else {
         result = ERR_UNDEFINED_LABELS;
-        print_error(context->file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
+        print_error_in_file(context->file_path, reference->line_number, ERR_LABEL_NOT_DEFINED);
       }
     }
 
     if (!info->found && info->is_entry) {
       result = ERR_UNDEFINED_LABELS;
-      print_error(context->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
+      print_error_in_file(context->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
     }
   }
 

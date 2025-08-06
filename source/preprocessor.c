@@ -137,7 +137,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
     parse_result = read_parse_line(in_file, line, macro_name, &parse_status);
     if (parse_result != SUCCESS) {
       result = ERR_PREPROCESS_FAILED;
-      print_error(input_file_path, line_number, parse_result);
+      print_error_in_file(input_file_path, line_number, parse_result);
       continue;
     }
 
@@ -165,7 +165,7 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
         parse_result = read_parse_line(in_file, line, NULL, &parse_status);
         if (parse_result != SUCCESS) {
           result = ERR_PREPROCESS_FAILED;
-          print_error(input_file_path, line_number, parse_result);
+          print_error_in_file(input_file_path, line_number, parse_result);
         }
       }
       while (parse_status != LINE_MCROEND);
