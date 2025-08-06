@@ -29,7 +29,7 @@
   {                                                                                                                    \
     result_t _result = (f);                                                                                            \
     if (_result != SUCCESS) {                                                                                          \
-      printf("Error: %s\n\n", _result);                                                                                \
+      printf("Could not assemble file: %s\n\n", _result);                                                              \
       result = _result;                                                                                                \
       goto cleanup;                                                                                                    \
     }                                                                                                                  \
@@ -101,6 +101,7 @@ result_t assemble_file(char *file_name) {
   printf("File assembled successfully.\n\n");
 
 cleanup:
+  /* Free all the memory we allocated. */
   free(input_file_path);
   free(processed_path);
   free(object_path);

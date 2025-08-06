@@ -180,7 +180,7 @@ result_t resolve_labels(context_t *context);
  * Frees all the data used by the context, including the pointer to it.
  * If the given pointer is NULL, nothing is performed.
  *
- * @param context The assembler context to free.
+ * @param context The assembler context to free. May be NULL.
  */
 void context_free(context_t *context);
 #endif
