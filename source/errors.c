@@ -114,7 +114,7 @@ const char *get_error_message(result_t result) {
 }
 
 void print_error(result_t result) {
-  printf(get_error_message(result));
+  printf("%s", get_error_message(result));
 }
 
 void print_error_in_file(char *file_path, int line_number, result_t result) {
