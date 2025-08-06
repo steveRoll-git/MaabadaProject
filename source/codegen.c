@@ -113,10 +113,10 @@ machine_word_t make_joined_register_word(char reg_1, char reg_2) {
  *
  * @param context The assembler context to operate on.
  * @param operand The operand to encode and output.
- * @param is_second True if this operand is the second operand, or false if it's the first operand.
+ * @param is_destination True if this operand is the destination operand, or false if it's the source operand.
  * @return The operation's result.
  */
-result_t write_operand(context_t *context, operand_t *operand, bool_t is_second) {
+result_t write_operand(context_t *context, operand_t *operand, bool_t is_destination) {
   switch (operand->kind) {
     case OPERAND_KIND_IMMEDIATE:
       TRY(add_code_word(context, IMM_BITS(operand->data.immediate)))
@@ -133,7 +133,7 @@ result_t write_operand(context_t *context, operand_t *operand, bool_t is_second)
       break;
 
     case OPERAND_KIND_REGISTER:
-      if (is_second) {
+      if (is_destination) {
         TRY(add_code_word(context, REG2_BITS(operand->data.register_index)))
       }
       else {
@@ -168,9 +168,12 @@ result_t write_instruction(context_t *context, instruction_t *instruction) {
   else {
     /* Write the operands one after another. */
     if (instruction->num_args >= ONE_ARG) {
-      TRY(write_operand(context, &instruction->operand_1, FALSE))
+      /* If there is just one operand, it is the destination operand. */
+      bool_t is_destination = instruction->num_args == ONE_ARG;
+      TRY(write_operand(context, &instruction->operand_1, is_destination))
     }
     if (instruction->num_args == TWO_ARGS) {
+      /* The second operand is always the destination operand. */
       TRY(write_operand(context, &instruction->operand_2, TRUE))
     }
   }
