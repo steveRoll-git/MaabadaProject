@@ -159,7 +159,8 @@ result_t write_instruction(context_t *context, instruction_t *instruction) {
 
   TRY(add_code_word(context, encode_instruction_word(instruction)))
 
-  if (operand_1->kind == OPERAND_KIND_REGISTER && operand_2->kind == OPERAND_KIND_REGISTER) {
+  if (instruction->num_args == TWO_ARGS && operand_1->kind == OPERAND_KIND_REGISTER &&
+      operand_2->kind == OPERAND_KIND_REGISTER) {
     /* If both operands are registers, we write a single word that contains both of them. */
     machine_word_t word = make_joined_register_word(operand_1->data.register_index, operand_2->data.register_index);
     TRY(add_code_word(context, word))
