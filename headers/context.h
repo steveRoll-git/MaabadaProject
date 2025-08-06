@@ -177,13 +177,6 @@ void merge_data(context_t *context);
 result_t resolve_labels(context_t *context);
 
 /**
- * Prints the context's state, for debugging purposes.
- *
- * @param context The assembler context to operate on.
- */
-void print_data(context_t *context);
-
-/**
  * Frees all the data used by the context, including the pointer to it.
  * If the given pointer is NULL, nothing is performed.
  *

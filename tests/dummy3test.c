@@ -5,6 +5,31 @@
 #define ASSERT_LABEL(label, expected)                                                                                  \
   ASSERT(((label_info_t *) table_get(assembler->label_table, label))->value == expected)
 
+void print_data(context_t *context) {
+  size_t i;
+  printf("IC: %d \n", context->ic);
+  printf("DC: %d \n", context->dc);
+
+  printf("\nARGS (For DC): { ");
+
+  for (i = 0; i < list_count(context->data_array); i++) {
+    printf("%d,  ", *(machine_word_t *) list_at(context->data_array, i));
+  }
+  printf("}\n");
+
+  printf("Labels:\n");
+
+  for (i = 0; i < table_count(context->label_table); i++) {
+    size_t j;
+    label_info_t *info = table_value_at(context->label_table, i);
+    printf("%s = %d: ", table_key_at(context->label_table, i), info->value);
+    for (j = 0; j < list_count(info->references); j++) {
+      printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line_number);
+    }
+    printf("\n");
+  }
+}
+
 int main(void) {
   char *in = "../examples/wont_work/matricesTesting.am";
   table_t *macro_table;
