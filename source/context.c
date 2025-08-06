@@ -193,6 +193,7 @@ result_t resolve_labels(context_t *context) {
     }
 
     if (!info->found && info->is_entry) {
+      result = ERR_UNDEFINED_LABELS;
       print_error(context->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
     }
   }
