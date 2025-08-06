@@ -31,9 +31,14 @@ result_t context_create(char *file_path, table_t *macro_table, context_t **conte
   return SUCCESS;
 }
 
-/* Checks that the current size of the program (the data image together with the code image) doesn't exceed the highest
- * address that can be accessed, which is 255. */
-/* If the program is too large, an error is returned, but this is only done once for the current file. */
+/**
+ * Checks that the current size of the program (the data image together with the code image) doesn't exceed the highest
+ * address that can be accessed, which is 255.
+ * If the program is too large, an error is returned, but this is only done once for the current file.
+ *
+ * @param context The assembler context to operate on.
+ * @return An error if the program is too large, or NULL otherwise.
+ */
 result_t check_max_address(context_t *context) {
   if (!context->warned_too_large && context->ic + context->dc > ADDRESS_MAX) {
     /* If the program is too large, we only show that error once for the current file. */
@@ -57,8 +62,15 @@ result_t add_data_word(context_t *context, machine_word_t word) {
   return SUCCESS;
 }
 
-/* Initializes a new empty `label_info_t` value for the given label. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Initializes a new empty `label_info_t` value for the given label.
+ * May fail if memory allocations did not succeed.
+ *
+ * @param assembler The assembler context to operate on.
+ * @param label The name of the label being initialized.
+ * @param info A pointer where the pointer to the newly created info will be stored.
+ * @return The operation's result.
+ */
 result_t init_label_info(context_t *assembler, char *label, label_info_t **info) {
   TRY(table_add(assembler->label_table, label, (void **) info))
   (*info)->found = FALSE;
@@ -70,9 +82,16 @@ result_t init_label_info(context_t *assembler, char *label, label_info_t **info)
   return SUCCESS;
 }
 
-/* Returns a pointer to the `label_info_t` object for the specified label. */
-/* If an info object doesn't exist for this label yet, creates it. */
-/* May fail if memory allocations did not succeed. */
+/**
+ * Returns a pointer to the `label_info_t` object for the specified label.
+ * If an info object doesn't exist for this label yet, creates it.
+ * May fail if memory allocations did not succeed.
+ *
+ * @param assembler The assembler context to operate on.
+ * @param label The name of the label to get info about.
+ * @param info A pointer where the pointer to the newly created info will be stored.
+ * @return The operation's result.
+ */
 result_t get_label_info(context_t *assembler, char *label, label_info_t **info) {
   *info = table_get(assembler->label_table, label);
   if (*info == NULL) {
@@ -181,32 +200,11 @@ result_t resolve_labels(context_t *context) {
   return result;
 }
 
-void print_data(context_t *context) {
-  size_t i;
-  printf("IC: %d \n", context->ic);
-  printf("DC: %d \n", context->dc);
-
-  printf("\nARGS (For DC): { ");
-
-  for (i = 0; i < list_count(context->data_array); i++) {
-    printf("%d,  ", *(machine_word_t *) list_at(context->data_array, i));
-  }
-  printf("}\n");
-
-  printf("Labels:\n");
-
-  for (i = 0; i < table_count(context->label_table); i++) {
-    size_t j;
-    label_info_t *info = table_value_at(context->label_table, i);
-    printf("%s = %d: ", table_key_at(context->label_table, i), info->value);
-    for (j = 0; j < list_count(info->references); j++) {
-      printf("%d, ", ((label_reference_t *) list_at(info->references, j))->line_number);
-    }
-    printf("\n");
-  }
-}
-
-/* Frees the memory of a `label_info_t` object. */
+/**
+ * Frees the memory of a `label_info_t` object.
+ *
+ * @param info Pointer to the `label_info_t` object to free.
+ */
 void label_info_free(label_info_t *info) {
   list_free(info->references);
 }
