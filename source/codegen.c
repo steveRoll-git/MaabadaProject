@@ -243,9 +243,19 @@ result_t compile_statement(context_t *context, statement_t *statement) {
 
   if (statement->has_label) {
     /* If the statement has a label, add it to the label table. */
-    if (statement->kind != STATEMENT_DIRECTIVE || is_data_directive(&statement->data.directive)) {
+    if (statement->kind == STATEMENT_INSTRUCTION || is_data_directive(&statement->data.directive)) {
       /* Labels are added only for instructions and the [.data, .string, .mat] directives. */
       TRY(add_label(context, statement->label, statement->kind == STATEMENT_DIRECTIVE))
+    }
+    else {
+      /* If a label wasn't added, it must be because this is a `.entry` or `.extern` directive. */
+      /* A warning will be printed. */
+      if (statement->data.directive.kind == DIRECTIVE_KIND_ENTRY) {
+        print_warning(context->file_path, context->line_number, WARNING_ENTRY_LABEL);
+      }
+      else if (statement->data.directive.kind == DIRECTIVE_KIND_EXTERN) {
+        print_warning(context->file_path, context->line_number, WARNING_EXTERN_LABEL);
+      }
     }
   }
 

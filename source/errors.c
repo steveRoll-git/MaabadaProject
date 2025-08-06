@@ -75,6 +75,13 @@ result_t ERR_MISSING_SPACE_AFTER_BRACKET = "Missing space after last `]`.";
 result_t ERR_STRING_MISSING_QUOTE_START = "String argument must start with quotation marks.";
 result_t ERR_STRING_MISSING_QUOTE_END = "String argument must end with quotation marks.";
 
+const char *WARNING_ENTRY_LABEL = "Labels on '.entry' directives have no effect and are ignored.";
+const char *WARNING_EXTERN_LABEL = "Labels on '.extern' directives have no effect and are ignored.";
+
 void print_error(char *file_path, int line_number, const char *message) {
   printf("Error at %s:%d: %s\n", file_path, line_number, message);
+}
+
+void print_warning(char *file_path, int line_number, const char *message) {
+  printf("Warning at %s:%d: %s\n", file_path, line_number, message);
 }

@@ -81,6 +81,9 @@ extern result_t ERR_MISSING_SPACE_AFTER_BRACKET;
 extern result_t ERR_STRING_MISSING_QUOTE_START;
 extern result_t ERR_STRING_MISSING_QUOTE_END;
 
+extern const char *WARNING_ENTRY_LABEL;
+extern const char *WARNING_EXTERN_LABEL;
+
 /**
  * This macro can only be called in a function that returns a `result_t`.
  * Checks that the condition is true. If not, causes the running function to return the given error message as a
@@ -117,5 +120,14 @@ extern result_t ERR_STRING_MISSING_QUOTE_END;
  * @param message A message describing the error.
  */
 void print_error(char *file_path, int line_number, const char *message);
+
+/**
+ * Prints a warning message, with a file path and line number.
+ *
+ * @param file_path The path of the file where the warning was found.
+ * @param line_number The number of the line where the warning was found.
+ * @param message A message describing the warning.
+ */
+void print_warning(char *file_path, int line_number, const char *message);
 
 #endif
