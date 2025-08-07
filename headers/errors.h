@@ -63,6 +63,7 @@ typedef enum result_t {
   ERR_LABEL_NOT_DEFINED,
   ERR_LABEL_ALREADY_ENTRY,
   ERR_LABEL_MISSING_SPACE,
+  ERR_LABEL_ENTRY_AND_EXTERN,
 
   /* Matrix syntax errors */
 

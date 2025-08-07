@@ -88,6 +88,8 @@ const char *get_error_message(result_t result) {
       return "This label was already defined as an entry.";
     case ERR_LABEL_MISSING_SPACE:
       return "There must be a space after the `:` of a label.";
+    case ERR_LABEL_ENTRY_AND_EXTERN:
+      return "An external label cannot be defined as an entry.";
     case ERR_MATRIX_OVERFLOW:
       return "Matrix has more values than it can store.";
     case ERR_MATRIX_START_BRACKET_ROW:

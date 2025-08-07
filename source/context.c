@@ -192,9 +192,17 @@ result_t resolve_labels(context_t *context) {
       }
     }
 
-    if (!info->found && info->is_entry) {
-      result = ERR_UNDEFINED_LABELS;
-      print_error_in_file(context->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
+    if (info->is_entry) {
+      if (!info->found) {
+        /* A label that is used in `.entry` must be defined. */
+        result = ERR_UNDEFINED_LABELS;
+        print_error_in_file(context->file_path, info->entry_line, ERR_LABEL_NOT_DEFINED);
+      }
+      else if (info->is_external) {
+        /* A label cannot be used in `.extern` and `.entry` in the same file. */
+        result = ERR_UNDEFINED_LABELS;
+        print_error_in_file(context->file_path, info->entry_line, ERR_LABEL_ENTRY_AND_EXTERN);
+      }
     }
   }
 
