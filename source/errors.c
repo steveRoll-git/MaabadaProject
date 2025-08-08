@@ -74,8 +74,6 @@ const char *get_error_message(result_t result) {
       return "The number is larger than the maximum possible word (511).";
     case ERR_INVALID_LABEL:
       return "Invalid label name: Must not be a reserved word.";
-    case ERR_LABEL_UNDERSCORES:
-      return "Label name cannot contain underscores.";
     case ERR_LABEL_TOO_LONG:
       return "Label name cannot be longer than 30 characters.";
     case ERR_LABEL_ALREADY_DEFINED:

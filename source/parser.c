@@ -418,8 +418,6 @@ result_t parse_statement(char *line, statement_t *statement) {
 
     /* Labels may only be identifiers. */
     ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_LABEL)
-    /* Labels may not contain underscores. */
-    ASSERT(strchr(word.value, '_') == NULL, ERR_LABEL_UNDERSCORES)
     /* Labels may not be longer than 30 characters. */
     ASSERT(strlen(word.value) + 1 <= MAX_LABEL, ERR_LABEL_TOO_LONG)
 

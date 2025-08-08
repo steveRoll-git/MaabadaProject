@@ -56,7 +56,6 @@ typedef enum result_t {
   /* Label syntax errors */
 
   ERR_INVALID_LABEL,
-  ERR_LABEL_UNDERSCORES,
   ERR_LABEL_TOO_LONG,
   ERR_LABEL_ALREADY_DEFINED,
   ERR_LABEL_NAME_IS_MACRO,
