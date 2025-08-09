@@ -8,21 +8,30 @@
 #include "../headers/errors.h"
 #include "../headers/utils.h"
 
-/* Moves `*s` to point at the next non-space character. */
+/**
+ * Moves `*s` to point at the next non-space character.
+ *
+ * @param s Pointer to the string to move.
+ */
 void skip_spaces(char **s) {
   while (isspace(**s) && **s != '\n') {
     (*s)++;
   }
 }
 
-/* Returns whether there are no more non-space characters in the newline/null-terminated string `s`. */
 bool_t is_end(char *s) {
   skip_spaces(&s);
   return *s == 0 || *s == '\n';
 }
 
-/* Checks the current character under `s`. */
-/* If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE. */
+/**
+ * Checks the current character under `s`.
+ * If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE.
+ *
+ * @param s Pointer to the string to check and advance.
+ * @param c The character to check for.
+ * @return TRUE if the character was found and advanced, FALSE if not.
+ */
 bool_t accept_nospace(char **s, char c) {
   if (**s == c) {
     (*s)++;
@@ -31,15 +40,26 @@ bool_t accept_nospace(char **s, char c) {
   return FALSE;
 }
 
-/* Skips leading spaces, and checks the current character under `s`. */
-/* If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE. */
+/**
+ * Skips leading spaces, and checks the current character under `s`.
+ * If it is equal to `c`, advances and returns TRUE, otherwise returns FALSE.
+ *
+ * @param s Pointer to the string to check and advance.
+ * @param c The character to check for.
+ * @return TRUE if the character was found and advanced, FALSE if not.
+ */
 bool_t accept(char **s, char c) {
   skip_spaces(s);
   return accept_nospace(s, c);
 }
 
-/* In the newline/null-terminated string `s`, returns the last pointer where quotation marks appear, or NULL if they do
- * not appear in the line. */
+/**
+ * In the newline/null-terminated string `s`, returns the last pointer where quotation marks appear, or NULL if they do
+ * not appear in the line.
+ *
+ * @param s The string to check, terminated with a newline or null terminator.
+ * @return A pointer to the last place where quotation marks appear in the code, or NULL if there are none.
+ */
 char *find_last_quotes(char *s) {
   char *last = NULL;
   while (*s && *s != '\n') {
@@ -51,7 +71,12 @@ char *find_last_quotes(char *s) {
   return last;
 }
 
-/* Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character. */
+/**
+ * Copies a character from the string in `src` to the string in `dest`, and advances both of them by one character.
+ *
+ * @param dest A pointer to the string to copy into.
+ * @param src A pointer to the string to copy from.
+ */
 void add_char(char **dest, char **src) {
   **dest = **src;
   (*dest)++;
@@ -194,8 +219,14 @@ read_line_status_t read_line(FILE *file, char line[MAX_LINE]) {
   return READ_LINE_SUCCESS;
 }
 
-/* Skips leading spaces and parses an integer (with an optional + or -), and stores it in `result`. */
-/* May fail if the syntax of the number is incorrect. */
+/**
+ * Skips leading spaces and parses an integer (with an optional + or -), and stores it in `result`.
+ * May fail if the syntax of the number is incorrect.
+ *
+ * @param s Pointer to the string to parse from.
+ * @param out Pointer where the parsed number should be stored.
+ * @return The operation's result.
+ */
 result_t parse_number(char **s, machine_word_t *out) {
   char *orig = *s;
   long result = strtol(*s, s, 10);
@@ -214,8 +245,14 @@ result_t parse_number(char **s, machine_word_t *out) {
   return SUCCESS;
 }
 
-/* Parses the index accessors of a matrix operand, right after the label name. */
-/* May fail if the syntax of the operand is incorrect. */
+/**
+ * Parses the index accessors of a matrix operand, right after the label name.
+ * May fail if the syntax of the operand is incorrect.
+ *
+ * @param s Pointer to the string that should be parsed.
+ * @param operand Pointer where information about the operand should be stored.
+ * @return The operation's result.
+ */
 result_t parse_matrix_operand(char **s, operand_t *operand) {
   word_t word;
 
@@ -243,8 +280,14 @@ result_t parse_matrix_operand(char **s, operand_t *operand) {
   return SUCCESS;
 }
 
-/* Parses an operand and stores it in the given pointer. */
-/* May fail if the syntax of the operand is incorrect. */
+/**
+ * Parses an operand and stores it in the given pointer.
+ * May fail if the syntax of the operand is incorrect.
+ *
+ * @param s Pointer to the string that should be parsed.
+ * @param operand Pointer where information about the operand should be stored.
+ * @return The operation's result.
+ */
 result_t parse_operand(char **s, operand_t *operand) {
   word_t word;
 
@@ -296,8 +339,14 @@ result_t parse_operand(char **s, operand_t *operand) {
   return SUCCESS;
 }
 
-/* Parses between zero and two operands, right after an instruction. */
-/* May fail if the syntax of the operands is incorrect. */
+/**
+ * Parses between zero and two operands, right after an instruction.
+ * May fail if the syntax of the operands is incorrect.
+ *
+ * @param s The string to parse.
+ * @param instruction Pointer where information about the instruction should be stored.
+ * @return The operation's result.
+ */
 result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   instruction->num_args = NO_ARGS;
   if (!is_end(s)) {
@@ -317,10 +366,16 @@ result_t parse_instruction_operands(char *s, instruction_t *instruction) {
   return SUCCESS;
 }
 
-/* Parses a list of numbers separated by commas, and stores them in the directive's data array. */
-/* May fail if: */
-/* - The syntax of the parameter is incorrect. */
-/* - The given numbers are smaller or larger than can be represented by 10-bit words. */
+/**
+ * Parses a list of numbers separated by commas, and stores them in the directive's data array.
+ * May fail if:
+ * - The syntax of the parameter is incorrect.
+ * - The given numbers are smaller or larger than can be represented by 10-bit words.
+ *
+ * @param s The string to parse.
+ * @param directive Pointer where information about the directive should be stored.
+ * @return The operation's result.
+ */
 result_t parse_data(char *s, directive_t *directive) {
   int *size = &directive->info.data.size;
   *size = 0;
@@ -342,8 +397,14 @@ result_t parse_data(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Parses a string delimited by quotation marks, and stores its contents in the directive's data array. */
-/* May fail if the syntax of the parameter is incorrect. */
+/**
+ * Parses a string delimited by quotation marks, and stores its contents in the directive's data array.
+ * May fail if the syntax of the parameter is incorrect.
+ *
+ * @param s The string to parse.
+ * @param directive Pointer where information about the directive should be stored.
+ * @return The operation's result.
+ */
 result_t parse_string(char *s, directive_t *directive) {
   char *last_quotes;
   int *size = &directive->info.data.size;
@@ -370,8 +431,14 @@ result_t parse_string(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Parses the arguments of the .mat directive, and stores its contents in the directive's data array. */
-/* May fail if the syntax of the parameter is incorrect. */
+/**
+ * Parses the arguments of the .mat directive, and stores its contents in the directive's data array.
+ * May fail if the syntax of the parameter is incorrect.
+ *
+ * @param s The string to parse.
+ * @param directive Pointer where information about the directive should be stored.
+ * @return The operation's result.
+ */
 result_t parse_matrix(char *s, directive_t *directive) {
   machine_word_t rows, cols;
   int max_elements;
@@ -423,8 +490,14 @@ result_t parse_matrix(char *s, directive_t *directive) {
   return SUCCESS;
 }
 
-/* Parses a single label name - the parameter for the .entry and .extern directives. */
-/* May fail if the syntax of the parameter is incorrect. */
+/**
+ * Parses a single label name - the parameter for the .entry and .extern directives.
+ * May fail if the syntax of the parameter is incorrect.
+ *
+ * @param s The string to parse.
+ * @param directive Pointer where information about the directive should be stored.
+ * @return The operation's result.
+ */
 result_t parse_label_param(char *s, directive_t *directive) {
   word_t word;
   read_word(&s, &word);
