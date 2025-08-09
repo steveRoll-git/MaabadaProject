@@ -1,3 +1,10 @@
+/*
+ * list.h
+ *
+ * This file defines the "list" data structure - a sequential array that stores items of arbitrary size, that can
+ * dynamically allocate storage when more items are added to it.
+ */
+
 #ifndef LIST_H
 #define LIST_H
 

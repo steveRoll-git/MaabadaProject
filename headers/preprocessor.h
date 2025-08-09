@@ -1,3 +1,11 @@
+/*
+ * preprocessor.h
+ *
+ * This file just exposes the single function from `preprocessor.c` that actually does the preprocess stage, to be used
+ * by `assembler.c`.
+ * More details in `preprocessor.c`.
+ */
+
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 

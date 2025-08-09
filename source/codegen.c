@@ -1,3 +1,21 @@
+/*
+ * codegen.c
+ *
+ * This file is responsible for the code generation stage.
+ *
+ * Code generation runs directly after preprocessing. It goes over every line in the ".am" file, parses it, and encodes
+ * it into binary. The binary representation of all instructions are stored in the assembler context's code image, and
+ * data directives are stored in the data image. (Other directives like `.extern` and `.entry` are processed here too.)
+ *
+ * Label definitions are also parsed and stored in the context's label table. Definitions of labels, and references to
+ * labels, are stored in the label table, but the actual values of labels cannot be calculated yet - because labels may
+ * be referenced after they've been defined, and because the total size of the instruction image isn't known yet.
+ * Labels are fully resolved later, by the `resolve_labels` function in `context.c`.
+ *
+ * The codegen stage also reports various errors that it finds in the code. This includes syntax errors, errors of
+ * incorrect instruction operands, and checks for numbers to be within their proper ranges.
+ */
+
 #include "../headers/codegen.h"
 
 #include <stdio.h>

@@ -1,3 +1,10 @@
+/*
+ * table.c
+ *
+ * This file defines all the functions for the "table" data structure.
+ * More details in `table.h`.
+ */
+
 #include "../headers/table.h"
 
 #include <stdlib.h>

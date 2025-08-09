@@ -1,3 +1,13 @@
+/*
+ * table.h
+ *
+ * This file defines the "table" data structure. A table associates values of arbitrary size to a string key, and allows
+ * looking up values that match a given key. It does this by storing two lists - one for the keys, and another for the
+ * values. When an item is added, the index of its key in the key list corresponds to the index of its value in the
+ * value list.
+ * (This data structure is not a hash table - looking up items is an O(n) operation.)
+ */
+
 #ifndef TABLE_H
 #define TABLE_H
 

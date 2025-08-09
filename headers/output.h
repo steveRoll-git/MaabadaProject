@@ -1,3 +1,9 @@
+/*
+ * output.h
+ *
+ * This file exposes the two functions that output the final resulting assembly files - object, externals and entries.
+ */
+
 #ifndef OUTPUT_H
 #define OUTPUT_H
 

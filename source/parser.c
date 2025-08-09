@@ -1,4 +1,14 @@
+/*
+ * parser.c
+ *
+ * This file contains all functions needed to parse the assembly language.
+ *
+ * It contains various utility functions for parsing, and functions that parse all the different kinds of constructs
+ * that can appear in the language, such as the different kinds of instructions and operands, and directives.
+ */
+
 #include "../headers/parser.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,10 @@
+/*
+ * codegen.h
+ *
+ * This file exposes the single method that is used in the code generation stage - `codegen` - to be used in `assembler.c`.
+ * More details in `codegen.c`.
+ */
+
 #ifndef CODEGEN_H
 #define CODEGEN_H
 

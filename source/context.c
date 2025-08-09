@@ -1,3 +1,15 @@
+/*
+ * context.c
+ *
+ * This file defines the assembler context - an object that stores all the state that is needed as a ".am" file is being
+ * processed. The most important parts are the code and data images, and the label table. But other information is
+ * stored as well, such as the name of the file being processed, and the number of the line currently being processed.
+ *
+ * All methods in this file perform various actions on the context, which are used mostly by the codegen stage.
+ * These actions include: adding words to the code/data images, adding definitions and references to labels, and some
+ * actions that are run after the codegen stage, like correcting the addresses of data labels and resolving label references.
+ */
+
 #include "../headers/context.h"
 
 #include <stdio.h>

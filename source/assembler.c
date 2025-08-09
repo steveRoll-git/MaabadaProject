@@ -1,3 +1,13 @@
+/*
+ * assembler.c
+ *
+ * This is the main file of the assembly program.
+ *
+ * It contains the `main` C function, and runs all the assembly stages on each input file that it receives.
+ *
+ * It also makes all the file path strings that are used by the other stages.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 

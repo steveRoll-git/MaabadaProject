@@ -1,3 +1,13 @@
+/*
+ * data.h
+ *
+ * This file defines various constants and enums that are common to the entirety of the assembler.
+ *
+ * Most of the things that are defined here are constants and limits that come from the definition of the assembler in
+ * the assignment, such as the names of instructions and directives, the minimum and maximum values that numbers can
+ * have, and other enums that describe concepts used in the assembler.
+ */
+
 #ifndef DATA_H
 #define DATA_H
 

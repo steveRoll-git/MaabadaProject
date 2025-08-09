@@ -1,3 +1,10 @@
+/*
+ * utils.h
+ *
+ * This file defines a few generic utility functions and macros that are used throughout the assembler, mainly for
+ * memory allocation and manipulating strings.
+ */
+
 #ifndef UTILS_H
 #define UTILS_H
 

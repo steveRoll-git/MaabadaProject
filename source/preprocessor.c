@@ -1,3 +1,11 @@
+/*
+ * preprocessor.c
+ *
+ * This file contains everything related to the preprocess stage - preprocessing ".as" files into ".am" files.
+ *
+ * It mainly looks for macro definitions in the input file, and outputs the macro-expanded contents to the output file.
+ */
+
 #include "../headers/preprocessor.h"
 
 #include <stdio.h>
@@ -120,18 +128,19 @@ result_t preprocess(char *input_file_path, char *output_file_path, table_t *macr
   int line_number = 0;
 
   in_file = fopen(input_file_path, "rb");
-
-  /* If the input file is unavailable, exit. */
   if (in_file == NULL) {
+    /* If the input file is unavailable, exit. */
     return ERR_INPUT_FILE_FAIL;
   }
 
   out_file = fopen(output_file_path, "w");
   if (out_file == NULL) {
+    /* If the output file is unavailable, exit. */
     fclose(in_file);
     return ERR_OUTPUT_FILE_FAIL;
   }
 
+  /* Keep parsing lines as long as we haven't reached the end of the file. */
   while (!feof(in_file)) {
     line_kind_t parse_status;
     result_t parse_result;

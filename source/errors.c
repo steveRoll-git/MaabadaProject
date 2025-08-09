@@ -1,3 +1,10 @@
+/*
+ * errors.c
+ *
+ * This file defines functions that are used in printing error messages.
+ * It defines the string representation for the different error codes in `errors.h`.
+ */
+
 #include "../headers/errors.h"
 
 #include <stdio.h>

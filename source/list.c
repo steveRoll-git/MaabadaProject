@@ -1,3 +1,10 @@
+/*
+ * list.c
+ *
+ * This file defines all the methods for the "list" data structure.
+ * More details in `list.h`.
+ */
+
 #include "../headers/list.h"
 
 #include <stdio.h>

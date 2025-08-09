@@ -1,3 +1,11 @@
+/*
+ * parser.h
+ *
+ * This file contains various types that are related to parsing, and defines structures that store information about
+ * parsed assembly constructs (like instructions, operands and directives).
+ * It also exposes the parsing functions needed by other files to parse assembly code.
+ */
+
 #ifndef PARSER_H
 #define PARSER_H
 

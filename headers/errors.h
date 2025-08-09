@@ -1,8 +1,22 @@
+/*
+ * errors.h
+ *
+ * This file defines various enums and macros used to define the project's error system.
+ *
+ * It defines `result_t`, which is used by all functions that can fail.
+ * If a function that returns a `result_t` fails, it can return the relevant error code from the enum, otherwise it will
+ * return the SUCCESS value (0).
+ *
+ * Functions that call other functions that can fail, use the TRY macro to forward errors from the function's they're
+ * calling. If a function in a TRY macro fails, the function that called it will return the same error code, and this
+ * will continue up the call stack such that the first caller will know what was the reason of failure.
+ */
+
 #ifndef ERRORS_H
 #define ERRORS_H
 
 /* Any function that can succeed or fail returns this type. */
-/* If the function succeeds, it returns 0, otherwise it returns the relevant error code. */
+/* If the function succeeds, it returns SUCCESS (0), otherwise it returns the relevant error code. */
 typedef enum result_t {
   /* Returned when no error occurred. */
   SUCCESS = 0,

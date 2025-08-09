@@ -1,3 +1,11 @@
+/*
+ * output.c
+ *
+ * This file contains all functions that output the assembler's result into the relevant files.
+ * It includes functions that convert numbers to the project's special base-4 format (abcd), as well as outputting object
+ * files, externals files and entry files.
+ */
+
 #include "../headers/output.h"
 
 #include <stdio.h>
@@ -33,9 +41,11 @@ void output_base4(machine_word_t number, int num_digits, FILE *file) {
   bool_t had_nonzero = FALSE;
 
   if (num_digits == 0) {
+    /* Start from the maximum number of digits, and only output them if they're after the first non-zero digit. */
     shift = (WORD_DIGITS - 1) * DIGIT_BITS;
   }
   else {
+    /* Start from the number of digits that the user specified. */
     shift = (num_digits - 1) * DIGIT_BITS;
   }
 

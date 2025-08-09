@@ -1,3 +1,9 @@
+/*
+ * utils.c
+ *
+ * This file defines a few generic utility functions that are used throughout the assembler.
+ */
+
 #include "../headers/utils.h"
 
 #include <stdlib.h>
