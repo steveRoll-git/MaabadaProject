@@ -19,7 +19,6 @@ set(project_files
         headers/utils.h
         source/codegen.c
         source/context.c
-        source/data.c
         source/errors.c
         source/list.c
         source/output.c
