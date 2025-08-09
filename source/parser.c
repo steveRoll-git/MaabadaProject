@@ -81,16 +81,17 @@ void read_word(char **s, word_t *word) {
   }
   *value_ptr = 0;
 
-  if (value_ptr - word->value == 2 && word->value[0] == 'r' && word->value[1] >= '0' && word->value[1] <= '7') {
+  if (value_ptr - word->value == 2 && word->value[0] == REGISTER_CHAR && word->value[1] >= REGISTER_MIN_DIGIT &&
+      word->value[1] <= REGISTER_MAX_DIGIT) {
     /* If the token is 2 characters long, and it's the letter 'r' and a digit from 0 to 7, it's a register name. */
     word->kind = WORD_REGISTER;
-    word->register_index = word->value[1] - '0';
+    word->register_index = word->value[1] - REGISTER_MIN_DIGIT;
   }
-  else if (strcmp(word->value, "mcro") == 0) {
+  else if (strcmp(word->value, KEYWORD_MCRO) == 0) {
     /* The `mcro` preprocessor keyword. */
     word->kind = WORD_MCRO;
   }
-  else if (strcmp(word->value, "mcroend") == 0) {
+  else if (strcmp(word->value, KEYWORD_MCROEND) == 0) {
     /* The `mcroend` preprocessor keyword. */
     word->kind = WORD_MCROEND;
   }

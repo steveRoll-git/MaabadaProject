@@ -7,6 +7,13 @@
 /* The maximum size of a label in bytes. */
 #define MAX_LABEL 31
 
+#define KEYWORD_MCRO "mcro"
+#define KEYWORD_MCROEND "mcroend"
+
+#define REGISTER_CHAR 'r'
+#define REGISTER_MIN_DIGIT '0'
+#define REGISTER_MAX_DIGIT '7'
+
 #define INSTRUCTION_MOV "mov"
 #define INSTRUCTION_CMP "cmp"
 #define INSTRUCTION_ADD "add"
