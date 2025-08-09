@@ -40,6 +40,7 @@ result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, line
 
   if (word.kind == WORD_MCRO) {
     /* A line that starts with `mcro` begins a macro definition. */
+
     read_word(&cur_line, &word);
     ASSERT(word.kind == WORD_IDENTIFIER, ERR_INVALID_MACRO_NAME)
 
@@ -54,14 +55,17 @@ result_t read_parse_line(FILE *file, char line[MAX_LINE], char *macro_name, line
   }
 
   if (word.kind == WORD_MCROEND) {
+    /* If the first word is `mcroend`, check that there's no text after it. */
+
     ASSERT(is_end(cur_line), ERR_EXTRANEOUS_TEXT_MCROEND)
 
     *line_kind = LINE_MCROEND;
     return SUCCESS;
   }
 
-  /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
   if (word.kind == WORD_IDENTIFIER && is_end(cur_line)) {
+    /* If this line is just a single non-keyword token with no tokens after it, it may be a macro call. */
+
     if (macro_name) {
       strcpy(macro_name, word.value);
     }

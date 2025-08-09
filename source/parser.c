@@ -101,7 +101,7 @@ void read_word(char **s, word_t *word) {
       word->kind = WORD_INSTRUCTION;
       word->instruction_info = instruction;
     }
-    /* Check if the word is a directive. */
+    /* Check if the word is the name of a directive. */
     else if (strcmp(word->value, DIRECTIVE_DATA) == 0) {
       word->kind = WORD_DIRECTIVE;
       word->directive_kind = DIRECTIVE_KIND_DATA;

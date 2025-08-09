@@ -35,9 +35,9 @@
 /* Any directive that adds data (.data, .string, .mat) can only contain up to 81 words of data. */
 #define DIRECTIVE_MAX_DATA 81
 
-/* The smallest value an immediate operand can have. */
+/* The smallest value an immediate operand can have in 8 bits. */
 #define IMMEDIATE_MIN -128
-/* The largest value an immediate operand can have. */
+/* The largest value an immediate operand can have in 8 bits. */
 #define IMMEDIATE_MAX 127
 
 /* The smallest value a signed 10-bit word can have. */

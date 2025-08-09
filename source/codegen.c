@@ -203,6 +203,8 @@ result_t write_directive(context_t *context, directive_t *directive) {
           TRY(add_data_word(context, directive->info.data.array[i]))
         }
         else {
+          /* In `.mat` directives, the specified data size may be larger than the amount of data that can be given in a single line. */
+          /* In these cases, we just add zeroes to the data image. */
           TRY(add_data_word(context, 0))
         }
       }
