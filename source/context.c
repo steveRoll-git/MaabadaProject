@@ -211,10 +211,15 @@ result_t resolve_labels(context_t *context) {
 
 /**
  * Frees the memory of a `label_info_t` object.
+ * If the given pointer is NULL, nothing is performed.
  *
- * @param info Pointer to the `label_info_t` object to free.
+ * @param info Pointer to the `label_info_t` object to free. May be NULL.
  */
 void label_info_free(label_info_t *info) {
+  if (!info) {
+    return;
+  }
+
   list_free(info->references);
 }
 
