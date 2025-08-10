@@ -5,6 +5,11 @@
  *
  * It contains various utility functions for parsing, and functions that parse all the different kinds of constructs
  * that can appear in the language, such as the different kinds of instructions and operands, and directives.
+ *
+ * Most parsing functions in this file accept a `char **` as a parameter. They receive a pointer to a string, and
+ * move the string such that it will begin where the parsing function finished parsing. In this way, the `char **` can
+ * be passed between different parsing functions, such that every function parses what it needs to, and leaves the pointer
+ * at the character where the next function should begin parsing.
  */
 
 #include "../headers/parser.h"
