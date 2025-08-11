@@ -61,8 +61,8 @@ const char *get_error_message(result_t result) {
       return "Extraneous text after instruction.";
     case ERR_EXTRANEOUS_TEXT_DIRECTIVE:
       return "Extraneous text after directive.";
-    case ERR_INVALID_ARGUMENT:
-      return "Invalid argument syntax.";
+    case ERR_INVALID_OPERAND:
+      return "Invalid operand syntax.";
     case ERR_INVALID_DIRECTIVE_SYNTAX:
       return "Invalid directive syntax.";
     case ERR_DIRECTIVE_EXPECTED_LABEL:
