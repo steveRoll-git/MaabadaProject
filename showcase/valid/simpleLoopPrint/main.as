@@ -18,9 +18,12 @@ jmp END
 END: stop
 
 
+mcro test_macro
+prn #97
+prn #98
+prn #99
+mcroend
 
-
-
-
-
+test_macro
+test_macro
 
