@@ -222,7 +222,7 @@ read_line_status_t read_line(FILE *file, char line[MAX_LINE]) {
     if (c == '\n') {
       return READ_LINE_SUCCESS;
     }
-    if (count >= MAX_LINE) {
+    if (count >= MAX_LINE - 1) {
       /* The line is longer than 80 characters - read everything until the next newline and return 0. */
       while ((c = getc(file)) != EOF && c != '\n') {
       }
