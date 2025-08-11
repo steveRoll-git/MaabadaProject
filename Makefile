@@ -39,3 +39,6 @@ table.o: source/table.c headers/table.h headers/errors.h headers/list.h headers/
 
 utils.o: source/utils.c headers/utils.h headers/errors.h
 	$(CC) $(CFLAGS) -c source/utils.c -o $@
+
+clean:
+	rm -f *.o
