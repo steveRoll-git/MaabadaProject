@@ -30,25 +30,60 @@
 
 /**
  * A macro specifically for use in the `assemble_file` function.
- * Evaluates the given expression, which must return a `result_t`. If the result is not successful, sets the `result`
- * variable to the returned error code, and jumps to the `cleanup` label to clean up memory.
+ * Evaluates the given expression, which must return a `result_t`, and sets the `result` to the returned result.
+ * If the result is not successful, jumps to the `cleanup` label to clean up memory, skipping all the next stages.
  *
  * @param f The expression to evaluate. Must be of a `result_t` type.
  */
 #define ASSEMBLE_TRY(f)                                                                                                \
-  {                                                                                                                    \
-    result_t _result = (f);                                                                                            \
-    if (_result != SUCCESS) {                                                                                          \
-      result = _result;                                                                                                \
-      goto cleanup;                                                                                                    \
-    }                                                                                                                  \
+  result = (f);                                                                                                        \
+  if (result != SUCCESS) {                                                                                             \
+    goto cleanup;                                                                                                      \
   }
 
 /**
+ * Generates code and resolves labels for the given assembler context.
+ * Both the code generation and label resolution stages run, even if one of them fails. This is because we need to
+ * report errors from both of these stages.
+ * The appropriate error code is returned, based on the stage that failed first.
+ *
+ * @param context The assembler context to operate on.
+ * @return The result of code generation and label resolution.
+ */
+result_t codegen_and_resolve(context_t *context) {
+  result_t codegen_result, labels_result;
+
+  printf("Generating code...\n");
+
+  /* Process all the lines in the file. Generate code for all the instructions and data directives, and process other
+   * directives like `.extern` and `.entry`. */
+  codegen_result = codegen(context);
+
+  /* After code generation, we correct all the data labels so that they will point to the correct address in the data
+   * image, after adding the value of IC to them. */
+  /* This is an operation that can't fail, so getting a `result_t` from it is not needed. */
+  merge_data(context);
+
+  printf("Resolving labels...\n");
+
+  /* After all labels and references to them have been found, we correct all label references so that they'll have the
+   * actual address of the label */
+  /* We run this even if code generation failed, so that any errors about undefined labels will still be reported. */
+  labels_result = resolve_labels(context);
+
+  /* If code generation failed, we return its status code. Otherwise, we return whether label resolution has succeeded. */
+  return codegen_result != SUCCESS ? codegen_result : labels_result;
+}
+
+/**
  * Performs all stages of the assembler on the file at the given path:
- * Preprocessing, code generation, resolving labels, and outputting files (object, entries, externals).
+ * - Preprocessing
+ * - Code generation
+ * - Label resolution
+ * - Outputting files (object, entries, externals)
+ *
  * The given file name must be the name of an existing assembly file, without the ".as" extension.
- * If any of the stages fail, or if memory allocation failed at any point, returns the relevant error.
+ * If any of the stages fail, or if memory allocation failed at any point, the relevant error code is returned.
  *
  * @param file_name The name of the input file - the path to the .as file, but without the ".as" extension.
  * @return The operation's result.
@@ -68,14 +103,17 @@ result_t assemble_file(char *file_name) {
   char *externals_path = NULL;
   /* This table is shared between the preprocess and codegen phases, to check that labels and macros don't mix. */
   table_t *macro_table = NULL;
-  /* The assembler context, created after preprocessing. */
+
+  /* The assembler context, needed by all stages after preprocessing. */
   context_t *context = NULL;
 
+  /* Create the file paths for the .as and .am files. */
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AM, &processed_path))
 
   printf("Assembling file %s\n", input_file_path);
 
+  /* Create the macro table. */
   ASSEMBLE_TRY(table_create(sizeof(long), &macro_table))
 
   printf("Preprocessing file...\n");
@@ -83,21 +121,11 @@ result_t assemble_file(char *file_name) {
   /* First, we run the file through the preprocessor which outputs a .am file. */
   ASSEMBLE_TRY(preprocess(input_file_path, processed_path, macro_table))
 
+  /* Create the assembler context, used by the codegen and label resolution stages. */
   ASSEMBLE_TRY(context_create(processed_path, macro_table, &context))
-  printf("Generating code...\n");
 
-  /* If preprocessing succeeded, we generate the code for all instructions and directives. */
-  ASSEMBLE_TRY(codegen(context))
-
-  /* After successful code generation, we correct all the data labels so that they will point to the correct address in
-   * the data image, after adding the value of IC to them. */
-  merge_data(context);
-
-  printf("Resolving labels...\n");
-
-  /* After all the labels have the correct values, we insert their values into all words that reference them. */
-  /* Labels whose definitions were not found are caught here. */
-  ASSEMBLE_TRY(resolve_labels(context))
+  /* Generate code and resolve labels. */
+  ASSEMBLE_TRY(codegen_and_resolve(context))
 
   /* If all the steps above succeeded, we finally output the object, entries and externals files. */
 

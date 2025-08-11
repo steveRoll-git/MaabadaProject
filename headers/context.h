@@ -172,7 +172,7 @@ result_t add_entry(context_t *context, char *label);
 result_t add_extern(context_t *context, char *label);
 
 /**
- * Called after the whole file's code has been generated.
+ * This is called right after the code generation stage.
  * Updates the location of all data labels, so that they will point to the correct region after the code image.
  *
  * @param context The assembler context to operate on.

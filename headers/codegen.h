@@ -12,8 +12,10 @@
 
 /**
  * Goes over the input file, and generates binary code for all the instructions and directives.
+ * The `.entry` and `.extern` directives are also processed here.
  * Binary code for label operands isn't generated yet.
- * The values of labels that were found, and references to them, are stored in the label table.
+ * The values of labels that were found, and references to them, are stored in the label table, which will later be
+ * resolved by the `resolve_labels` function.
  * May fail if:
  * - The input or output files failed to open.
  * - Syntax errors or semantical errors were detected in the source file.
