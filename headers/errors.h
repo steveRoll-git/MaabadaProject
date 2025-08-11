@@ -3,13 +3,16 @@
  *
  * This file defines various enums and macros used to define the project's error system.
  *
- * It defines `result_t`, which is used by all functions that can fail.
+ * It defines `result_t`, which is used by all functions that can fail, which includes anything that parses syntax and
+ * anything that allocates memory. (Any function that returns a `result_t` lists the errors it can return in its documentation.)
  * If a function that returns a `result_t` fails, it can return the relevant error code from the enum, otherwise it will
  * return the SUCCESS value (0).
  *
- * Functions that call other functions that can fail, use the TRY macro to forward errors from the function's they're
- * calling. If a function in a TRY macro fails, the function that called it will return the same error code, and this
- * will continue up the call stack such that the first caller will know what was the reason of failure.
+ * The `ASSERT` macro is used to conveniently return an error if some condition isn't true.
+ *
+ * If a function calls another function that can fail, the `TRY` macro is used to forward errors from the function
+ * being called. If a function in a `TRY` macro fails, the function that called it will return the same error code, and
+ * this will continue up the call stack such that the first caller will know what was the reason for failure.
  */
 
 #ifndef ERRORS_H
