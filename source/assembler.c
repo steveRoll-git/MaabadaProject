@@ -73,15 +73,18 @@ result_t assemble_file(char *file_name) {
 
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AS, &input_file_path))
   ASSEMBLE_TRY(join_strings(file_name, EXTENSION_AM, &processed_path))
+
+  printf("Assembling file %s\n", input_file_path);
+
   ASSEMBLE_TRY(table_create(sizeof(long), &macro_table))
 
-  printf("Preprocessing file %s...\n", input_file_path);
+  printf("Preprocessing file...\n");
 
   /* First, we run the file through the preprocessor which outputs a .am file. */
   ASSEMBLE_TRY(preprocess(input_file_path, processed_path, macro_table))
 
   ASSEMBLE_TRY(context_create(processed_path, macro_table, &context))
-  printf("Generating code for file %s...\n", processed_path);
+  printf("Generating code...\n");
 
   /* If preprocessing succeeded, we generate the code for all instructions and directives. */
   ASSEMBLE_TRY(codegen(context))
