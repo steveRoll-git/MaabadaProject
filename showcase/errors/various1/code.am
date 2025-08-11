@@ -1,0 +1,31 @@
+
+; The name of this label is already used as a macro.
+someMacro: mov r1, r2
+
+; Invalid label name.
+stop: mov r1, r2
+
+; Unknown instruction.
+asdf r1, r2
+
+; Unsupported operands.
+lea #5, r1
+
+; Not enough arguments.
+mov r5
+
+; Too many arguments.
+stop #1, #2
+
+; Extraneous text after instruction.
+mov r1, r2, extra
+
+; Label not defined.
+mov r1, errorLabel
+
+; Invalid operand syntax.
+add r1, mov
+
+; Label already defined.
+dupLabel: stop
+dupLabel: rts

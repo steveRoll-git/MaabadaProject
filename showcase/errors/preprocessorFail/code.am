@@ -1,0 +1,9 @@
+mov r5, #123
+
+; Invalid macro name.
+
+; Extraneous text after macro definition.
+
+; Extraneous text after `mcroend`.
+
+; Line is longer than 80 characters.
