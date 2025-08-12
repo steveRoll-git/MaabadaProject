@@ -12,8 +12,8 @@ void print_data(context_t *context) {
 
   printf("\nARGS (For DC): { ");
 
-  for (i = 0; i < list_count(context->data_array); i++) {
-    printf("%d,  ", *(machine_word_t *) list_at(context->data_array, i));
+  for (i = 0; i < list_count(context->data_image); i++) {
+    printf("%d,  ", *(machine_word_t *) list_at(context->data_image, i));
   }
   printf("}\n");
 
@@ -54,7 +54,7 @@ int main(void) {
   ASSERT(table_get(assembler->label_table, "nonExistent2") == NULL)
 
   int expected_args[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0', 6, -9, 1, 5, 22, 1, 2, 3, 4};
-  ASSERT(memcmp(expected_args, list_at(assembler->data_array, 0), sizeof(expected_args)));
+  ASSERT(memcmp(expected_args, list_at(assembler->data_image, 0), sizeof(expected_args)));
 
   return EXIT_SUCCESS;
 }

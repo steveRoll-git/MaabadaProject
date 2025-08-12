@@ -72,10 +72,10 @@ typedef struct context_t {
   int dc;
 
   /* List of `machine_word_t` - stores the code image. */
-  list_t *code_array;
+  list_t *code_image;
 
   /* List of `machine_word_t` - stores the data image. */
-  list_t *data_array;
+  list_t *data_image;
 
   /* Stores names of macros from the previous pass, to check that no labels have the same name. */
   table_t *macro_table;

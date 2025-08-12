@@ -30,14 +30,14 @@ result_t context_create(char *file_path, table_t *macro_table, context_t **conte
   (*context)->ic = CODE_IMAGE_START_ADDRESS;
   (*context)->dc = 0;
   /* We initialize all the lists and tables to NULL so that if their creation fails, they won't have garbage values. */
-  (*context)->code_array = NULL;
-  (*context)->data_array = NULL;
+  (*context)->code_image = NULL;
+  (*context)->data_image = NULL;
   (*context)->label_table = NULL;
   (*context)->macro_table = macro_table;
   (*context)->warned_too_large = FALSE;
 
-  TRY(list_create(sizeof(machine_word_t), &(*context)->code_array))
-  TRY(list_create(sizeof(machine_word_t), &(*context)->data_array))
+  TRY(list_create(sizeof(machine_word_t), &(*context)->code_image))
+  TRY(list_create(sizeof(machine_word_t), &(*context)->data_image))
   TRY(table_create(sizeof(label_info_t), &(*context)->label_table))
 
   return SUCCESS;
@@ -61,14 +61,14 @@ result_t check_max_address(context_t *context) {
 }
 
 result_t add_code_word(context_t *context, machine_word_t word) {
-  LIST_ADD(context->code_array, machine_word_t, word)
+  LIST_ADD(context->code_image, machine_word_t, word)
   context->ic++;
   TRY(check_max_address(context))
   return SUCCESS;
 }
 
 result_t add_data_word(context_t *context, machine_word_t word) {
-  LIST_ADD(context->data_array, machine_word_t, word)
+  LIST_ADD(context->data_image, machine_word_t, word)
   context->dc++;
   TRY(check_max_address(context))
   return SUCCESS;
@@ -188,7 +188,7 @@ result_t resolve_labels(context_t *context) {
     for (j = 0; j < list_count(info->references); j++) {
       label_reference_t *reference = list_at(info->references, j);
       /* The reference's address starts at 100, so we subtract that from it. */
-      machine_word_t *word = list_at(context->code_array, reference->address - CODE_IMAGE_START_ADDRESS);
+      machine_word_t *word = list_at(context->code_image, reference->address - CODE_IMAGE_START_ADDRESS);
 
       if (info->is_external) {
         /* External labels are all zeroes, with the "ARE" bits being "01", meaning external encoding. */
@@ -240,8 +240,8 @@ void context_free(context_t *context) {
     return;
   }
 
-  list_free(context->code_array);
-  list_free(context->data_array);
+  list_free(context->code_image);
+  list_free(context->data_image);
 
   if (context->label_table) {
     size_t i;

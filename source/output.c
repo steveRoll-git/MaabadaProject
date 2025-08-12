@@ -84,18 +84,18 @@ result_t output_object(context_t *context, char *out_path) {
     return ERR_OUTPUT_FILE_FAIL;
   }
 
-  output_base4(list_count(context->code_array), 0, out);
+  output_base4(list_count(context->code_image), 0, out);
   fputc(' ', out);
-  output_base4(list_count(context->data_array), 0, out);
+  output_base4(list_count(context->data_image), 0, out);
   fputc('\n', out);
 
-  for (i = 0; i < list_count(context->code_array); i++) {
-    output_word(address, *(machine_word_t *) list_at(context->code_array, i), out);
+  for (i = 0; i < list_count(context->code_image); i++) {
+    output_word(address, *(machine_word_t *) list_at(context->code_image, i), out);
     address++;
   }
 
-  for (i = 0; i < list_count(context->data_array); i++) {
-    output_word(address, *(machine_word_t *) list_at(context->data_array, i), out);
+  for (i = 0; i < list_count(context->data_image); i++) {
+    output_word(address, *(machine_word_t *) list_at(context->data_image, i), out);
     address++;
   }
 
