@@ -31,3 +31,7 @@ add r1, mov
 ; Label already defined.
 dupLabel: stop
 dupLabel: rts
+
+; Warning about labels before `.entry` and `extern` being ignored.
+dummyLabel: .extern asdf
+dummyLabel: .entry dupLabel
